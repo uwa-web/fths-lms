@@ -1,0 +1,392 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Workspace Course - First Tech Hub Solutions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-brown': '#6d5d4b',
+                        'brand-brown-dark': '#5a4d3f',
+                        'brand-offwhite': '#fdfdfd',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hidden { display: none; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); align-items: center; justify-content: center; }
+        .modal-content { position: relative; padding: 20px; width: 90%; max-width: 800px; }
+        .video-responsive { position: relative; padding-bottom: 56.25%; height: 0; }
+        .video-responsive iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .comment-modal-content { background-color: #fefefe; margin: auto; padding: 2rem; border-radius: 0.5rem; width: 90%; max-width: 600px; height: 80vh; display: flex; flex-direction: column; }
+        .comments-container { flex-grow: 1; overflow-y: auto; }
+        .loader { border: 4px solid #f3f3f3; border-radius: 50%; border-top: 4px solid #6d5d4b; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-brand-offwhite text-brand-brown">
+
+    <div id="loading-spinner" class="fixed inset-0 bg-white bg-opacity-80 flex justify-center items-center z-50">
+        <div class="loader"></div>
+    </div>
+
+    <div id="auth-container" class="hidden min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div>
+            <img src="IMG/firsttechhublogo.png" alt="Logo" class="mx-auto h-16 w-auto" />
+            <h2 id="auth-title" class="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
+        </div>
+        <form id="auth-form" class="mt-8 space-y-6">
+            <div class="rounded-md shadow-sm -space-y-px">
+                <div><input id="email" name="email" type="email" autocomplete="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-brand-brown focus:border-brand-brown focus:z-10 sm:text-sm" placeholder="Email address"></div>
+                <div id="password-container">
+                    <input id="password" name="password" type="password" autocomplete="current-password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-brand-brown focus:border-brand-brown focus:z-10 sm:text-sm" placeholder="Password">
+                </div>
+            </div>
+
+            <div id="forgot-password-wrapper" class="flex items-center justify-end">
+                <div class="text-sm">
+                    <a href="#" id="forgot-password-link" class="font-medium text-brand-brown hover:text-brand-brown-dark">
+                        Forgot your password?
+                    </a>
+                </div>
+            </div>
+
+            <p id="auth-error" class="text-red-500 text-sm mt-2"></p>
+            <div><button type="submit" id="auth-submit-btn" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-brand-brown hover:bg-brand-brown-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-brown-dark">Sign In</button></div>
+        </form>
+        <div class="text-sm text-center">
+            <a href="#" id="auth-toggle-link" class="font-medium text-brand-brown hover:text-brand-brown-dark">Don't have an account? Register</a>
+        </div>
+    </div>
+</div>
+
+
+    <div id="lms-container" class="hidden">
+        <header class="bg-white shadow-md sticky top-0 z-40">
+            <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+                <a href="#" class="flex items-center space-x-2">
+                    <img src="IMG/firsttechhublogo.png" alt="First Tech Hub Solutions Logo" class="h-8 w-auto object-contain" />
+                    <span class="text-xl font-bold text-brand-brown">First Tech Hub Solutions</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <span id="user-email" class="text-sm text-gray-600 hidden md:block"></span>
+                    <button id="sign-out-btn" class="font-semibold text-brand-brown hover:text-brand-brown-dark">Sign Out</button>
+                </div>
+            </nav>
+        </header>
+
+        <section class="bg-white">
+            <div class="container mx-auto px-6 py-12 text-center">
+                <h1 class="text-3xl md:text-4xl font-bold text-brand-brown mb-3">Master Google Workspace</h1>
+                <div class="max-w-2xl mx-auto mt-4">
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="progress-bar" class="bg-green-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <p id="progress-text" class="text-sm mt-2 text-gray-600">0% Complete</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="curriculum" class="py-16">
+            <div class="container mx-auto px-6 max-w-4xl">
+                <h2 class="text-3xl font-bold text-center mb-10">4-Week Curriculum</h2>
+                <div id="curriculum-container" class="space-y-4"></div>
+            </div>
+        </section>
+        
+        <footer class="bg-brand-brown text-white py-8 mt-16">
+            <div class="container mx-auto px-6 text-center">
+                <p>&copy; 2025 First Tech Hub Solutions. All Rights Reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <div id="videoModal" class="modal"><div class="modal-content"><span id="closeVideoModal" class="text-white text-3xl font-bold absolute -top-8 right-0 md:right[-20px] cursor-pointer">&times;</span><div id="videoPlayer" class="video-responsive bg-black"></div></div></div>
+    <div id="commentsModal" class="modal"><div class="comment-modal-content"><div class="flex justify-between items-center mb-4"><h3 id="comment-modal-title" class="text-xl font-bold text-brand-brown">Comments</h3><button id="closeCommentsModal" class="text-gray-600 hover:text-gray-900 text-3xl font-bold">&times;</button></div><div id="comments-container" class="comments-container mb-4 space-y-4 pr-2"></div><div class="mt-auto"><form id="comment-form"><textarea id="comment-input" class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-brand-brown" rows="3" placeholder="Add your comment..." required></textarea><button type="submit" class="mt-2 w-full bg-brand-brown text-white font-bold py-2 px-4 rounded-lg hover:bg-brand-brown-dark transition duration-300">Post Comment</button></form></div></div></div>
+
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, query, onSnapshot, serverTimestamp, arrayUnion, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // --- Config and Data ---
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "AIzaSyA3ANYxI7EJMGJ995dXHWoBCa947t7bZBg", authDomain: "fths-lms-50fc7.firebaseapp.com", projectId: "fths-lms-50fc7" };
+    const courseStartDate = new Date('2025-10-04T00:00:00Z'); // SET COURSE START DATE
+    const courseData = [ { week: 1, title: 'Week 1: Foundations & Communication', sessions: [ { day: 1, title: 'Introduction to Google Workspace', youtubeId: 'z2g_jmmDEzY' }, { day: 2, title: 'Mastering Gmail', youtubeId: 'PkZNo7MFNFg' }, { day: 3, title: 'Organizing with Google Calendar', youtubeId: 'bMknfKXIFA8' } ], assessmentLink: 'https://forms.gle/your-assessment-link-1' }, { week: 2, title: 'Week 2: Collaboration', sessions: [ { day: 4, title: 'Google Docs: Advanced Formatting', youtubeId: 'c9Wg6Cb_YlU' }, { day: 5, title: 'Data Analysis with Google Sheets', youtubeId: 'bMknfKXIFA8' } ], assessmentLink: 'https://forms.gle/your-assessment-link-2' }, { week: 3, title: 'Week 3: Cloud Storage', sessions: [ { day: 6, title: 'Managing Files with Google Drive', youtubeId: 'LHBE6Q9XlzI' }, { day: 7, title: 'Building Surveys with Google Forms', youtubeId: 'z2g_jmmDEzY' } ], assessmentLink: 'https://forms.gle/your-assessment-link-3' }, { week: 4, title: 'Week 4: Advanced Tools', sessions: [ { day: 8, title: 'Automating Tasks with App Script', youtubeId: 'f2EqECiTBL8' }, { day: 9, title: 'Course Wrap-up', youtubeId: 'PkZNo7MFNFg' } ], assessmentLink: 'https://forms.gle/your-assessment-link-4' } ];
+    const totalSessions = courseData.reduce((acc, week) => acc + week.sessions.length, 0);
+    
+    // --- DOM Elements ---
+    const DOMElements = {
+        loadingSpinner: document.getElementById('loading-spinner'), authContainer: document.getElementById('auth-container'), lmsContainer: document.getElementById('lms-container'), authForm: document.getElementById('auth-form'), authTitle: document.getElementById('auth-title'), authSubmitBtn: document.getElementById('auth-submit-btn'), authToggleLink: document.getElementById('auth-toggle-link'), authError: document.getElementById('auth-error'), signOutBtn: document.getElementById('sign-out-btn'), userEmail: document.getElementById('user-email'), progressBar: document.getElementById('progress-bar'), progressText: document.getElementById('progress-text'), curriculumContainer: document.getElementById('curriculum-container'), videoModal: document.getElementById('videoModal'), closeVideoModalBtn: document.getElementById('closeVideoModal'), videoPlayer: document.getElementById('videoPlayer'), commentsModal: document.getElementById('commentsModal'), closeCommentsModalBtn: document.getElementById('closeCommentsModal'), commentModalTitle: document.getElementById('comment-modal-title'), commentsContainer: document.getElementById('comments-container'), commentForm: document.getElementById('comment-form'), commentInput: document.getElementById('comment-input'),
+        // New elements for auth flow
+        passwordContainer: document.getElementById('password-container'),
+        forgotPasswordLink: document.getElementById('forgot-password-link'),
+        forgotPasswordWrapper: document.getElementById('forgot-password-wrapper'),
+    };
+
+    // --- Firebase Init ---
+    let auth, db, currentUser = null, userProgress = { completedSessions: [] };
+    let unsubscribeComments = null;
+    let authMode = 'signIn'; // Can be 'signIn', 'register', or 'reset'
+    
+    try {
+        const app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+        setLogLevel('Debug');
+    } catch (error) {
+        console.error("Firebase Init Error:", error);
+        DOMElements.loadingSpinner.classList.add('hidden');
+        DOMElements.authError.textContent = "Could not connect to services. Please refresh.";
+        DOMElements.authContainer.classList.remove('hidden');
+    }
+    
+    // --- Auth State Management ---
+    onAuthStateChanged(auth, async (user) => {
+        currentUser = user;
+        if (user) {
+            await loadUserData(user.uid);
+            DOMElements.userEmail.textContent = user.email;
+            DOMElements.lmsContainer.classList.remove('hidden');
+            DOMElements.authContainer.classList.add('hidden');
+        } else {
+            userProgress = { completedSessions: [] };
+            DOMElements.lmsContainer.classList.add('hidden');
+            DOMElements.authContainer.classList.remove('hidden');
+            updateAuthView('signIn'); // Default to sign-in view
+        }
+        DOMElements.loadingSpinner.classList.add('hidden');
+    });
+
+    // --- Main App Logic (No changes below this line until Auth UI Logic)---
+    async function loadUserData(uid) {
+        const progressDocRef = doc(db, `/artifacts/${appId}/users/${uid}/progress/googleWorkspace`);
+        try {
+            const docSnap = await getDoc(progressDocRef);
+            if (docSnap.exists() && docSnap.data().completedSessions) {
+                userProgress = docSnap.data();
+            } else {
+                await setDoc(progressDocRef, { completedSessions: [] });
+                userProgress = { completedSessions: [] };
+            }
+        } catch (error) {
+            console.error("Error loading user data:", error);
+            userProgress = { completedSessions: [] }; // Reset on error
+        }
+        renderCurriculum();
+    }
+
+    async function updateProgress(sessionId) {
+        if (!currentUser || (userProgress.completedSessions && userProgress.completedSessions.includes(sessionId))) return;
+        if (!userProgress.completedSessions) userProgress.completedSessions = [];
+        const progressDocRef = doc(db, `/artifacts/${appId}/users/${currentUser.uid}/progress/googleWorkspace`);
+        try {
+            await updateDoc(progressDocRef, {
+                completedSessions: arrayUnion(sessionId)
+            });
+            userProgress.completedSessions.push(sessionId);
+            renderCurriculum();
+        } catch (error) {
+            console.error("Error updating progress:", error);
+        }
+    }
+    
+    function renderCurriculum() {
+        DOMElements.curriculumContainer.innerHTML = '';
+        const today = new Date();
+        const diffWeeks = Math.ceil((today - courseStartDate) / (1000 * 60 * 60 * 24 * 7));
+        const currentWeek = diffWeeks > 0 ? diffWeeks : 1;
+        courseData.forEach(weekData => {
+            const isLocked = weekData.week > currentWeek;
+            const isOpen = weekData.week === currentWeek;
+            const weekEl = document.createElement('div');
+            weekEl.className = 'border border-gray-200 rounded-lg';
+            const sessionsHtml = weekData.sessions.map(session => {
+                const sessionId = `w${weekData.week}d${session.day}`;
+                const isCompleted = userProgress.completedSessions && userProgress.completedSessions.includes(sessionId);
+                return `<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border-t border-gray-200 ${isCompleted ? 'bg-green-50' : ''}"><div class="flex items-center mb-2 sm:mb-0"><svg class="w-5 h-5 ${isLocked ? 'text-gray-400' : (isCompleted ? 'text-green-500' : 'text-brand-brown')} mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">${isLocked ? '<path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a4 4 0 100 8 4 4 0 000-8z" clip-rule="evenodd"/>' : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'}</svg><span class="${isLocked ? 'text-gray-500' : 'text-brand-brown'}">Day ${session.day}: ${session.title}</span></div><div class="flex space-x-2 self-end sm:self-center"><button class="comments-btn text-sm font-semibold py-2 px-3 rounded-md transition-colors duration-300 ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-gray-100 text-brand-brown hover:bg-gray-200 border border-brand-brown'}" data-session-id="${sessionId}" data-session-title="${session.title}" ${isLocked ? 'disabled' : ''}>Comments</button><button class="watch-btn text-sm font-semibold py-2 px-3 rounded-md transition-colors duration-300 ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : (isCompleted ? 'bg-green-600 text-white' : 'bg-brand-brown text-white hover:bg-brand-brown-dark')}" data-videoid="${session.youtubeId}" data-session-id="${sessionId}" ${isLocked ? 'disabled' : ''}>${isLocked ? 'Locked' : (isCompleted ? 'Watched' : 'Watch')}</button></div></div>`;
+            }).join('');
+            const assessmentHtml = `<div class="p-4 border-t border-gray-200 bg-gray-50"><a href="${isLocked ? '#' : weekData.assessmentLink}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center font-bold py-2 px-4 rounded-md transition-colors duration-300 ${isLocked ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700'}"><svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg>Week ${weekData.week} Assessment</a></div>`;
+            weekEl.innerHTML = `<button class="accordion-header flex justify-between items-center w-full p-5 text-left font-semibold text-lg"><span>${weekData.title}</span><svg class="w-6 h-6 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button><div class="accordion-content" ${isOpen ? 'style="max-height: 1000px;"' : ''}>${sessionsHtml}${assessmentHtml}</div>`;
+            DOMElements.curriculumContainer.appendChild(weekEl);
+        });
+        updateProgressBar();
+        addDynamicEventListeners();
+    }
+    
+    function updateProgressBar() {
+        const completedCount = userProgress.completedSessions ? userProgress.completedSessions.length : 0;
+        const percentage = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
+        DOMElements.progressBar.style.width = `${percentage}%`;
+        DOMElements.progressText.textContent = `${percentage}% Complete (${completedCount} of ${totalSessions} sessions)`;
+    }
+    
+    function addDynamicEventListeners() {
+        DOMElements.curriculumContainer.querySelectorAll('.accordion-header').forEach(b => b.addEventListener('click', () => {
+            const content = b.nextElementSibling;
+            const icon = b.querySelector('svg');
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+                icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+                document.querySelectorAll('.accordion-header svg').forEach(i => i.classList.remove('rotate-180'));
+                content.style.maxHeight = content.scrollHeight + "px";
+                icon.classList.add('rotate-180');
+            }
+        }));
+        DOMElements.curriculumContainer.querySelectorAll('.watch-btn:not(:disabled)').forEach(b => b.addEventListener('click', e => { openVideoModal(e.currentTarget.dataset.videoid); updateProgress(e.currentTarget.dataset.sessionId); }));
+        DOMElements.curriculumContainer.querySelectorAll('.comments-btn:not(:disabled)').forEach(b => b.addEventListener('click', e => openCommentsModal(e.currentTarget.dataset.sessionId, e.currentTarget.dataset.sessionTitle)));
+    }
+
+    // --- NEW & UPDATED Auth UI Logic ---
+    function updateAuthView(newMode) {
+        authMode = newMode;
+        DOMElements.authError.textContent = '';
+        DOMElements.authForm.email.parentElement.classList.remove('rounded-b-md');
+
+        if (authMode === 'signIn') {
+            DOMElements.authTitle.textContent = 'Sign in to your account';
+            DOMElements.passwordContainer.style.display = 'block';
+            DOMElements.authForm.email.parentElement.classList.add('rounded-b-md');
+            DOMElements.authSubmitBtn.textContent = 'Sign In';
+            DOMElements.authToggleLink.textContent = 'Don\'t have an account? Register';
+            DOMElements.forgotPasswordWrapper.style.display = 'flex';
+        } else if (authMode === 'register') {
+            DOMElements.authTitle.textContent = 'Create an account';
+            DOMElements.passwordContainer.style.display = 'block';
+            DOMElements.authForm.email.parentElement.classList.add('rounded-b-md');
+            DOMElements.authSubmitBtn.textContent = 'Register';
+            DOMElements.authToggleLink.textContent = 'Already have an account? Sign in';
+            DOMElements.forgotPasswordWrapper.style.display = 'none';
+        } else if (authMode === 'reset') {
+            DOMElements.authTitle.textContent = 'Reset your password';
+            DOMElements.passwordContainer.style.display = 'none';
+            DOMElements.authForm.email.parentElement.classList.add('rounded-b-md');
+            DOMElements.authSubmitBtn.textContent = 'Send Reset Link';
+            DOMElements.authToggleLink.textContent = 'Back to Sign In';
+            DOMElements.forgotPasswordWrapper.style.display = 'none';
+        }
+    }
+
+    DOMElements.authToggleLink.addEventListener('click', e => {
+        e.preventDefault();
+        const newMode = (authMode === 'signIn' || authMode === 'reset') ? 'register' : 'signIn';
+        updateAuthView(newMode);
+    });
+
+    DOMElements.forgotPasswordLink.addEventListener('click', e => {
+        e.preventDefault();
+        updateAuthView('reset');
+    });
+
+    DOMElements.authForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        DOMElements.authError.textContent = '';
+        const email = DOMElements.authForm.email.value;
+        const password = DOMElements.authForm.password.value;
+
+        try {
+            if (authMode === 'register') {
+                await createUserWithEmailAndPassword(auth, email, password);
+            } else if (authMode === 'signIn') {
+                await signInWithEmailAndPassword(auth, email, password);
+            } else if (authMode === 'reset') {
+                await sendPasswordResetEmail(auth, email);
+                DOMElements.authError.classList.remove('text-red-500');
+                DOMElements.authError.classList.add('text-green-600');
+                DOMElements.authError.textContent = 'Success! If an account exists for this email, a reset link has been sent.';
+            }
+        } catch (error) {
+            console.error("Auth Error:", error.code, error.message);
+            DOMElements.authError.classList.add('text-red-500');
+            DOMElements.authError.classList.remove('text-green-600');
+            DOMElements.authError.textContent = error.message.replace('Firebase: ', '');
+        }
+    });
+
+    DOMElements.signOutBtn.addEventListener('click', () => signOut(auth));
+
+    // --- MODAL LOGIC (Unchanged) ---
+    function openVideoModal(videoId) {
+        DOMElements.videoPlayer.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        DOMElements.videoModal.style.display = 'flex';
+    }
+    function closeVideoModal() {
+        DOMElements.videoModal.style.display = 'none';
+        DOMElements.videoPlayer.innerHTML = '';
+    }
+
+    function openCommentsModal(sessionId, sessionTitle) {
+        if (!db || !currentUser) { return; }
+        DOMElements.commentModalTitle.textContent = `Comments for: ${sessionTitle}`;
+        DOMElements.commentForm.dataset.sessionId = sessionId;
+        DOMElements.commentsContainer.innerHTML = '<p class="text-gray-500 text-center">Loading comments...</p>';
+        DOMElements.commentsModal.style.display = 'flex';
+        if (unsubscribeComments) unsubscribeComments();
+        const commentsColRef = collection(db, `/artifacts/${appId}/public/data/comments/${sessionId}/messages`);
+        const q = query(commentsColRef);
+        unsubscribeComments = onSnapshot(q, (snapshot) => {
+            const comments = [];
+            snapshot.forEach((doc) => comments.push({ id: doc.id, ...doc.data() }));
+            comments.sort((a, b) => (a.timestamp?.toDate() || 0) - (b.timestamp?.toDate() || 0));
+            renderComments(comments);
+        }, (error) => {
+            console.error("Error fetching comments:", error);
+            DOMElements.commentsContainer.innerHTML = '<p class="text-red-500 text-center">Could not load comments.</p>';
+        });
+    }
+    
+    function closeCommentsModal() {
+        if (unsubscribeComments) unsubscribeComments();
+        unsubscribeComments = null;
+        DOMElements.commentsModal.style.display = 'none';
+        DOMElements.commentForm.reset();
+    }
+    
+    function renderComments(comments) {
+        if (comments.length === 0) {
+            DOMElements.commentsContainer.innerHTML = '<p class="text-gray-500 text-center">No comments yet.</p>'; return;
+        }
+        DOMElements.commentsContainer.innerHTML = comments.map(comment => {
+            const isCurrentUser = comment.userId === currentUser.uid;
+            const date = comment.timestamp ? comment.timestamp.toDate().toLocaleString() : 'Just now';
+            return `<div class="p-3 rounded-lg ${isCurrentUser ? 'bg-brand-brown text-white' : 'bg-gray-100'}"><div class="flex justify-between items-center text-xs mb-1"><span class="font-bold truncate" title="${comment.userId}">${isCurrentUser ? 'You' : `User: ...${comment.userId.slice(-6)}`}</span><span class="${isCurrentUser ? 'text-gray-200' : 'text-gray-500'}">${date}</span></div><p class="text-sm break-words">${comment.text || ''}</p></div>`;
+        }).join('');
+        DOMElements.commentsContainer.scrollTop = DOMElements.commentsContainer.scrollHeight;
+    }
+
+    DOMElements.commentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!db || !currentUser) return;
+        const sessionId = e.target.dataset.sessionId;
+        const text = DOMElements.commentInput.value.trim();
+        if (!text) return;
+        const commentsColRef = collection(db, `/artifacts/${appId}/public/data/comments/${sessionId}/messages`);
+        try {
+            await addDoc(commentsColRef, { text: text, userId: currentUser.uid, timestamp: serverTimestamp() });
+            DOMElements.commentForm.reset();
+        } catch (error) {
+            console.error("Error adding comment:", error);
+        }
+    });
+
+    DOMElements.closeVideoModalBtn.addEventListener('click', closeVideoModal);
+    DOMElements.closeCommentsModalBtn.addEventListener('click', closeCommentsModal);
+    window.addEventListener('click', (e) => {
+        if (e.target == DOMElements.videoModal) closeVideoModal();
+        if (e.target == DOMElements.commentsModal) closeCommentsModal();
+    });
+</script>
