@@ -1,449 +1,1000 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Workspace Course - First Tech Hub Solutions</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'brand-brown': '#6d5d4b',
-                        'brand-brown-dark': '#5a4d3f',
-                        'brand-offwhite': '#fdfdfd',
-                    }
-                }
-            }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>First Tech Hub Solutions - LMS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'brand-brown': '#6d5d4b',
+            'brand-brown-dark': '#5a4d3f',
+            'brand-offwhite': '#fdfdfd',
+          }
         }
-    </script>
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .hidden { display: none; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); align-items: center; justify-content: center; }
-        .modal-content { position: relative; padding: 20px; width: 90%; max-width: 800px; }
-        .video-responsive { position: relative; padding-bottom: 56.25%; height: 0; }
-        .video-responsive iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .comment-modal-content { background-color: #fefefe; margin: auto; padding: 2rem; border-radius: 0.5rem; width: 90%; max-width: 600px; height: 80vh; display: flex; flex-direction: column; }
-        .comments-container { flex-grow: 1; overflow-y: auto; }
-        .loader { border: 4px solid #f3f3f3; border-radius: 50%; border-top: 4px solid #6d5d4b; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
+      }
+    }
+  </script>
+  <style>
+    body { font-family: Georgia, 'Times New Roman', Times, serif; } 
+    .hidden { display: none; }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.65); align-items: center; justify-content: center; }
+    .modal-content { position: relative; padding: 20px; width: 90%; max-width: 800px; }
+    .video-responsive { position: relative; padding-bottom: 56.25%; height: 0; }
+    .video-responsive iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    .accordion-content { max-height: 0; overflow: hidden; transition: max-height .3s ease-out; }
+    .comment-modal-content { background: #fff; margin: auto; padding: 2rem; border-radius: .5rem; width: 90%; max-width: 600px; height: 80vh; display: flex; flex-direction: column; }
+    .comments-container { flex-grow: 1; overflow-y: auto; }
+    .loader { border: 4px solid #f3f3f3; border-radius: 50%; border-top: 4px solid #6d5d4b; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+    .comment-reply { margin-left: 2.5rem; border-left: 2px solid #e5e7eb; padding-left: 1rem; }
+    .tooltip { position: relative; display: inline-block; cursor: pointer; }
+    .tooltip .tooltiptext { visibility: hidden; width: 250px; background: #555; color: #fff; text-align: left; border-radius: 6px; padding: 10px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -125px; opacity: 0; transition: opacity .3s; font-size: .75rem; line-height: 1.25; white-space: normal; }
+    .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+    .expanded-row { background-color: #f3f4f6; }
+    .avatar-initials { display:inline-flex; align-items:center; justify-content:center; border-radius:9999px; width:36px; height:36px; font-weight:600; color:white; background:#6d5d4b; }
+  </style>
 </head>
 <body class="bg-brand-offwhite text-brand-brown">
 
-    <div id="loading-spinner" class="fixed inset-0 bg-white bg-opacity-80 flex justify-center items-center z-50">
-        <div class="loader"></div>
-    </div>
+  <div id="loading-spinner" class="fixed inset-0 bg-white bg-opacity-80 flex justify-center items-center z-50">
+    <div class="loader"></div>
+  </div>
 
-    <div id="auth-container" class="hidden min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full space-y-8">
-            <div>
-                <img src="IMG/firsttechhublogo.png" alt="Logo" class="mx-auto h-16 w-auto" />
-                <h2 id="auth-title" class="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
-            </div>
-            <form id="auth-form" class="mt-8 space-y-6">
-                <div class="rounded-md shadow-sm -space-y-px">
-                    <div><input id="email" name="email" type="email" autocomplete="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-brand-brown focus:border-brand-brown focus:z-10 sm:text-sm" placeholder="Email address"></div>
-                    <div id="password-container"><input id="password" name="password" type="password" autocomplete="current-password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-brand-brown focus:border-brand-brown focus:z-10 sm:text-sm" placeholder="Password"></div>
-                </div>
-                <div id="forgot-password-wrapper" class="flex items-center justify-end">
-                    <div class="text-sm"><a href="#" id="forgot-password-link" class="font-medium text-brand-brown hover:text-brand-brown-dark">Forgot your password?</a></div>
-                </div>
-                <p id="auth-error" class="text-red-500 text-sm mt-2"></p>
-                <div><button type="submit" id="auth-submit-btn" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-brand-brown hover:bg-brand-brown-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-brown-dark">Sign In</button></div>
-            </form>
-            <div class="text-sm text-center"><a href="#" id="auth-toggle-link" class="font-medium text-brand-brown hover:text-brand-brown-dark">Don't have an account? Register</a></div>
+  <!-- AUTH -->
+  <div id="auth-container" class="hidden min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+      <div>
+  <img src="IMG/firsttechhublogo.png" alt="Logo" class="mx-auto h-16 w-auto" />
+
+  <!-- Added Branding Text -->
+  <div class="mt-4 text-center">
+    <h1 class="text-2xl font-bold text-brand-brown">First Tech Hub Solutions LMS</h1>
+    <p class="text-sm text-gray-600">Your learning journey starts here</p>
+  </div>
+
+  <!-- Existing Sign In Title -->
+  <h2 id="auth-title" class="mt-6 text-center text-xl font-semibold text-gray-900">
+    Sign in to your account
+  </h2>
+</div>
+      <form id="auth-form" class="mt-8 space-y-6">
+        <div id="name-container" class="hidden">
+          <input id="full-name" name="fullname" type="text" autocomplete="name" class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none sm:text-sm" placeholder="Full name">
         </div>
+        <div class="rounded-md shadow-sm -space-y-px">
+          <div><input id="email" name="email" type="email" autocomplete="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none sm:text-sm" placeholder="Email address"></div>
+          <div id="password-container"><input id="password" name="password" type="password" autocomplete="current-password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none sm:text-sm" placeholder="Password"></div>
+        </div>
+        <div id="forgot-password-wrapper" class="flex items-center justify-end">
+          <div class="text-sm"><a href="#" id="forgot-password-link" class="font-medium text-brand-brown hover:text-brand-brown-dark">Forgot your password?</a></div>
+        </div>
+        <p id="auth-error" class="text-red-500 text-sm mt-2"></p>
+        <div><button type="submit" id="auth-submit-btn" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-brand-brown hover:bg-brand-brown-dark">Sign In</button></div>
+      </form>
+      <div class="text-sm text-center"><a href="#" id="auth-toggle-link" class="font-medium text-brand-brown hover:text-brand-brown-dark">Don't have an account? Register</a></div>
     </div>
+  </div>
 
-    <div id="lms-container" class="hidden">
-        <header class="bg-white shadow-md sticky top-0 z-40">
-            <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-                <a href="#" class="flex items-center space-x-2">
-                    <img src="IMG/firsttechhublogo.png" alt="First Tech Hub Solutions Logo" class="h-8 w-auto object-contain" />
-                    <span class="text-xl font-bold text-brand-brown">First Tech Hub Solutions</span>
-                </a>
-                <div class="flex items-center space-x-4">
-                                        <a href="https://chat.google.com/room/AAQAq-aR3VQ?cls=7" target="_blank" class="font-semibold text-brand-brown hover:text-brand-brown-dark bg-gray-100 px-3 py-1 rounded-md hidden sm:block">Community Chat</a>
-                    <span id="user-email" class="text-sm text-gray-600 hidden md:block"></span>
-                    <button id="sign-out-btn" class="font-semibold text-brand-brown hover:text-brand-brown-dark">Sign Out</button>
-                </div>
-            </nav>
-        </header>
-        <section class="bg-white">
-            <div class="container mx-auto px-6 py-12">
-                <h1 class="text-3xl md:text-4xl font-bold text-brand-brown mb-3 text-center">Master Google Workspace</h1>
-                <div class="max-w-2xl mx-auto mt-4">
-                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                        <div id="progress-bar" class="bg-green-600 h-2.5 rounded-full" style="width: 0%"></div>
-                    </div>
-                    <p id="progress-text" class="text-sm mt-2 text-gray-600 text-center">0% Complete</p>
-                </div>
-                <div class="max-w-4xl mx-auto mt-8">
-                     <input type="text" id="student-search-input" placeholder="Search curriculum..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown">
-                </div>
+  <!-- STUDENT LMS -->
+  <div id="lms-container" class="hidden">
+    <header class="bg-white shadow-md sticky top-0 z-40">
+      <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="#" class="flex items-center space-x-2">
+          <img src="IMG/firsttechhublogo.png" alt="First Tech Hub Solutions Logo" class="h-8 w-auto object-contain" />
+          <span class="text-xl font-bold text-brand-brown">First Tech Hub Solutions LMS</span>
+        </a>
+
+        <div class="md:hidden">
+          <button id="mobile-menu-button" class="text-brand-brown focus:outline-none" aria-label="Open menu">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+          </button>
+        </div>
+
+        <div id="menu-items" class="hidden md:flex md:items-center md:space-x-4 absolute md:static top-16 right-6 bg-white md:bg-transparent shadow-lg md:shadow-none rounded-lg md:rounded-none p-4 md:p-0 z-50">
+          <a href="https://chat.google.com/room/AAQAq-aR3VQ?cls=7" target="_blank" class="block md:inline-block font-semibold text-brand-brown hover:text-brand-brown-dark bg-gray-100 px-3 py-2 md:py-1 rounded-md mb-2 md:mb-0">Community Chat</a>
+
+          <div class="flex items-center space-x-3 my-2 md:my-0 border-t md:border-none pt-2 md:pt-0">
+            <div id="user-avatar-wrapper" class="h-10 w-10 rounded-full bg-gray-100 border-2 border-brand-brown overflow-hidden flex items-center justify-center">
+              <div id="user-initials" class="avatar-initials"></div>
             </div>
-        </section>
-        <section id="curriculum" class="py-16">
-            <div class="container mx-auto px-6 max-w-4xl">
-                <h2 class="text-3xl font-bold text-center mb-10">4-Week Curriculum</h2>
-                <div id="curriculum-container" class="space-y-4"></div>
+            <div class="text-sm">
+              <p id="user-name" class="font-semibold text-gray-800"></p>
+              <p id="user-email" class="text-gray-500"></p>
             </div>
-        </section>
-        <footer class="bg-brand-brown text-white py-8 mt-16">
-            <div class="container mx-auto px-6 text-center"><p>&copy; 2025 First Tech Hub Solutions. All Rights Reserved.</p></div>
-        </footer>
+          </div>
+
+          <a href="#" id="edit-profile-link" class="block md:inline-block font-semibold text-brand-brown hover:text-brand-brown-dark px-3 py-2 rounded-md">Edit Profile</a>
+
+          <button id="sign-out-btn" class="w-full text-left md:w-auto font-semibold text-brand-brown hover:text-brand-brown-dark mt-2 md:mt-0 px-3 py-2 md:p-0 rounded-md hover:bg-gray-100 md:hover:bg-transparent">Sign Out</button>
+        </div>
+      </nav>
+    </header>
+
+    <section class="bg-white">
+      <div class="container mx-auto px-6 py-12">
+        <h1 class="text-3xl md:text-4xl font-bold text-brand-brown mb-3 text-center">Master Google Workspace</h1>
+        <div class="max-w-2xl mx-auto mt-4">
+          <div class="w-full bg-gray-200 rounded-full h-2.5">
+            <div id="progress-bar" class="bg-green-600 h-2.5 rounded-full" style="width:0%"></div>
+          </div>
+          <p id="progress-text" class="text-sm mt-2 text-gray-600 text-center">0% Complete</p>
+        </div>
+        <div class="max-w-4xl mx-auto mt-8">
+          <input type="text" id="student-search-input" placeholder="Search curriculum..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown">
+        </div>
+      </div>
+    </section>
+
+    <section id="curriculum" class="py-16">
+      <div class="container mx-auto px-6 max-w-4xl">
+        <h2 class="text-3xl font-bold text-center mb-10">4-Week Curriculum</h2>
+        <div id="curriculum-container" class="space-y-4"></div>
+      </div>
+    </section>
+    <footer class="bg-brand-brown text-white py-8 mt-16">
+      <div class="container mx-auto px-6 text-center"><p>&copy; 2025 First Tech Hub Solutions. All Rights Reserved.</p></div>
+    </footer>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="admin-container" class="hidden">
+    <header class="bg-white shadow-md sticky top-0 z-40">
+      <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="#" class="flex items-center space-x-2">
+          <img src="IMG/firsttechhublogo.png" alt="First Tech Hub Solutions Logo" class="h-8 w-auto object-contain" />
+          <span class="text-xl font-bold text-brand-brown">Admin Panel</span>
+        </a>
+        <div class="md:hidden">
+          <button id="admin-mobile-menu-button" class="text-brand-brown focus:outline-none" aria-label="Open admin menu">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+          </button>
+        </div>
+
+        <div id="admin-menu-items" class="hidden md:flex md:items-center md:space-x-4 absolute md:static top-16 right-6 bg-white md:bg-transparent shadow-lg md:shadow-none rounded-lg md:rounded-none p-4 md:p-0 z-50">
+          <div class="flex items-center gap-3">
+            <div id="admin-avatar-wrapper" class="h-8 w-8 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center border">
+              <div id="admin-avatar-initials" class="avatar-initials"></div>
+            </div>
+            <span id="admin-email" class="text-sm text-gray-600 block mb-2 md:mb-0"></span>
+          </div>
+
+          <a href="#" id="edit-profile-link-admin" class="hidden md:inline-block font-semibold text-brand-brown hover:text-brand-brown-dark px-3 py-2 rounded-md">Edit Profile</a>
+
+          <button id="admin-sign-out-btn" class="w-full text-left md:w-auto font-semibold text-brand-brown hover:text-brand-brown-dark px-3 py-2 md:p-0 rounded-md hover:bg-gray-100 md:hover:bg-transparent">Sign Out</button>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+      <h1 class="text-3xl md:text-4xl font-bold text-brand-brown mb-8">Students Progress</h1>
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+          <div class="relative w-full md:w-1/2">
+            <input type="text" id="admin-search-input" placeholder="Search by student email or name..." class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown">
+            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
+          </div>
+          <button id="export-csv-btn" class="w-full md:w-auto bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition duration-300 flex items-center justify-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            <span>Export CSV</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-white">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
+                <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed Sessions</th>
+              </tr>
+            </thead>
+            <tbody id="student-list-body" class="divide-y divide-gray-200"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-brand-brown text-white py-8 mt-16">
+      <div class="container mx-auto px-6 text-center"><p>&copy; 2025 First Tech Hub Solutions. All Rights Reserved.</p></div>
+    </footer>
+  </div>
+
+  <!-- Video modal -->
+  <div id="videoModal" class="modal">
+    <div class="modal-content">
+      <span id="closeVideoModal" class="text-white text-3xl font-bold absolute -top-8 right-0 cursor-pointer">&times;</span>
+      <div id="videoPlayer" class="video-responsive bg-black"></div>
     </div>
+  </div>
 
-    <div id="admin-container" class="hidden">
-        <header class="bg-white shadow-md sticky top-0 z-40">
-            <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-                <a href="#" class="flex items-center space-x-2">
-                    <img src="IMG/firsttechhublogo.png" alt="First Tech Hub Solutions Logo" class="h-8 w-auto object-contain" />
-                    <span class="text-xl font-bold text-brand-brown">Admin Panel</span>
-                </a>
-                <div class="flex items-center space-x-4">
-                    <span id="admin-email" class="text-sm text-gray-600 hidden md:block"></span>
-                    <button id="admin-sign-out-btn" class="font-semibold text-brand-brown hover:text-brand-brown-dark">Sign Out</button>
-                </div>
-            </nav>
-        </header>
-        <main class="container mx-auto px-6 py-12">
-            <h1 class="text-3xl md:text-4xl font-bold text-brand-brown mb-8">Students Progress</h1>
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
-                    <div class="relative w-full md:w-1/2">
-                        <input type="text" id="admin-search-input" placeholder="Search by student email..." class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown">
-                        <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
-                    </div>
-                    <button id="export-csv-btn" class="w-full md:w-auto bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition duration-300 flex items-center justify-center space-x-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        <span>Export CSV</span>
-                    </button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full bg-white">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Email</th>
-                                <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
-                                <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed Sessions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="student-list-body" class="divide-y divide-gray-200">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
-        <footer class="bg-brand-brown text-white py-8 mt-16">
-            <div class="container mx-auto px-6 text-center"><p>&copy; 2025 First Tech Hub Solutions. All Rights Reserved.</p></div>
-        </footer>
+  <!-- Comments modal -->
+  <div id="commentsModal" class="modal">
+    <div class="comment-modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="comment-modal-title" class="text-xl font-bold text-brand-brown">Comments</h3>
+        <button id="closeCommentsModal" class="text-gray-600 hover:text-gray-900 text-3xl font-bold">&times;</button>
+      </div>
+      <div id="comments-container" class="comments-container mb-4 space-y-4 pr-2"></div>
+      <div class="mt-auto">
+        <form id="comment-form">
+          <textarea id="comment-input" class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-brand-brown" rows="3" placeholder="Add your comment..." required></textarea>
+          <button type="submit" class="mt-2 w-full bg-brand-brown text-white font-bold py-2 px-4 rounded-lg hover:bg-brand-brown-dark transition duration-300">Post Comment</button>
+        </form>
+      </div>
     </div>
-    
-    <div id="videoModal" class="modal"><div class="modal-content"><span id="closeVideoModal" class="text-white text-3xl font-bold absolute -top-8 right-0 md:right[-20px] cursor-pointer">&times;</span><div id="videoPlayer" class="video-responsive bg-black"></div></div></div>
-    <div id="commentsModal" class="modal"><div class="comment-modal-content"><div class="flex justify-between items-center mb-4"><h3 id="comment-modal-title" class="text-xl font-bold text-brand-brown">Comments</h3><button id="closeCommentsModal" class="text-gray-600 hover:text-gray-900 text-3xl font-bold">&times;</button></div><div id="comments-container" class="comments-container mb-4 space-y-4 pr-2"></div><div class="mt-auto"><form id="comment-form"><textarea id="comment-input" class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-brand-brown" rows="3" placeholder="Add your comment..." required></textarea><button type="submit" class="mt-2 w-full bg-brand-brown text-white font-bold py-2 px-4 rounded-lg hover:bg-brand-brown-dark transition duration-300">Post Comment</button></form></div></div></div>
+  </div>
 
+  <!-- STUDENT Edit Profile modal (separate) -->
+  <div id="editProfileModalStudent" class="modal" aria-hidden="true">
+    <div class="modal-content bg-white rounded-lg max-w-lg mx-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-brand-brown">Edit Profile</h3>
+        <button id="closeEditProfileModalStudent" class="text-gray-600 hover:text-gray-900 text-2xl">&times;</button>
+      </div>
+      <div>
+        <div class="flex items-center gap-4 mb-4">
+          <div id="student-modal-photo-wrapper" class="h-16 w-16 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center border">
+            <div id="student-modal-photo-initials" class="avatar-initials"></div>
+          </div>
+          <div>
+            <div id="student-modal-displayname" class="font-semibold text-lg"></div>
+            <div id="student-modal-email" class="text-sm text-gray-500"></div>
+          </div>
+        </div>
+
+        <form id="student-edit-profile-form" class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Display name</label>
+            <input id="student-edit-displayname" type="text" class="mt-1 block w-full border rounded px-3 py-2" placeholder="Your display name">
+          </div>
+
+          <div class="flex justify-end gap-2">
+            <button type="button" id="student-cancel-edit-profile" class="px-4 py-2 bg-gray-200 rounded">Cancel</button>
+            <button type="submit" id="student-save-edit-profile" class="px-4 py-2 bg-brand-brown text-white rounded">Save</button>
+          </div>
+          <p id="student-edit-profile-msg" class="text-sm mt-2"></p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN Edit Profile modal (separate) -->
+  <div id="editProfileModalAdmin" class="modal" aria-hidden="true">
+    <div class="modal-content bg-white rounded-lg max-w-lg mx-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-brand-brown">Admin Profile</h3>
+        <button id="closeEditProfileModalAdmin" class="text-gray-600 hover:text-gray-900 text-2xl">&times;</button>
+      </div>
+      <div>
+        <div class="flex items-center gap-4 mb-4">
+          <div id="admin-modal-photo-wrapper" class="h-16 w-16 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center border">
+            <div id="admin-modal-photo-initials" class="avatar-initials"></div>
+          </div>
+          <div>
+            <div id="admin-modal-displayname" class="font-semibold text-lg"></div>
+            <div id="admin-modal-email" class="text-sm text-gray-500"></div>
+          </div>
+        </div>
+
+        <form id="admin-edit-profile-form" class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Display name</label>
+            <input id="admin-edit-displayname" type="text" class="mt-1 block w-full border rounded px-3 py-2" placeholder="Your display name">
+          </div>
+
+          <div class="flex justify-end gap-2">
+            <button type="button" id="admin-cancel-edit-profile" class="px-4 py-2 bg-gray-200 rounded">Cancel</button>
+            <button type="submit" id="admin-save-edit-profile" class="px-4 py-2 bg-brand-brown text-white rounded">Save</button>
+          </div>
+          <p id="admin-edit-profile-msg" class="text-sm mt-2"></p>
+        </form>
+      </div>
+    </div>
+  </div>
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, query, onSnapshot, serverTimestamp, arrayUnion, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, query, onSnapshot, serverTimestamp, arrayUnion, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // --- Config and Data ---
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "AIzaSyA3ANYxI7EJMGJ995dXHWoBCa947t7bZBg", authDomain: "fths-lms-50fc7.firebaseapp.com", projectId: "fths-lms-50fc7" };
-    const courseStartDate = new Date('2025-10-04T00:00:00Z');
-    const ADMIN_EMAIL = 'firsttechhub1@gmail.com';
-    const courseData = [ { week: 1, title: 'Week 1: Foundations & Communication', sessions: [ { day: 1, title: 'Introduction to Google Workspace', youtubeId: 'W-Pl-3vpycY' }, { day: 2, title: 'Mastering Gmail', youtubeId: 'W-Pl-3vpycY' }, { day: 3, title: 'Organizing with Google Calendar', youtubeId: 'W-Pl-3vpycY' } ], assessmentLink: 'https://forms.gle/your-assessment-link-1' }, { week: 2, title: 'Week 2: Collaboration', sessions: [ { day: 4, title: 'Google Docs: Advanced Formatting', youtubeId: 'W-Pl-3vpycY' }, { day: 5, title: 'Data Analysis with Google Sheets', youtubeId: 'W-Pl-3vpycY' } ], assessmentLink: 'https://forms.gle/your-assessment-link-2' }, { week: 3, title: 'Week 3: Cloud Storage', sessions: [ { day: 6, title: 'Managing Files with Google Drive', youtubeId: 'W-Pl-3vpycY' }, { day: 7, title: 'Building Surveys with Google Forms', youtubeId: 'W-Pl-3vpycY' } ], assessmentLink: 'https://forms.gle/your-assessment-link-3' }, { week: 4, title: 'Week 4: Advanced Tools', sessions: [ { day: 8, title: 'Automating Tasks with App Script', youtubeId: 'W-Pl-3vpycY' }, { day: 9, title: 'Course Wrap-up', youtubeId: 'W-Pl-3vpycY' } ], assessmentLink: 'https://forms.gle/your-assessment-link-4' } ];
-    const totalSessions = courseData.reduce((acc, week) => acc + week.sessions.length, 0);
-    
-    // --- DOM Elements ---
-    const DOMElements = {
-        loadingSpinner: document.getElementById('loading-spinner'), authContainer: document.getElementById('auth-container'), lmsContainer: document.getElementById('lms-container'), authForm: document.getElementById('auth-form'), authTitle: document.getElementById('auth-title'), authSubmitBtn: document.getElementById('auth-submit-btn'), authToggleLink: document.getElementById('auth-toggle-link'), authError: document.getElementById('auth-error'), signOutBtn: document.getElementById('sign-out-btn'), userEmail: document.getElementById('user-email'), progressBar: document.getElementById('progress-bar'), progressText: document.getElementById('progress-text'), curriculumContainer: document.getElementById('curriculum-container'), videoModal: document.getElementById('videoModal'), closeVideoModalBtn: document.getElementById('closeVideoModal'), videoPlayer: document.getElementById('videoPlayer'), commentsModal: document.getElementById('commentsModal'), closeCommentsModalBtn: document.getElementById('closeCommentsModal'), commentModalTitle: document.getElementById('comment-modal-title'), commentsContainer: document.getElementById('comments-container'), commentForm: document.getElementById('comment-form'), commentInput: document.getElementById('comment-input'), passwordContainer: document.getElementById('password-container'), forgotPasswordLink: document.getElementById('forgot-password-link'), forgotPasswordWrapper: document.getElementById('forgot-password-wrapper'),
-        // New Admin and Student search elements
-        adminContainer: document.getElementById('admin-container'), adminEmail: document.getElementById('admin-email'), adminSignOutBtn: document.getElementById('admin-sign-out-btn'), adminSearchInput: document.getElementById('admin-search-input'), exportCsvBtn: document.getElementById('export-csv-btn'), studentListBody: document.getElementById('student-list-body'), studentSearchInput: document.getElementById('student-search-input'),
-    };
+  // --- Config & Data ---
+  const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+  const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "AIzaSyA3ANYxI7EJMGJ995dXHWoBCa947t7bZBg", authDomain: "fths-lms-50fc7.firebaseapp.com", projectId: "fths-lms-50fc7" };
 
-    // --- Firebase Init ---
-    let auth, db, currentUser = null, userProgress = { completedSessions: [] }, allStudentsData = [];
-    let unsubscribeComments = null;
-    let authMode = 'signIn'; 
-    
+  const courseStartDate = new Date('2025-10-04T00:00:00Z');
+  const ADMIN_EMAIL = 'firsttechhub1@gmail.com';
+
+  const courseData = [
+    { week:1, title:'Week 1: Foundations & Communication', sessions:[ {day:1, title:'Introduction to Google Workspace', youtubeId:'W-Pl-3vpycY'}, {day:2, title:'Mastering Gmail', youtubeId:'W-Pl-3vpycY'}, {day:3, title:'Organizing with Google Calendar', youtubeId:'W-Pl-3vpycY'} ], assessmentLink:'https://forms.gle/your-assessment-link-1' },
+    { week:2, title:'Week 2: Collaboration', sessions:[ {day:4, title:'Google Docs: Advanced Formatting', youtubeId:'W-Pl-3vpycY'}, {day:5, title:'Data Analysis with Google Sheets', youtubeId:'W-Pl-3vpycY'} ], assessmentLink:'https://forms.gle/your-assessment-link-2' },
+    { week:3, title:'Week 3: Cloud Storage', sessions:[ {day:6, title:'Managing Files with Google Drive', youtubeId:'W-Pl-3vpycY'}, {day:7, title:'Building Surveys with Google Forms', youtubeId:'W-Pl-3vpycY'} ], assessmentLink:'https://forms.gle/your-assessment-link-3' },
+    { week:4, title:'Week 4: Advanced Tools', sessions:[ {day:8, title:'Automating Tasks with App Script', youtubeId:'W-Pl-3vpycY'}, {day:9, title:'Course Wrap-up', youtubeId:'W-Pl-3vpycY'} ], assessmentLink:'https://forms.gle/your-assessment-link-4' }
+  ];
+
+  const totalSessions = courseData.reduce((acc,w) => acc + w.sessions.length, 0);
+  const sessionMap = new Map();
+  courseData.forEach(week => week.sessions.forEach(s => sessionMap.set(`w${week.week}d${s.day}`, s.title)));
+
+  // DOM refs (same IDs used earlier)
+  const DOM = {
+    loadingSpinner: document.getElementById('loading-spinner'),
+    authContainer: document.getElementById('auth-container'),
+    authForm: document.getElementById('auth-form'),
+    authTitle: document.getElementById('auth-title'),
+    authSubmitBtn: document.getElementById('auth-submit-btn'),
+    authToggleLink: document.getElementById('auth-toggle-link'),
+    authError: document.getElementById('auth-error'),
+    nameContainer: document.getElementById('name-container'),
+    fullNameInput: document.getElementById('full-name'),
+    passwordContainer: document.getElementById('password-container'),
+    forgotPasswordLink: document.getElementById('forgot-password-link'),
+    forgotPasswordWrapper: document.getElementById('forgot-password-wrapper'),
+
+    lmsContainer: document.getElementById('lms-container'),
+    userName: document.getElementById('user-name'),
+    userEmail: document.getElementById('user-email'),
+    userInitials: document.getElementById('user-initials'),
+    menuItems: document.getElementById('menu-items'),
+    mobileMenuButton: document.getElementById('mobile-menu-button'),
+    editProfileLink: document.getElementById('edit-profile-link'),
+    studentSearchInput: document.getElementById('student-search-input'),
+    curriculumContainer: document.getElementById('curriculum-container'),
+    progressBar: document.getElementById('progress-bar'),
+    progressText: document.getElementById('progress-text'),
+
+    adminContainer: document.getElementById('admin-container'),
+    adminEmail: document.getElementById('admin-email'),
+    adminInitials: document.getElementById('admin-avatar-initials'),
+    adminMenuItems: document.getElementById('admin-menu-items'),
+    adminMobileMenuButton: document.getElementById('admin-mobile-menu-button'),
+    adminSearchInput: document.getElementById('admin-search-input'),
+    studentListBody: document.getElementById('student-list-body'),
+    exportCsvBtn: document.getElementById('export-csv-btn'),
+    editProfileLinkAdmin: document.getElementById('edit-profile-link-admin'),
+
+    // modals
+    videoModal: document.getElementById('videoModal'),
+    videoPlayer: document.getElementById('videoPlayer'),
+    closeVideoModal: document.getElementById('closeVideoModal'),
+
+    commentsModal: document.getElementById('commentsModal'),
+    commentModalTitle: document.getElementById('comment-modal-title'),
+    commentsContainer: document.getElementById('comments-container'),
+    commentForm: document.getElementById('comment-form'),
+    commentInput: document.getElementById('comment-input'),
+    closeCommentsModal: document.getElementById('closeCommentsModal'),
+
+    // STUDENT modal
+    editProfileModalStudent: document.getElementById('editProfileModalStudent'),
+    closeEditProfileModalStudent: document.getElementById('closeEditProfileModalStudent'),
+    studentEditDisplayname: document.getElementById('student-edit-displayname'),
+    studentModalDisplayname: document.getElementById('student-modal-displayname'),
+    studentModalEmail: document.getElementById('student-modal-email'),
+    studentModalInitials: document.getElementById('student-modal-photo-initials'),
+    studentEditForm: document.getElementById('student-edit-profile-form'),
+    studentCancelEdit: document.getElementById('student-cancel-edit-profile'),
+    studentEditMsg: document.getElementById('student-edit-profile-msg'),
+
+    // ADMIN modal
+    editProfileModalAdmin: document.getElementById('editProfileModalAdmin'),
+    closeEditProfileModalAdmin: document.getElementById('closeEditProfileModalAdmin'),
+    adminEditDisplayname: document.getElementById('admin-edit-displayname'),
+    adminModalDisplayname: document.getElementById('admin-modal-displayname'),
+    adminModalEmail: document.getElementById('admin-modal-email'),
+    adminModalInitials: document.getElementById('admin-modal-photo-initials'),
+    adminEditForm: document.getElementById('admin-edit-profile-form'),
+    adminCancelEdit: document.getElementById('admin-cancel-edit-profile'),
+    adminEditMsg: document.getElementById('admin-edit-profile-msg'),
+  };
+
+  // Firebase init
+  let auth, db;
+  let currentUser = null;
+  let userProgress = { completedSessions: [] };
+  let allStudentsData = [];
+  let unsubscribeComments = null;
+  let authMode = 'signIn';
+  const commentUserCache = {};
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+  } catch (err) {
+    console.error('Firebase init error', err);
+    DOM.loadingSpinner.classList.add('hidden');
+    DOM.authError.textContent = 'Could not initialize services. Refresh.';
+    DOM.authContainer.classList.remove('hidden');
+  }
+
+  // ---------- helpers ----------
+  function getInitials(name) {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    return parts.map(p => p[0].toUpperCase()).slice(0,2).join('');
+  }
+  function setInitialsUI(displayName, initialsEl) {
+    if (!initialsEl) return;
+    initialsEl.textContent = getInitials(displayName || '');
+  }
+
+  // auto-hide mobile menus
+  DOM.mobileMenuButton?.addEventListener('click', () => DOM.menuItems.classList.toggle('hidden'));
+  DOM.adminMobileMenuButton?.addEventListener('click', () => DOM.adminMenuItems.classList.toggle('hidden'));
+  function attachAutoHide(menuEl) {
+    if (!menuEl) return;
+    menuEl.querySelectorAll('a, button').forEach(el => el.addEventListener('click', () => menuEl.classList.add('hidden')));
+  }
+  attachAutoHide(DOM.menuItems);
+  attachAutoHide(DOM.adminMenuItems);
+
+  // ---------- AUTH state ----------
+  onAuthStateChanged(auth, async (user) => {
+    currentUser = user;
+    DOM.loadingSpinner.classList.add('hidden');
+
+    if (user) {
+      DOM.authContainer.classList.add('hidden');
+
+      // Ensure users/{uid} exists for ALL users (admin included) to avoid "missing doc" issues
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userDocRef);
+        if (!userSnap.exists()) {
+          await setDoc(userDocRef, {
+            email: user.email || '',
+            uid: user.uid,
+            fullName: user.displayName || '',
+            displayName: user.displayName || '',
+            createdAt: serverTimestamp()
+          }, { merge: true });
+        }
+      } catch (err) {
+        console.warn('Could not ensure users doc', err);
+      }
+
+      // read current user's profile (only this doc — prevents blinking)
+      let publicProfile = null;
+      try {
+        const userDocRef2 = doc(db, "users", user.uid);
+        const userSnap2 = await getDoc(userDocRef2);
+        publicProfile = userSnap2.exists() ? userSnap2.data() : null;
+      } catch (err) {
+        console.warn('Could not read users doc', err);
+      }
+
+      if (user.email === ADMIN_EMAIL) {
+        // admin view
+        DOM.lmsContainer.classList.add('hidden');
+        DOM.adminContainer.classList.remove('hidden');
+        DOM.adminEmail.textContent = user.email;
+        setInitialsUI(publicProfile?.displayName || user.displayName || '', DOM.adminInitials);
+        if (DOM.editProfileLinkAdmin) DOM.editProfileLinkAdmin.classList.remove('hidden');
+        await loadAdminData();
+      } else {
+        // student view
+        await loadUserData(user.uid);
+
+        const displayName = publicProfile?.displayName || publicProfile?.fullName || user.displayName || 'Student';
+        DOM.userName.textContent = displayName;
+        DOM.userEmail.textContent = user.email || '';
+        setInitialsUI(displayName, DOM.userInitials);
+
+        DOM.lmsContainer.classList.remove('hidden');
+      }
+    } else {
+      // logged out
+      userProgress = { completedSessions: [] };
+      DOM.lmsContainer.classList.add('hidden');
+      DOM.adminContainer.classList.add('hidden');
+      DOM.authContainer.classList.remove('hidden');
+      updateAuthView('signIn');
+    }
+  });
+
+  // ---------- USER PROGRESS ----------
+  async function loadUserData(uid) {
+    const progressDocRef = doc(db, `/artifacts/${appId}/users/${uid}/progress/googleWorkspace`);
     try {
-        const app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-    } catch (error) {
-        console.error("Firebase Init Error:", error);
-        DOMElements.loadingSpinner.classList.add('hidden');
-        DOMElements.authError.textContent = "Could not connect to services. Please refresh.";
-        DOMElements.authContainer.classList.remove('hidden');
+      const snap = await getDoc(progressDocRef);
+      if (snap.exists() && snap.data().completedSessions) userProgress = snap.data();
+      else {
+        await setDoc(progressDocRef, { completedSessions: [] }, { merge: true });
+        userProgress = { completedSessions: [] };
+      }
+    } catch (err) {
+      console.error('Error loading user data', err);
+      userProgress = { completedSessions: [] };
     }
-    
-    // --- Auth State Management ---
-    onAuthStateChanged(auth, async (user) => {
-        currentUser = user;
-        DOMElements.loadingSpinner.classList.add('hidden');
-        if (user) {
-            DOMElements.authContainer.classList.add('hidden');
-            if (user.email === ADMIN_EMAIL) {
-                // Admin View
-                DOMElements.lmsContainer.classList.add('hidden');
-                DOMElements.adminEmail.textContent = user.email;
-                DOMElements.adminContainer.classList.remove('hidden');
-                loadAdminData();
-            } else {
-                // Student View
-                DOMElements.adminContainer.classList.add('hidden');
-                await loadUserData(user.uid);
-                DOMElements.userEmail.textContent = user.email;
-                DOMElements.lmsContainer.classList.remove('hidden');
-            }
-        } else {
-            // Logged Out View
-            userProgress = { completedSessions: [] };
-            DOMElements.lmsContainer.classList.add('hidden');
-            DOMElements.adminContainer.classList.add('hidden');
-            DOMElements.authContainer.classList.remove('hidden');
-            updateAuthView('signIn');
-        }
+    renderCurriculum();
+  }
+
+  async function updateProgress(sessionId) {
+    if (!currentUser) return;
+    if (userProgress.completedSessions && userProgress.completedSessions.includes(sessionId)) return;
+    const progressDocRef = doc(db, `/artifacts/${appId}/users/${currentUser.uid}/progress/googleWorkspace`);
+    try {
+      await updateDoc(progressDocRef, { completedSessions: arrayUnion(sessionId) });
+      if (!userProgress.completedSessions) userProgress.completedSessions = [];
+      userProgress.completedSessions.push(sessionId);
+      renderCurriculum();
+    } catch (err) {
+      console.error('Error updating progress', err);
+    }
+  }
+
+  // ---------- RENDER curriculum ----------
+  function renderCurriculum() {
+    DOM.curriculumContainer.innerHTML = '';
+    const today = new Date();
+    const diffWeeks = Math.ceil((today - courseStartDate) / (1000 * 60 * 60 * 24 * 7));
+    const currentWeek = diffWeeks > 0 ? diffWeeks : 1;
+
+    courseData.forEach(weekData => {
+      const isLocked = weekData.week > currentWeek;
+      const isOpen = weekData.week === currentWeek;
+      const weekEl = document.createElement('div');
+      weekEl.className = 'week-wrapper border border-gray-200 rounded-lg';
+
+      const sessionsHtml = weekData.sessions.map(session => {
+        const sessionId = `w${weekData.week}d${session.day}`;
+        const isCompleted = userProgress.completedSessions && userProgress.completedSessions.includes(sessionId);
+        return `
+          <div class="session-item flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border-t border-gray-200 ${isCompleted ? 'bg-green-50' : ''}" data-title="${session.title}">
+            <div class="flex items-center mb-2 sm:mb-0">
+              <svg class="w-5 h-5 ${isLocked ? 'text-gray-400' : (isCompleted ? 'text-green-500' : 'text-brand-brown')} mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">${isLocked ? '<path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a4 4 0 100 8 4 4 0 000-8z" clip-rule="evenodd"/>' : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'}</svg>
+              <span class="${isLocked ? 'text-gray-500' : 'text-brand-brown'}">Day ${session.day}: ${session.title}</span>
+            </div>
+            <div class="flex space-x-2 self-end sm:self-center mt-3 sm:mt-0">
+              <button class="comments-btn text-sm font-semibold py-2 px-3 rounded-md ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-gray-100 text-brand-brown hover:bg-gray-200 border border-brand-brown'}" data-session-id="${sessionId}" data-session-title="${session.title}" ${isLocked ? 'disabled' : ''}>Comments</button>
+              <button class="watch-btn text-sm font-semibold py-2 px-3 rounded-md ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-brand-brown text-white hover:bg-brand-brown-dark'}" data-videoid="${session.youtubeId}" ${isLocked ? 'disabled' : ''}>Watch</button>
+              <button class="mark-complete-btn text-sm font-semibold py-2 px-3 rounded-md ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : (isCompleted ? 'bg-green-600 text-white cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600')}" data-session-id="${sessionId}" ${isLocked || isCompleted ? 'disabled' : ''}>
+                ${isCompleted ? 'Completed' : 'Mark as Complete'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const assessmentHtml = `<div class="p-4 border-t border-gray-200 bg-gray-50"><a href="${isLocked ? '#' : weekData.assessmentLink}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center font-bold py-2 px-4 rounded-md ${isLocked ? 'bg-gray-300 text-gray-600' : 'bg-green-600 text-white hover:bg-green-700'}">Week ${weekData.week} Assessment</a></div>`;
+
+      weekEl.innerHTML = `<button class="accordion-header flex justify-between items-center w-full p-5 text-left font-semibold text-lg"><span>${weekData.title}</span><svg class="w-6 h-6 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button><div class="accordion-content" ${isOpen ? 'style="max-height:1000px;"' : ''}>${sessionsHtml}${assessmentHtml}</div>`;
+      DOM.curriculumContainer.appendChild(weekEl);
     });
 
-    // --- STUDENT-SPECIFIC LOGIC ---
-    async function loadUserData(uid) {
+    updateProgressBar();
+    addDynamicEventListeners();
+  }
+
+  function updateProgressBar() {
+    const completedCount = userProgress.completedSessions ? userProgress.completedSessions.length : 0;
+    const percentage = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
+    DOM.progressBar.style.width = `${percentage}%`;
+    DOM.progressText.textContent = `${percentage}% Complete (${completedCount} of ${totalSessions} sessions)`;
+  }
+
+  function addDynamicEventListeners() {
+    DOM.curriculumContainer.querySelectorAll('.accordion-header').forEach(b => b.addEventListener('click', () => {
+      const content = b.nextElementSibling, icon = b.querySelector('svg');
+      if (content.style.maxHeight) { content.style.maxHeight = null; icon.classList.remove('rotate-180'); }
+      else {
+        document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+        document.querySelectorAll('.accordion-header svg').forEach(i => i.classList.remove('rotate-180'));
+        content.style.maxHeight = content.scrollHeight + 'px';
+        icon.classList.add('rotate-180');
+      }
+    }));
+
+    DOM.curriculumContainer.querySelectorAll('.watch-btn:not(:disabled)').forEach(b => b.addEventListener('click', e => openVideoModal(e.currentTarget.dataset.videoid)));
+    DOM.curriculumContainer.querySelectorAll('.comments-btn:not(:disabled)').forEach(b => b.addEventListener('click', e => openCommentsModal(e.currentTarget.dataset.sessionId, e.currentTarget.dataset.sessionTitle)));
+    DOM.curriculumContainer.querySelectorAll('.mark-complete-btn:not(:disabled)').forEach(b => b.addEventListener('click', e => updateProgress(e.currentTarget.dataset.sessionId)));
+  }
+
+  // ---------- SEARCH ----------
+  DOM.studentSearchInput?.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase().trim();
+    document.querySelectorAll('#curriculum-container .week-wrapper').forEach(weekEl => {
+      let weekHasVisibleSession = false;
+      weekEl.querySelectorAll('.session-item').forEach(sessionEl => {
+        const title = sessionEl.dataset.title.toLowerCase();
+        if (title.includes(searchTerm)) { sessionEl.classList.remove('hidden'); weekHasVisibleSession = true; }
+        else sessionEl.classList.add('hidden');
+      });
+      if (weekHasVisibleSession) weekEl.classList.remove('hidden'); else weekEl.classList.add('hidden');
+    });
+  });
+
+  // ---------- ADMIN DATA & expandable table ----------
+  async function loadAdminData() {
+    DOM.studentListBody.innerHTML = '<tr><td colspan="3" class="text-center p-4">Loading student data...</td></tr>';
+    try {
+      const usersSnap = await getDocs(collection(db, "users"));
+      const users = usersSnap.docs.map(d => ({ uid: d.id, ...(d.data() || {}) }));
+      const promises = users.filter(u => u.email && u.email !== ADMIN_EMAIL).map(async (u) => {
+        const uid = u.uid || u.uid;
         const progressDocRef = doc(db, `/artifacts/${appId}/users/${uid}/progress/googleWorkspace`);
+        let progressData = { completedSessions: [] };
         try {
-            const docSnap = await getDoc(progressDocRef);
-            if (docSnap.exists() && docSnap.data().completedSessions) {
-                userProgress = docSnap.data();
-            } else {
-                await setDoc(progressDocRef, { completedSessions: [] });
-                userProgress = { completedSessions: [] };
-            }
-        } catch (error) {
-            console.error("Error loading user data:", error);
-            userProgress = { completedSessions: [] };
-        }
-        renderCurriculum();
+          const pSnap = await getDoc(progressDocRef);
+          if (pSnap.exists()) progressData = pSnap.data();
+        } catch (e) { console.warn('No progress for', uid, e); }
+        return {
+          uid,
+          email: u.email || '',
+          fullName: u.fullName || u.displayName || '',
+          displayName: u.displayName || u.fullName || '',
+          completedSessions: progressData.completedSessions || []
+        };
+      });
+
+      allStudentsData = await Promise.all(promises);
+      renderStudentList(allStudentsData);
+    } catch (err) {
+      console.error('Error loading admin data', err);
+      DOM.studentListBody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-red-500">Could not load data.</td></tr>';
+    }
+  }
+
+  function renderStudentList(students) {
+    if (!students || students.length === 0) {
+      DOM.studentListBody.innerHTML = '<tr><td colspan="3" class="text-center p-4">No students found.</td></tr>';
+      return;
     }
 
-    async function updateProgress(sessionId) {
-        if (!currentUser || (userProgress.completedSessions && userProgress.completedSessions.includes(sessionId))) return;
-        if (!userProgress.completedSessions) userProgress.completedSessions = [];
-        const progressDocRef = doc(db, `/artifacts/${appId}/users/${currentUser.uid}/progress/googleWorkspace`);
+    DOM.studentListBody.innerHTML = students.map(st => {
+      const completedCount = (st.completedSessions || []).length;
+      const percentage = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
+      const titles = (st.completedSessions || []).map(id => sessionMap.get(id) || id).join('\n');
+      const display = st.fullName || st.displayName || st.email || 'Student';
+      const initials = getInitials(display);
+      const avatarHtml = `<div class="avatar-initials">${initials}</div>`;
+      return `
+        <tr class="hover:bg-gray-50 student-row" data-uid="${st.uid}">
+          <td class="py-3 px-4 text-sm text-gray-700 break-all flex items-center gap-3">
+            ${avatarHtml}
+            <div class="min-w-0">
+              <div class="font-semibold text-gray-800 truncate">${display}</div>
+              <div class="text-xs text-gray-500 truncate">${st.email}</div>
+            </div>
+          </td>
+          <td class="py-3 px-4 text-sm text-gray-700">
+            <div class="flex items-center">
+              <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">
+                <div class="bg-blue-600 h-2.5 rounded-full" style="width:${percentage}%"></div>
+              </div>
+              <span class="text-xs font-semibold">${percentage}%</span>
+            </div>
+          </td>
+          <td class="py-3 px-4 text-sm text-gray-700 text-center view-sessions cursor-pointer">
+            <div class="tooltip">
+              ${completedCount} / ${totalSessions}
+              <span class="tooltiptext"><b>Completed:</b><br>${titles.replace(/\n/g,'<br>') || 'None'}</span>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    // expandable rows
+    document.querySelectorAll('#student-list-body .student-row').forEach(row => {
+      const uid = row.dataset.uid;
+      row.querySelector('.view-sessions').addEventListener('click', async () => {
+        const next = row.nextElementSibling;
+        if (next && next.classList.contains('expanded-row')) { next.remove(); return; }
+        document.querySelectorAll('#student-list-body .expanded-row').forEach(r => r.remove());
+        const progressDocRef = doc(db, `/artifacts/${appId}/users/${uid}/progress/googleWorkspace`);
+        let sessionsList = [];
         try {
-            await updateDoc(progressDocRef, { completedSessions: arrayUnion(sessionId) });
-            userProgress.completedSessions.push(sessionId);
-            renderCurriculum(); // Re-render to update UI state
-        } catch (error) {
-            console.error("Error updating progress:", error);
-        }
-    }
-    
-    function renderCurriculum() {
-        DOMElements.curriculumContainer.innerHTML = '';
-        const today = new Date();
-        const diffWeeks = Math.ceil((today - courseStartDate) / (1000 * 60 * 60 * 24 * 7));
-        const currentWeek = diffWeeks > 0 ? diffWeeks : 1;
-
-        courseData.forEach(weekData => {
-            const isLocked = weekData.week > currentWeek;
-            const isOpen = weekData.week === currentWeek;
-            const weekEl = document.createElement('div');
-            weekEl.className = 'week-wrapper border border-gray-200 rounded-lg';
-
-            const sessionsHtml = weekData.sessions.map(session => {
-                const sessionId = `w${weekData.week}d${session.day}`;
-                const isCompleted = userProgress.completedSessions && userProgress.completedSessions.includes(sessionId);
-                return `
-                <div class="session-item flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border-t border-gray-200 ${isCompleted ? 'bg-green-50' : ''}" data-title="${session.title}">
-                    <div class="flex items-center mb-2 sm:mb-0">
-                        <svg class="w-5 h-5 ${isLocked ? 'text-gray-400' : (isCompleted ? 'text-green-500' : 'text-brand-brown')} mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">${isLocked ? '<path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a4 4 0 100 8 4 4 0 000-8z" clip-rule="evenodd"/>' : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'}</svg>
-                        <span class="${isLocked ? 'text-gray-500' : 'text-brand-brown'}">Day ${session.day}: ${session.title}</span>
-                    </div>
-                    <div class="flex space-x-2 self-end sm:self-center mt-3 sm:mt-0">
-                        <button class="comments-btn text-sm font-semibold py-2 px-3 rounded-md transition-colors duration-300 ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-gray-100 text-brand-brown hover:bg-gray-200 border border-brand-brown'}" data-session-id="${sessionId}" data-session-title="${session.title}" ${isLocked ? 'disabled' : ''}>Comments</button>
-                        <button class="watch-btn text-sm font-semibold py-2 px-3 rounded-md transition-colors duration-300 ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-brand-brown text-white hover:bg-brand-brown-dark'}" data-videoid="${session.youtubeId}" ${isLocked ? 'disabled' : ''}>Watch</button>
-                        <button class="mark-complete-btn text-sm font-semibold py-2 px-3 rounded-md transition-colors duration-300 ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : (isCompleted ? 'bg-green-600 text-white cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600')}" data-session-id="${sessionId}" ${isLocked || isCompleted ? 'disabled' : ''}>
-                           ${isCompleted ? 'Completed' : 'Mark as Complete'}
-                        </button>
-                    </div>
-                </div>`;
-            }).join('');
-            
-            const assessmentHtml = `<div class="p-4 border-t border-gray-200 bg-gray-50"><a href="${isLocked ? '#' : weekData.assessmentLink}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center font-bold py-2 px-4 rounded-md transition-colors duration-300 ${isLocked ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700'}"><svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg>Week ${weekData.week} Assessment</a></div>`;
-            weekEl.innerHTML = `<button class="accordion-header flex justify-between items-center w-full p-5 text-left font-semibold text-lg"><span>${weekData.title}</span><svg class="w-6 h-6 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button><div class="accordion-content" ${isOpen ? 'style="max-height: 1000px;"' : ''}>${sessionsHtml}${assessmentHtml}</div>`;
-            DOMElements.curriculumContainer.appendChild(weekEl);
-        });
-        updateProgressBar();
-        addDynamicEventListeners();
-    }
-    
-    function updateProgressBar() {
-        const completedCount = userProgress.completedSessions ? userProgress.completedSessions.length : 0;
-        const percentage = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
-        DOMElements.progressBar.style.width = `${percentage}%`;
-        DOMElements.progressText.textContent = `${percentage}% Complete (${completedCount} of ${totalSessions} sessions)`;
-    }
-    
-    function addDynamicEventListeners() {
-        DOMElements.curriculumContainer.querySelectorAll('.accordion-header').forEach(b => b.addEventListener('click', () => { const content = b.nextElementSibling, icon = b.querySelector('svg'); if (content.style.maxHeight) { content.style.maxHeight = null; icon.classList.remove('rotate-180'); } else { document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null); document.querySelectorAll('.accordion-header svg').forEach(i => i.classList.remove('rotate-180')); content.style.maxHeight = content.scrollHeight + "px"; icon.classList.add('rotate-180'); } }));
-        DOMElements.curriculumContainer.querySelectorAll('.watch-btn:not(:disabled)').forEach(b => b.addEventListener('click', e => openVideoModal(e.currentTarget.dataset.videoid)));
-        DOMElements.curriculumContainer.querySelectorAll('.comments-btn:not(:disabled)').forEach(b => b.addEventListener('click', e => openCommentsModal(e.currentTarget.dataset.sessionId, e.currentTarget.dataset.sessionTitle)));
-        DOMElements.curriculumContainer.querySelectorAll('.mark-complete-btn:not(:disabled)').forEach(b => b.addEventListener('click', e => updateProgress(e.currentTarget.dataset.sessionId)));
-    }
-
-    DOMElements.studentSearchInput.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase().trim();
-        document.querySelectorAll('#curriculum-container .week-wrapper').forEach(weekEl => {
-            let weekHasVisibleSession = false;
-            weekEl.querySelectorAll('.session-item').forEach(sessionEl => {
-                const title = sessionEl.dataset.title.toLowerCase();
-                if (title.includes(searchTerm)) {
-                    sessionEl.classList.remove('hidden');
-                    weekHasVisibleSession = true;
-                } else {
-                    sessionEl.classList.add('hidden');
-                }
-            });
-            if (weekHasVisibleSession) weekEl.classList.remove('hidden'); else weekEl.classList.add('hidden');
-        });
+          const snap = await getDoc(progressDocRef);
+          const completed = snap.exists() && snap.data().completedSessions ? snap.data().completedSessions : [];
+          sessionsList = completed.map(id => sessionMap.get(id) || id);
+        } catch (e) { console.warn('Could not fetch progress', uid, e); }
+        const expandedRow = document.createElement('tr');
+        expandedRow.classList.add('expanded-row');
+        expandedRow.innerHTML = `<td colspan="3" class="px-4 py-3"><strong class="block mb-2">Completed Sessions (${sessionsList.length}):</strong><ul class="list-disc ml-6">${sessionsList.length ? sessionsList.map(s => `<li>${s}</li>`).join('') : '<li>None</li>'}</ul></td>`;
+        row.after(expandedRow);
+      });
     });
+  }
 
-    // --- ADMIN-SPECIFIC LOGIC ---
-    async function loadAdminData() {
-        DOMElements.studentListBody.innerHTML = '<tr><td colspan="3" class="text-center p-4">Loading student data...</td></tr>';
-        try {
-            const userDocs = await getDocs(collection(db, "users"));
-            const studentProgressPromises = userDocs.docs
-                .filter(userDoc => userDoc.data().email !== ADMIN_EMAIL) // Filter out the admin
-                .map(userDoc => {
-                const userData = userDoc.data();
-                const progressDocRef = doc(db, `/artifacts/${appId}/users/${userData.uid}/progress/googleWorkspace`);
-                return getDoc(progressDocRef).then(progressSnap => {
-                    const progressData = progressSnap.exists() ? progressSnap.data() : { completedSessions: [] };
-                    return { email: userData.email, uid: userData.uid, completedSessions: progressData.completedSessions || [] };
-                });
-            });
-            allStudentsData = await Promise.all(studentProgressPromises);
-            renderStudentList(allStudentsData);
-        } catch (error) {
-            console.error("Error loading admin data:", error);
-            DOMElements.studentListBody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-red-500">Could not load data.</td></tr>';
-        }
-    }
+  DOM.adminSearchInput?.addEventListener('input', (e) => {
+    const q = (e.target.value || '').toLowerCase().trim();
+    const filtered = allStudentsData.filter(s => (s.email || '').toLowerCase().includes(q) || (s.fullName || s.displayName || '').toLowerCase().includes(q));
+    renderStudentList(filtered);
+  });
 
-    function renderStudentList(students) {
-        if (students.length === 0) {
-            DOMElements.studentListBody.innerHTML = '<tr><td colspan="3" class="text-center p-4">No students found.</td></tr>';
-            return;
-        }
-        DOMElements.studentListBody.innerHTML = students.map(student => {
-            const completedCount = student.completedSessions.length;
-            const percentage = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
-            return `
-                <tr class="hover:bg-gray-50">
-                    <td class="py-3 px-4 text-sm text-gray-700 break-all">${student.email}</td>
-                    <td class="py-3 px-4 text-sm text-gray-700">
-                        <div class="flex items-center">
-                            <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">
-                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: ${percentage}%"></div>
-                            </div>
-                            <span class="text-xs font-semibold">${percentage}%</span>
-                        </div>
-                    </td>
-                    <td class="py-3 px-4 text-sm text-gray-700 text-center">${completedCount} / ${totalSessions}</td>
-                </tr>
-            `;
-        }).join('');
-    }
-
-    DOMElements.adminSearchInput.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase().trim();
-        const filteredStudents = allStudentsData.filter(student => student.email.toLowerCase().includes(searchTerm));
-        renderStudentList(filteredStudents);
+  DOM.exportCsvBtn?.addEventListener('click', () => {
+    let csv = "data:text/csv;charset=utf-8,Email,Name,Completed Sessions,Total Sessions,Progress (%)\r\n";
+    const shown = allStudentsData.filter(s => (s.email || '').toLowerCase().includes((DOM.adminSearchInput.value || '').toLowerCase().trim()) || (s.fullName || s.displayName || '').toLowerCase().includes((DOM.adminSearchInput.value || '').toLowerCase().trim()));
+    shown.forEach(s => {
+      const completedCount = (s.completedSessions || []).length;
+      const pct = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
+      const titles = (s.completedSessions || []).map(id => sessionMap.get(id) || id).join('; ');
+      csv += `"${s.email}","${(s.fullName || s.displayName || '').replace(/"/g,'""')}",${completedCount},${totalSessions},${pct},"${titles.replace(/"/g,'""')}"\r\n`;
     });
+    const link = document.createElement('a');
+    link.setAttribute('href', encodeURI(csv));
+    link.setAttribute('download', 'student_progress.csv');
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  });
 
-    DOMElements.exportCsvBtn.addEventListener('click', () => {
-        let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Email,Completed Sessions,Total Sessions,Progress (%)\r\n";
-        
-        const currentDisplayedStudents = allStudentsData.filter(student => student.email.toLowerCase().includes(DOMElements.adminSearchInput.value.toLowerCase().trim()));
-
-        currentDisplayedStudents.forEach(student => {
-            const completedCount = student.completedSessions.length;
-            const percentage = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
-            csvContent += `${student.email},${completedCount},${totalSessions},${percentage}\r\n`;
-        });
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "student_progress.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    });
-    
-    // --- SHARED AUTH & MODAL LOGIC ---
-    function updateAuthView(newMode) {
-        authMode = newMode;
-        DOMElements.authError.textContent = '';
-        DOMElements.authForm.email.parentElement.classList.remove('rounded-b-md');
-        if (authMode === 'signIn') { DOMElements.authTitle.textContent = 'Sign in to your account'; DOMElements.passwordContainer.style.display = 'block'; DOMElements.authForm.email.parentElement.classList.add('rounded-b-md'); DOMElements.authSubmitBtn.textContent = 'Sign In'; DOMElements.authToggleLink.textContent = 'Don\'t have an account? Register'; DOMElements.forgotPasswordWrapper.style.display = 'flex'; } else if (authMode === 'register') { DOMElements.authTitle.textContent = 'Create an account'; DOMElements.passwordContainer.style.display = 'block'; DOMElements.authForm.email.parentElement.classList.add('rounded-b-md'); DOMElements.authSubmitBtn.textContent = 'Register'; DOMElements.authToggleLink.textContent = 'Already have an account? Sign in'; DOMElements.forgotPasswordWrapper.style.display = 'none'; } else if (authMode === 'reset') { DOMElements.authTitle.textContent = 'Reset your password'; DOMElements.passwordContainer.style.display = 'none'; DOMElements.authForm.email.parentElement.classList.add('rounded-b-md'); DOMElements.authSubmitBtn.textContent = 'Send Reset Link'; DOMElements.authToggleLink.textContent = 'Back to Sign In'; DOMElements.forgotPasswordWrapper.style.display = 'none'; }
+  // ---------- AUTH UI controls (register includes full name) ----------
+  function updateAuthView(newMode) {
+    authMode = newMode;
+    DOM.authError.textContent = '';
+    DOM.authForm.email.parentElement.classList.remove('rounded-b-md');
+    if (authMode === 'signIn') {
+      DOM.authTitle.textContent = 'Sign in to your account';
+      DOM.passwordContainer.style.display = 'block';
+      DOM.authSubmitBtn.textContent = 'Sign In';
+      DOM.authToggleLink.textContent = "Don't have an account? Register";
+      DOM.forgotPasswordWrapper.style.display = 'flex';
+      DOM.nameContainer.classList.add('hidden');
+    } else if (authMode === 'register') {
+      DOM.authTitle.textContent = 'Create an account';
+      DOM.passwordContainer.style.display = 'block';
+      DOM.authSubmitBtn.textContent = 'Register';
+      DOM.authToggleLink.textContent = 'Already have an account? Sign in';
+      DOM.forgotPasswordWrapper.style.display = 'none';
+      DOM.nameContainer.classList.remove('hidden');
+    } else if (authMode === 'reset') {
+      DOM.authTitle.textContent = 'Reset your password';
+      DOM.passwordContainer.style.display = 'none';
+      DOM.authSubmitBtn.textContent = 'Send Reset Link';
+      DOM.authToggleLink.textContent = 'Back to Sign In';
+      DOM.forgotPasswordWrapper.style.display = 'none';
+      DOM.nameContainer.classList.add('hidden');
     }
+  }
 
-    DOMElements.authToggleLink.addEventListener('click', e => { e.preventDefault(); const newMode = (authMode === 'signIn' || authMode === 'reset') ? 'register' : 'signIn'; updateAuthView(newMode); });
-    DOMElements.forgotPasswordLink.addEventListener('click', e => { e.preventDefault(); updateAuthView('reset'); });
+  DOM.authToggleLink.addEventListener('click', e => { e.preventDefault(); const newMode = (authMode === 'signIn' || authMode === 'reset') ? 'register' : 'signIn'; updateAuthView(newMode); });
+  DOM.forgotPasswordLink.addEventListener('click', e => { e.preventDefault(); updateAuthView('reset'); });
 
-    DOMElements.authForm.addEventListener('submit', async e => {
-        e.preventDefault();
-        DOMElements.authError.textContent = '';
-        const email = DOMElements.authForm.email.value;
-        const password = DOMElements.authForm.password.value;
-        try {
-            if (authMode === 'register') {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                // Create a public user profile for the admin panel to find this user
-                await setDoc(doc(db, "users", userCredential.user.uid), {
-                    email: userCredential.user.email,
-                    uid: userCredential.user.uid,
-                    createdAt: serverTimestamp()
-                });
-            } else if (authMode === 'signIn') {
-                await signInWithEmailAndPassword(auth, email, password);
-            } else if (authMode === 'reset') {
-                await sendPasswordResetEmail(auth, email);
-                DOMElements.authError.classList.remove('text-red-500'); DOMElements.authError.classList.add('text-green-600');
-                DOMElements.authError.textContent = 'Success! If an account exists for this email, a reset link has been sent.';
-            }
-        } catch (error) {
-            console.error("Auth Error:", error.code, error.message);
-            DOMElements.authError.classList.add('text-red-500'); DOMElements.authError.classList.remove('text-green-600');
-            DOMElements.authError.textContent = error.message.replace('Firebase: ', '');
-        }
+  DOM.authForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    DOM.authError.textContent = '';
+    const email = DOM.authForm.email.value;
+    const password = DOM.authForm.password.value;
+    const fullName = (DOM.fullNameInput && DOM.fullNameInput.value) ? DOM.fullNameInput.value.trim() : '';
+    try {
+      if (authMode === 'register') {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = cred.user.uid;
+        await setDoc(doc(db, "users", uid), {
+          email,
+          uid,
+          fullName: fullName || '',
+          displayName: fullName || '',
+          createdAt: serverTimestamp()
+        }, { merge: true });
+      } else if (authMode === 'signIn') {
+        await signInWithEmailAndPassword(auth, email, password);
+      } else if (authMode === 'reset') {
+        await sendPasswordResetEmail(auth, email);
+        DOM.authError.classList.remove('text-red-500'); DOM.authError.classList.add('text-green-600');
+        DOM.authError.textContent = 'Success! If an account exists for this email, a reset link has been sent.';
+      }
+    } catch (err) {
+      console.error('Auth error', err);
+      DOM.authError.classList.add('text-red-500');
+      DOM.authError.textContent = err.message.replace('Firebase: ', '');
+    }
+  });
+
+  // sign out
+  document.getElementById('sign-out-btn').addEventListener('click', () => signOut(auth));
+  document.getElementById('admin-sign-out-btn').addEventListener('click', () => signOut(auth));
+
+  // video modal
+  function openVideoModal(videoId) {
+    DOM.videoPlayer.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    DOM.videoModal.style.display = 'flex';
+  }
+  function closeVideoModal() { DOM.videoModal.style.display = 'none'; DOM.videoPlayer.innerHTML = ''; }
+  DOM.closeVideoModal.addEventListener('click', closeVideoModal);
+
+  // ---------- COMMENTS ----------
+  function openCommentsModal(sessionId, sessionTitle) {
+    if (!db || !currentUser) return;
+    DOM.commentModalTitle.textContent = `Comments for: ${sessionTitle}`;
+    DOM.commentForm.dataset.sessionId = sessionId;
+    DOM.commentsContainer.innerHTML = '<p class="text-gray-500 text-center">Loading comments...</p>';
+    DOM.commentsModal.style.display = 'flex';
+    if (unsubscribeComments) unsubscribeComments();
+    const commentsColRef = collection(db, `/artifacts/${appId}/public/data/comments/${sessionId}/messages`);
+    const q = query(commentsColRef);
+    unsubscribeComments = onSnapshot(q, snapshot => {
+      const arr = [];
+      snapshot.forEach(d => arr.push({ id: d.id, ...(d.data() || {}) }));
+      arr.sort((a,b) => (a.timestamp?.toDate?.() || 0) - (b.timestamp?.toDate?.() || 0));
+      renderComments(arr);
+    }, err => {
+      console.error('Comments fetch error', err);
+      DOM.commentsContainer.innerHTML = '<p class="text-red-500 text-center">Could not load comments.</p>';
     });
+  }
 
-    DOMElements.signOutBtn.addEventListener('click', () => signOut(auth));
-    DOMElements.adminSignOutBtn.addEventListener('click', () => signOut(auth));
-    
-    function openVideoModal(videoId) { DOMElements.videoPlayer.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`; DOMElements.videoModal.style.display = 'flex'; }
-    function closeVideoModal() { DOMElements.videoModal.style.display = 'none'; DOMElements.videoPlayer.innerHTML = ''; }
-    function openCommentsModal(sessionId, sessionTitle) { if (!db || !currentUser) return; DOMElements.commentModalTitle.textContent = `Comments for: ${sessionTitle}`; DOMElements.commentForm.dataset.sessionId = sessionId; DOMElements.commentsContainer.innerHTML = '<p class="text-gray-500 text-center">Loading comments...</p>'; DOMElements.commentsModal.style.display = 'flex'; if (unsubscribeComments) unsubscribeComments(); const commentsColRef = collection(db, `/artifacts/${appId}/public/data/comments/${sessionId}/messages`); const q = query(commentsColRef); unsubscribeComments = onSnapshot(q, (snapshot) => { const comments = []; snapshot.forEach((doc) => comments.push({ id: doc.id, ...doc.data() })); comments.sort((a, b) => (a.timestamp?.toDate() || 0) - (b.timestamp?.toDate() || 0)); renderComments(comments); }, (error) => { console.error("Error fetching comments:", error); DOMElements.commentsContainer.innerHTML = '<p class="text-red-500 text-center">Could not load comments.</p>'; }); }
-    function closeCommentsModal() { if (unsubscribeComments) unsubscribeComments(); unsubscribeComments = null; DOMElements.commentsModal.style.display = 'none'; DOMElements.commentForm.reset(); }
-    function renderComments(comments) { if (comments.length === 0) { DOMElements.commentsContainer.innerHTML = '<p class="text-gray-500 text-center">No comments yet.</p>'; return; } DOMElements.commentsContainer.innerHTML = comments.map(comment => { const isCurrentUser = comment.userId === currentUser.uid; const date = comment.timestamp ? comment.timestamp.toDate().toLocaleString() : 'Just now'; return `<div class="p-3 rounded-lg ${isCurrentUser ? 'bg-brand-brown text-white' : 'bg-gray-100'}"><div class="flex justify-between items-center text-xs mb-1"><span class="font-bold truncate" title="${comment.userId}">${isCurrentUser ? 'You' : `User: ...${comment.userId.slice(-6)}`}</span><span class="${isCurrentUser ? 'text-gray-200' : 'text-gray-500'}">${date}</span></div><p class="text-sm break-words">${comment.text || ''}</p></div>`; }).join(''); DOMElements.commentsContainer.scrollTop = DOMElements.commentsContainer.scrollHeight; }
+  function closeCommentsModal() {
+    if (unsubscribeComments) unsubscribeComments();
+    unsubscribeComments = null;
+    DOM.commentsModal.style.display = 'none';
+    DOM.commentForm.reset();
+  }
+  DOM.closeCommentsModal.addEventListener('click', closeCommentsModal);
 
-    DOMElements.commentForm.addEventListener('submit', async (e) => { e.preventDefault(); if (!db || !currentUser) return; const sessionId = e.target.dataset.sessionId, text = DOMElements.commentInput.value.trim(); if (!text) return; const commentsColRef = collection(db, `/artifacts/${appId}/public/data/comments/${sessionId}/messages`); try { await addDoc(commentsColRef, { text: text, userId: currentUser.uid, timestamp: serverTimestamp() }); DOMElements.commentForm.reset(); } catch (error) { console.error("Error adding comment:", error); } });
-    DOMElements.closeVideoModalBtn.addEventListener('click', closeVideoModal);
-    DOMElements.closeCommentsModalBtn.addEventListener('click', closeCommentsModal);
-    window.addEventListener('click', (e) => { if (e.target == DOMElements.videoModal) closeVideoModal(); if (e.target == DOMElements.commentsModal) closeCommentsModal(); });
+  async function renderComments(comments) {
+    if (!comments || comments.length === 0) {
+      DOM.commentsContainer.innerHTML = '<p class="text-gray-500 text-center">No comments yet.</p>';
+      return;
+    }
+    // fetch missing users
+    const missing = [];
+    for (const c of comments) if (c.userId && !commentUserCache[c.userId]) missing.push(c.userId);
+    const uniqueMissing = [...new Set(missing)];
+    await Promise.all(uniqueMissing.map(async uid => {
+      try {
+        const uSnap = await getDoc(doc(db, "users", uid));
+        if (uSnap.exists()) commentUserCache[uid] = { displayName: uSnap.data().displayName || uSnap.data().fullName || uSnap.data().email || `User-${uid.slice(-6)}` };
+        else commentUserCache[uid] = { displayName: `User-${uid.slice(-6)}` };
+      } catch (err) {
+        console.warn('Could not load commenter profile', uid, err);
+        commentUserCache[uid] = { displayName: `User-${uid.slice(-6)}` };
+      }
+    }));
+
+    const html = comments.map(c => {
+      const isMe = c.userId === currentUser.uid;
+      const profile = commentUserCache[c.userId] || { displayName: isMe ? 'You' : `User-${(c.userId||'').slice(-6)}` };
+      const initials = getInitials(profile.displayName || '');
+      const date = c.timestamp ? (c.timestamp.toDate ? c.timestamp.toDate().toLocaleString() : c.timestamp.toString()) : 'Just now';
+      return `<div class="p-3 rounded-lg ${isMe ? 'bg-brand-brown text-white' : 'bg-gray-100'}">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="avatar-initials">${initials}</div>
+          <div class="flex-1">
+            <div class="flex justify-between items-center">
+              <div class="text-xs font-bold truncate">${isMe ? 'You' : profile.displayName}</div>
+              <div class="${isMe ? 'text-gray-200 text-xs' : 'text-gray-500 text-xs'}">${date}</div>
+            </div>
+          </div>
+        </div>
+        <p class="text-sm break-words">${(c.text||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>
+      </div>`;
+    }).join('');
+    DOM.commentsContainer.innerHTML = html;
+    DOM.commentsContainer.scrollTop = DOM.commentsContainer.scrollHeight;
+  }
+
+  DOM.commentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!db || !currentUser) return;
+    const sessionId = e.target.dataset.sessionId;
+    const text = (DOM.commentInput.value || '').trim();
+    if (!text) return;
+    try {
+      await addDoc(collection(db, `/artifacts/${appId}/public/data/comments/${sessionId}/messages`), { text, userId: currentUser.uid, timestamp: serverTimestamp() });
+      DOM.commentForm.reset();
+    } catch (err) {
+      console.error('Error adding comment', err);
+    }
+  });
+
+  // ---------- EDIT PROFILE (STUDENT) ----------
+  function openEditProfileModalStudent() {
+    if (!currentUser) return;
+    DOM.studentEditMsg.textContent = '';
+    DOM.editProfileModalStudent.style.display = 'flex';
+    (async () => {
+      try {
+        const uSnap = await getDoc(doc(db, "users", currentUser.uid));
+        const data = uSnap.exists() ? uSnap.data() : {};
+        const display = data.displayName || data.fullName || currentUser.displayName || '';
+        DOM.studentEditDisplayname.value = display;
+        DOM.studentModalDisplayname.textContent = display || 'Student';
+        DOM.studentModalEmail.textContent = currentUser.email || '';
+        DOM.studentModalInitials.textContent = getInitials(display || currentUser.email || '');
+      } catch (err) {
+        console.warn('Could not load profile into modal', err);
+      }
+    })();
+  }
+
+  DOM.editProfileLink?.addEventListener('click', (e) => { e.preventDefault(); openEditProfileModalStudent(); DOM.menuItems.classList.add('hidden'); });
+  DOM.closeEditProfileModalStudent?.addEventListener('click', () => { DOM.editProfileModalStudent.style.display = 'none'; });
+  DOM.studentCancelEdit?.addEventListener('click', () => { DOM.editProfileModalStudent.style.display = 'none'; });
+
+  DOM.studentEditForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentUser) return;
+    DOM.studentEditMsg.textContent = '';
+    const uid = currentUser.uid;
+    const newDisplay = (DOM.studentEditDisplayname.value || '').trim();
+    try {
+      const uDocRef = doc(db, "users", uid);
+      const updateObj = {};
+      if (newDisplay) updateObj.displayName = newDisplay;
+      if (Object.keys(updateObj).length) await updateDoc(uDocRef, updateObj);
+      // also update Auth profile so firebase.auth().currentUser.displayName matches
+      try { await updateProfile(currentUser, { displayName: newDisplay }); } catch(_) {}
+      const updatedSnap = await getDoc(uDocRef);
+      const updated = updatedSnap.exists() ? updatedSnap.data() : {};
+      const displayToShow = updated.displayName || newDisplay || currentUser.displayName || '';
+      setInitialsUI(displayToShow, DOM.userInitials);
+      DOM.userName.textContent = displayToShow;
+      DOM.studentModalDisplayname.textContent = displayToShow;
+      DOM.studentModalInitials.textContent = getInitials(displayToShow || currentUser.email || '');
+      DOM.studentEditMsg.textContent = 'Saved.';
+      setTimeout(() => { DOM.editProfileModalStudent.style.display = 'none'; DOM.studentEditMsg.textContent = ''; }, 700);
+    } catch (err) {
+      console.error('Error saving displayName (student)', err);
+      DOM.studentEditMsg.textContent = 'Could not save profile.';
+    }
+  });
+
+  // ---------- EDIT PROFILE (ADMIN) ----------
+  function openEditProfileModalAdmin() {
+    if (!currentUser) return;
+    DOM.adminEditMsg.textContent = '';
+    DOM.editProfileModalAdmin.style.display = 'flex';
+    (async () => {
+      try {
+        const uSnap = await getDoc(doc(db, "users", currentUser.uid));
+        const data = uSnap.exists() ? uSnap.data() : {};
+        const display = data.displayName || data.fullName || currentUser.displayName || '';
+        DOM.adminEditDisplayname.value = display;
+        DOM.adminModalDisplayname.textContent = display || 'Admin';
+        DOM.adminModalEmail.textContent = currentUser.email || '';
+        DOM.adminModalInitials.textContent = getInitials(display || currentUser.email || '');
+      } catch (err) {
+        console.warn('Could not load admin profile into modal', err);
+      }
+    })();
+  }
+
+  DOM.editProfileLinkAdmin?.addEventListener('click', (e) => { e.preventDefault(); openEditProfileModalAdmin(); DOM.adminMenuItems.classList.add('hidden'); });
+  DOM.closeEditProfileModalAdmin?.addEventListener('click', () => { DOM.editProfileModalAdmin.style.display = 'none'; });
+  DOM.adminCancelEdit?.addEventListener('click', () => { DOM.editProfileModalAdmin.style.display = 'none'; });
+
+  DOM.adminEditForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentUser) return;
+    DOM.adminEditMsg.textContent = '';
+    const uid = currentUser.uid;
+    const newDisplay = (DOM.adminEditDisplayname.value || '').trim();
+    try {
+      const uDocRef = doc(db, "users", uid);
+      const updateObj = {};
+      if (newDisplay) updateObj.displayName = newDisplay;
+      if (Object.keys(updateObj).length) await updateDoc(uDocRef, updateObj);
+      try { await updateProfile(currentUser, { displayName: newDisplay }); } catch(_) {}
+      const updatedSnap = await getDoc(uDocRef);
+      const updated = updatedSnap.exists() ? updatedSnap.data() : {};
+      const displayToShow = updated.displayName || newDisplay || currentUser.displayName || '';
+      setInitialsUI(displayToShow, DOM.adminInitials);
+      DOM.adminModalDisplayname.textContent = displayToShow;
+      DOM.adminModalInitials.textContent = getInitials(displayToShow || currentUser.email || '');
+      DOM.adminEditMsg.textContent = 'Saved.';
+      setTimeout(() => { DOM.editProfileModalAdmin.style.display = 'none'; DOM.adminEditMsg.textContent = ''; }, 700);
+    } catch (err) {
+      console.error('Error saving displayName (admin)', err);
+      DOM.adminEditMsg.textContent = 'Could not save profile.';
+    }
+  });
+
+  // close modals by clicking outside
+  window.addEventListener('click', (e) => {
+    if (e.target === DOM.videoModal) closeVideoModal();
+    if (e.target === DOM.commentsModal) closeCommentsModal();
+    if (e.target === DOM.editProfileModalStudent) DOM.editProfileModalStudent.style.display = 'none';
+    if (e.target === DOM.editProfileModalAdmin) DOM.editProfileModalAdmin.style.display = 'none';
+  });
+
+  // Initialize auth view
+  updateAuthView('signIn');
+
 </script>
-
 </body>
 </html>
-
-
