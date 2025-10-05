@@ -310,16 +310,51 @@
   const courseStartDate = new Date('2025-10-04T00:00:00Z');
   const ADMIN_EMAIL = 'firsttechhub1@gmail.com';
 
-  const courseData = [
-    { week:1, title:'Week 1: Foundations & Communication', sessions:[ {title:'Introduction to Google Workspace', youtubeId:'DNH-4Z7MbRE'}, {title:'Google Drive (Part 1) - Introduction & Interface Overview', youtubeId:'M_mK2yqKkFM'}, {title:'Google Drive (Part 2) - Creating,  Uploading & Managing Files', youtubeId:'W-Pl-3vpycY'} ], assessmentLink:'https://forms.gle/your-assessment-link-1' },
-    { week:2, title:'Week 2: Collaboration', sessions:[ {day:4, title:'Google Docs: Advanced Formatting', youtubeId:'W-Pl-3vpycY'}, {day:5, title:'Data Analysis with Google Sheets', youtubeId:'W-Pl-3vpycY'} ], assessmentLink:'https://forms.gle/your-assessment-link-2' },
-    { week:3, title:'Week 3: Cloud Storage', sessions:[ {day:6, title:'Managing Files with Google Drive', youtubeId:'W-Pl-3vpycY'}, {day:7, title:'Building Surveys with Google Forms', youtubeId:'W-Pl-3vpycY'} ], assessmentLink:'https://forms.gle/your-assessment-link-3' },
-    { week:4, title:'Week 4: Advanced Tools', sessions:[ {day:8, title:'Automating Tasks with App Script', youtubeId:'W-Pl-3vpycY'}, {day:9, title:'Course Wrap-up', youtubeId:'W-Pl-3vpycY'} ], assessmentLink:'https://forms.gle/your-assessment-link-4' }
-  ];
+ const courseData = [
+  {
+    week: 1,
+    title: 'Week 1: Foundations & Communication',
+    sessions: [
+      { title: 'Introduction to Google Workspace', youtubeId: 'DNH-4Z7MbRE' },
+      { title: 'Google Drive (Part 1) - Introduction & Interface Overview', youtubeId: 'M_mK2yqKkFM' },
+      { title: 'Google Drive (Part 2) - Creating, Uploading & Managing Files', youtubeId: 'W-Pl-3vpycY' }
+    ],
+    assessmentLink: 'https://forms.gle/your-assessment-link-1'
+  },
+  {
+    week: 2,
+    title: 'Week 2: Collaboration',
+    sessions: [
+      { title: 'Google Docs: Advanced Formatting', youtubeId: 'W-Pl-3vpycY' },
+      { title: 'Data Analysis with Google Sheets', youtubeId: 'W-Pl-3vpycY' }
+    ],
+    assessmentLink: 'https://forms.gle/your-assessment-link-2'
+  },
+  {
+    week: 3,
+    title: 'Week 3: Cloud Storage',
+    sessions: [
+      { title: 'Managing Files with Google Drive', youtubeId: 'W-Pl-3vpycY' },
+      { title: 'Building Surveys with Google Forms', youtubeId: 'W-Pl-3vpycY' }
+    ],
+    assessmentLink: 'https://forms.gle/your-assessment-link-3'
+  },
+  {
+    week: 4,
+    title: 'Week 4: Advanced Tools',
+    sessions: [
+      { title: 'Automating Tasks with App Script', youtubeId: 'W-Pl-3vpycY' },
+      { title: 'Course Wrap-up', youtubeId: 'W-Pl-3vpycY' }
+    ],
+    assessmentLink: 'https://forms.gle/your-assessment-link-4'
+  }
+];
 
-  const totalSessions = courseData.reduce((acc,w) => acc + w.sessions.length, 0);
-  const sessionMap = new Map();
-  courseData.forEach(week => week.sessions.forEach(s => sessionMap.set(`w${week.week}d${s.day}`, s.title)));
+const totalSessions = courseData.reduce((acc, w) => acc + w.sessions.length, 0);
+const sessionMap = new Map();
+courseData.forEach(week =>
+  week.sessions.forEach((s, index) => sessionMap.set(`w${week.week}s${index + 1}`, s.title))
+);
 
   // DOM refs (same IDs used earlier)
   const DOM = {
@@ -1021,6 +1056,7 @@ function renderCurriculum() {
 </script>
 </body>
 </html>
+
 
 
 
