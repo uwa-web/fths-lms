@@ -823,7 +823,11 @@
 
   // video modal
   function openVideoModal(videoId) {
-    DOM.videoPlayer.innerHTML = `<iframe src="${videoId.includes('http') ? videoId : https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;   
+const videoSrc = videoId.includes('http') 
+  ? videoId 
+  : `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+
+    DOM.videoPlayer.innerHTML = `<iframe src="${videoSrc}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;   
     DOM.videoModal.style.display = 'flex';
   }
   function closeVideoModal() { DOM.videoModal.style.display = 'none'; DOM.videoPlayer.innerHTML = ''; }
@@ -1030,5 +1034,6 @@
 </script>
 </body>
 </html>
+
 
 
