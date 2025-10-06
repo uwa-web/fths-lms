@@ -583,7 +583,7 @@
             </div>
             <div class="flex space-x-2 self-end sm:self-center mt-3 sm:mt-0">
               <button class="comments-btn text-sm font-semibold py-2 px-3 rounded-md ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-gray-100 text-brand-brown hover:bg-gray-200 border border-brand-brown'}" data-session-id="${sessionId}" data-session-title="${session.title}" ${isLocked ? 'disabled' : ''}>Comments</button>
-              <button class="watch-btn text-sm font-semibold py-2 px-3 rounded-md ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-brand-brown text-white hover:bg-brand-brown-dark'}" data-videoid="${session.youtubeId}" ${isLocked ? 'disabled' : ''}>Watch</button>
+              <button class="watch-btn text-sm font-semibold py-2 px-3 rounded-md ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-brand-brown text-white hover:bg-brand-brown-dark'}" data-videoid="${session.videoId || session.youtubeId}" ${isLocked ? 'disabled' : ''}>Watch</button>
               <button class="mark-complete-btn text-sm font-semibold py-2 px-3 rounded-md ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : (isCompleted ? 'bg-green-600 text-white cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600')}" data-session-id="${sessionId}" ${isLocked || isCompleted ? 'disabled' : ''}>
                 ${isCompleted ? 'Completed' : 'Mark as Complete'}
               </button>
@@ -1033,6 +1033,7 @@ iframe.src = session.videoUrl
 </script>
 </body>
 </html>
+
 
 
 
