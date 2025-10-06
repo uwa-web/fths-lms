@@ -317,12 +317,12 @@
     title: 'Week 1: Building your Google Workspace Foundation', 
     sessions: [
       {title:'Introduction to Google Workspace', youtubeId:'DNH-4Z7MbRE'},
-      {title:'Google Drive (Part 1) - Introduction & Interface Overview', youtubeId:'M_mK2yqKkFM'},
-      {title:'Google Drive (Part 2) - Creating,  Uploading & Managing Files', youtubeId:'y4elFFH-2-4'},
-      {title:'Google Drive (Part 3) - Sharing, Permissions & Collaboration', youtubeId:'ENug_4Ivams'},
-      {title:'Google Chat (Part 1) - Introduction & Interface Overview', youtubeId:'DGUcmKgRRZM'},
-      {title:'Google Chat (Part 2) - Using Chat Spaces & Direct Messages', youtubeId:'LpgKg6OmVjM'},
-      {title:'Google Chat (Part 3) - Tips, Integrations & Best Practices', youtubeId:'ENug_4Ivams'}
+      {title:'Google Drive (Part 1) - Introduction & Interface Overview', videoId:'M_mK2yqKkFM'},
+      {title:'Google Drive (Part 2) - Creating,  Uploading & Managing Files', videoId:'y4elFFH-2-4'},
+      {title:'Google Drive (Part 3) - Sharing, Permissions & Collaboration', videoId:'https://vimeo.com/1124684163'},
+      {title:'Google Chat (Part 1) - Introduction & Interface Overview', videoId:'DGUcmKgRRZM'},
+      {title:'Google Chat (Part 2) - Using Chat Spaces & Direct Messages', videoId:'LpgKg6OmVjM'},
+      {title:'Google Chat (Part 3) - Tips, Integrations & Best Practices', videoId:'ENug_4Ivams'}
     ],
     assessmentLink:'https://forms.gle/your-assessment-link-1'
   },
@@ -823,7 +823,7 @@
 
   // video modal
   function openVideoModal(videoId) {
-    DOM.videoPlayer.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    DOM.videoPlayer.innerHTML = `<iframe src="${videoId.includes('http') ? videoId : https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;   
     DOM.videoModal.style.display = 'flex';
   }
   function closeVideoModal() { DOM.videoModal.style.display = 'none'; DOM.videoPlayer.innerHTML = ''; }
@@ -1030,3 +1030,4 @@
 </script>
 </body>
 </html>
+
