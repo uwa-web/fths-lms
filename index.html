@@ -305,7 +305,7 @@
 
   // --- Config & Data ---
   const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-  const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "AIzaSyA3ANYxI7EJMGJ995dXHWoBCa947t7bZBg", authDomain: "fths-lms-50fc7.firebaseapp.com", projectId: "fths-lms-50fc7" };
+  const firebaseConfig = typeof _firebase_config !== 'undefined' ? JSON.parse(_firebase_config) : { apiKey: "AIzaSyA3ANYxI7EJMGJ995dXHWoBCa947t7bZBg", authDomain: "fths-lms-50fc7.firebaseapp.com", projectId: "fths-lms-50fc7" };
 
   const courseStartDate = new Date('2025-10-06T00:00:00Z');
   const ADMIN_EMAIL = 'firsttechhub1@gmail.com';
@@ -315,14 +315,9 @@
     week: 1,
     title: 'Week 1: Foundations & Communication',
     sessions: [
-      { title: 'Introduction to Google Workspace', vimeoId: '123456789' },
-      { title: 'Google Drive (Part 1) - Introduction & Interface Overview', vimeoId: '123456789' },
-      { title: 'Google Drive (Part 2) - Creating, Uploading & Managing Files', vimeoId: '123456789' },
-      { title: 'Google Drive (Part 3) - Sharing, Permissions & Collaboration', vimeoId: '1124684163' },
-      { title: 'Google Chat (Part 1) -  Introduction & Interface Overview', vimeoId: '123456789' },
-      { title: 'Google Drive (Part 1) - Introduction & Interface Overview', vimeoId: '123456789' },
-      { title: 'Google Drive (Part 2) - Creating, Uploading & Managing Files', vimeoId: '123456789' },
-      { title: 'Google Drive (Part 3) - Sharing, Permissions & Collaboration', vimeoId: '123456789' },
+      { title: 'Introduction to Google Workspace', youtubeId: 'DNH-4Z7MbRE' },
+      { title: 'Google Drive (Part 1) - Introduction & Interface Overview', youtubeId: 'M_mK2yqKkFM' },
+      { title: 'Google Drive (Part 2) - Creating, Uploading & Managing Files', youtubeId: 'W-Pl-3vpycY' }
     ],
     assessmentLink: 'https://forms.gle/your-assessment-link-1'
   },
@@ -330,8 +325,8 @@
     week: 2,
     title: 'Week 2: Collaboration',
     sessions: [
-      { title: 'Google Docs: Advanced Formatting', vimeoId: '123456789' },
-      { title: 'Data Analysis with Google Sheets', vimeoId: '123456789' }
+      { title: 'Google Docs: Advanced Formatting', youtubeId: 'W-Pl-3vpycY' },
+      { title: 'Data Analysis with Google Sheets', youtubeId: 'W-Pl-3vpycY' }
     ],
     assessmentLink: 'https://forms.gle/your-assessment-link-2'
   },
@@ -339,8 +334,8 @@
     week: 3,
     title: 'Week 3: Cloud Storage',
     sessions: [
-      { title: 'Managing Files with Google Drive', vimeoId: '123456789' },
-      { title: 'Building Surveys with Google Forms', vimeoId: '123456789' }
+      { title: 'Managing Files with Google Drive', youtubeId: 'W-Pl-3vpycY' },
+      { title: 'Building Surveys with Google Forms', youtubeId: 'W-Pl-3vpycY' }
     ],
     assessmentLink: 'https://forms.gle/your-assessment-link-3'
   },
@@ -348,18 +343,17 @@
     week: 4,
     title: 'Week 4: Advanced Tools',
     sessions: [
-      { title: 'Automating Tasks with App Script', vimeoId: '123456789' },
-      { title: 'Course Wrap-up', vimeoId: '123456789' }
+      { title: 'Automating Tasks with App Script', youtubeId: 'W-Pl-3vpycY' },
+      { title: 'Course Wrap-up', youtubeId: 'W-Pl-3vpycY' }
     ],
     assessmentLink: 'https://forms.gle/your-assessment-link-4'
   }
 ];
 
-
 const totalSessions = courseData.reduce((acc, w) => acc + w.sessions.length, 0);
 const sessionMap = new Map();
 courseData.forEach(week =>
-  week.sessions.forEach((s, index) => sessionMap.set(`w${week.week}s${index + 1}`, s.title))
+  week.sessions.forEach((s, index) => sessionMap.set(w${week.week}s${index + 1}, s.title))
 );
 
   // DOM refs (same IDs used earlier)
@@ -541,7 +535,7 @@ courseData.forEach(week =>
 
   // ---------- USER PROGRESS ----------
   async function loadUserData(uid) {
-    const progressDocRef = doc(db, `/artifacts/${appId}/users/${uid}/progress/googleWorkspace`);
+    const progressDocRef = doc(db, /artifacts/${appId}/users/${uid}/progress/googleWorkspace);
     try {
       const snap = await getDoc(progressDocRef);
       if (snap.exists() && snap.data().completedSessions) userProgress = snap.data();
@@ -559,7 +553,7 @@ courseData.forEach(week =>
   async function updateProgress(sessionId) {
     if (!currentUser) return;
     if (userProgress.completedSessions && userProgress.completedSessions.includes(sessionId)) return;
-    const progressDocRef = doc(db, `/artifacts/${appId}/users/${currentUser.uid}/progress/googleWorkspace`);
+    const progressDocRef = doc(db, /artifacts/${appId}/users/${currentUser.uid}/progress/googleWorkspace);
     try {
       await updateDoc(progressDocRef, { completedSessions: arrayUnion(sessionId) });
       if (!userProgress.completedSessions) userProgress.completedSessions = [];
@@ -604,48 +598,31 @@ function renderCurriculum() {
         const weekEl = document.createElement('div');
         weekEl.className = 'week-wrapper border border-gray-200 rounded-lg';
 
-       const sessionsHtml = weekData.sessions.map((session, index) => {
-            const sessionId = `w${weekData.week}s${index + 1}`;
-            const isCompleted = userProgress.completedSessions?.includes(sessionId);
+        const sessionsHtml = weekData.sessions.map(session => {
+            const sessionId = w${weekData.week}d${session.day};
+            const isCompleted = userProgress.completedSessions && userProgress.completedSessions.includes(sessionId);
             return `
-                <li class="session-item flex items-center justify-between p-3 hover:bg-gray-50 rounded-md ${isLocked ? 'opacity-50' : 'cursor-pointer'}" 
-                    data-session-id="${sessionId}" 
-                    ${!isLocked && session.vimeoId ? `data-vimeo-id="${session.vimeoId}"` : ''}>
-                    <div class="flex items-center">
-                        <input type="checkbox" class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500" ${isCompleted ? 'checked' : ''} ${isLocked ? 'disabled' : ''}>
-                        <span class="ml-3 text-sm font-medium ${isCompleted ? 'line-through text-gray-500' : ''}">${session.title}</span>
-                    </div>
-                </li>
+              <div class="session-item flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border-t border-gray-200 ${isCompleted ? 'bg-green-50' : ''}" data-title="${session.title}">
+                <div class="flex items-center mb-2 sm:mb-0">
+                  <svg class="w-5 h-5 ${isLocked ? 'text-gray-400' : (isCompleted ? 'text-green-500' : 'text-brand-brown')} mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">${isLocked ? '<path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a4 4 0 100 8 4 4 0 000-8z" clip-rule="evenodd"/>' : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'}</svg>
+                  <span class="${isLocked ? 'text-gray-500' : 'text-brand-brown'}">Day ${session.day}: ${session.title}</span>
+                </div>
+                <div class="flex space-x-2 self-end sm:self-center mt-3 sm:mt-0">
+                  <button class="comments-btn text-sm font-semibold py-2 px-3 rounded-md ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-gray-100 text-brand-brown hover:bg-gray-200 border border-brand-brown'}" data-session-id="${sessionId}" data-session-title="${session.title}" ${isLocked ? 'disabled' : ''}>Comments</button>
+                  <button class="watch-btn text-sm font-semibold py-2 px-3 rounded-md ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-brand-brown text-white hover:bg-brand-brown-dark'}" data-videoid="${session.youtubeId}" ${isLocked ? 'disabled' : ''}>Watch</button>
+                  <button class="mark-complete-btn text-sm font-semibold py-2 px-3 rounded-md ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : (isCompleted ? 'bg-green-600 text-white cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600')}" data-session-id="${sessionId}" ${isLocked || isCompleted ? 'disabled' : ''}>
+                    ${isCompleted ? 'Completed' : 'Mark as Complete'}
+                  </button>
+                </div>
+              </div>
             `;
         }).join('');
 
-        const accordionId = `accordion-${weekData.week}`;
-        weekEl.innerHTML = `
-            <button class="accordion-button w-full text-left p-4 font-bold text-lg flex justify-between items-center bg-gray-50 hover:bg-gray-100 rounded-t-lg">
-                ${weekData.title}
-                <svg class="w-6 h-6 transform ${isOpen ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-            </button>
-            <div id="${accordionId}" class="accordion-content p-4 border-t ${isOpen ? 'open' : ''}" style="${isOpen ? 'max-height: 1000px;' : ''}">
-                ${isLocked ? `<p class="text-sm text-gray-500">This week's content unlocks on ${unlockDate.toLocaleDateString()}.</p>` : `<ul class="space-y-2">${sessionsHtml}</ul>`}
-            </div>
-        `;
+        const assessmentHtml = <div class="p-4 border-t border-gray-200 bg-gray-50"><a href="${isLocked ? '#' : weekData.assessmentLink}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center font-bold py-2 px-4 rounded-md ${isLocked ? 'bg-gray-300 text-gray-600' : 'bg-green-600 text-white hover:bg-green-700'}">Week ${weekData.week} Assessment</a></div>;
+
+        weekEl.innerHTML = <button class="accordion-header flex justify-between items-center w-full p-5 text-left font-semibold text-lg"><span>${weekData.title}</span><svg class="w-6 h-6 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button><div class="accordion-content" ${isOpen ? 'style="max-height:1000px;"' : ''}>${sessionsHtml}${assessmentHtml}</div>;
         DOM.curriculumContainer.appendChild(weekEl);
     });
-    
-    // --- MODIFIED: Add event listener for playing videos ---
-    DOM.curriculumContainer.addEventListener('click', (e) => {
-        const sessionItem = e.target.closest('.session-item');
-        if (sessionItem && sessionItem.dataset.vimeoId) {
-            const vimeoId = sessionItem.dataset.vimeoId;
-            openVideoModal(vimeoId);
-            // Also mark as complete
-            const sessionId = sessionItem.dataset.sessionId;
-            if (sessionId) {
-                updateProgress(sessionId);
-            }
-        }
-    });
-
 
     updateProgressBar();
     addDynamicEventListeners();
@@ -654,8 +631,8 @@ function renderCurriculum() {
   function updateProgressBar() {
     const completedCount = userProgress.completedSessions ? userProgress.completedSessions.length : 0;
     const percentage = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
-    DOM.progressBar.style.width = `${percentage}%`;
-    DOM.progressText.textContent = `${percentage}% Complete (${completedCount} of ${totalSessions} sessions)`;
+    DOM.progressBar.style.width = ${percentage}%;
+    DOM.progressText.textContent = ${percentage}% Complete (${completedCount} of ${totalSessions} sessions);
   }
 
   function addDynamicEventListeners() {
@@ -697,7 +674,7 @@ function renderCurriculum() {
       const users = usersSnap.docs.map(d => ({ uid: d.id, ...(d.data() || {}) }));
       const promises = users.filter(u => u.email && u.email !== ADMIN_EMAIL).map(async (u) => {
         const uid = u.uid || u.uid;
-        const progressDocRef = doc(db, `/artifacts/${appId}/users/${uid}/progress/googleWorkspace`);
+        const progressDocRef = doc(db, /artifacts/${appId}/users/${uid}/progress/googleWorkspace);
         let progressData = { completedSessions: [] };
         try {
           const pSnap = await getDoc(progressDocRef);
@@ -732,7 +709,7 @@ function renderCurriculum() {
       const titles = (st.completedSessions || []).map(id => sessionMap.get(id) || id).join('\n');
       const display = st.fullName || st.displayName || st.email || 'Student';
       const initials = getInitials(display);
-      const avatarHtml = `<div class="avatar-initials">${initials}</div>`;
+      const avatarHtml = <div class="avatar-initials">${initials}</div>;
       return `
         <tr class="hover:bg-gray-50 student-row" data-uid="${st.uid}">
           <td class="py-3 px-4 text-sm text-gray-700 break-all flex items-center gap-3">
@@ -767,7 +744,7 @@ function renderCurriculum() {
         const next = row.nextElementSibling;
         if (next && next.classList.contains('expanded-row')) { next.remove(); return; }
         document.querySelectorAll('#student-list-body .expanded-row').forEach(r => r.remove());
-        const progressDocRef = doc(db, `/artifacts/${appId}/users/${uid}/progress/googleWorkspace`);
+        const progressDocRef = doc(db, /artifacts/${appId}/users/${uid}/progress/googleWorkspace);
         let sessionsList = [];
         try {
           const snap = await getDoc(progressDocRef);
@@ -776,7 +753,7 @@ function renderCurriculum() {
         } catch (e) { console.warn('Could not fetch progress', uid, e); }
         const expandedRow = document.createElement('tr');
         expandedRow.classList.add('expanded-row');
-        expandedRow.innerHTML = `<td colspan="3" class="px-4 py-3"><strong class="block mb-2">Completed Sessions (${sessionsList.length}):</strong><ul class="list-disc ml-6">${sessionsList.length ? sessionsList.map(s => `<li>${s}</li>`).join('') : '<li>None</li>'}</ul></td>`;
+        expandedRow.innerHTML = `<td colspan="3" class="px-4 py-3"><strong class="block mb-2">Completed Sessions (${sessionsList.length}):</strong><ul class="list-disc ml-6">${sessionsList.length ? sessionsList.map(s => <li>${s}</li>).join('') : '<li>None</li>'}</ul></td>`;
         row.after(expandedRow);
       });
     });
@@ -795,7 +772,7 @@ function renderCurriculum() {
       const completedCount = (s.completedSessions || []).length;
       const pct = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
       const titles = (s.completedSessions || []).map(id => sessionMap.get(id) || id).join('; ');
-      csv += `"${s.email}","${(s.fullName || s.displayName || '').replace(/"/g,'""')}",${completedCount},${totalSessions},${pct},"${titles.replace(/"/g,'""')}"\r\n`;
+      csv += "${s.email}","${(s.fullName || s.displayName || '').replace(/"/g,'""')}",${completedCount},${totalSessions},${pct},"${titles.replace(/"/g,'""')}"\r\n;
     });
     const link = document.createElement('a');
     link.setAttribute('href', encodeURI(csv));
@@ -872,7 +849,7 @@ function renderCurriculum() {
 
   // video modal
   function openVideoModal(videoId) {
-    DOM.videoPlayer.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    DOM.videoPlayer.innerHTML = <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>;
     DOM.videoModal.style.display = 'flex';
   }
   function closeVideoModal() { DOM.videoModal.style.display = 'none'; DOM.videoPlayer.innerHTML = ''; }
@@ -881,12 +858,12 @@ function renderCurriculum() {
   // ---------- COMMENTS ----------
   function openCommentsModal(sessionId, sessionTitle) {
     if (!db || !currentUser) return;
-    DOM.commentModalTitle.textContent = `Comments for: ${sessionTitle}`;
+    DOM.commentModalTitle.textContent = Comments for: ${sessionTitle};
     DOM.commentForm.dataset.sessionId = sessionId;
     DOM.commentsContainer.innerHTML = '<p class="text-gray-500 text-center">Loading comments...</p>';
     DOM.commentsModal.style.display = 'flex';
     if (unsubscribeComments) unsubscribeComments();
-    const commentsColRef = collection(db, `/artifacts/${appId}/public/data/comments/${sessionId}/messages`);
+    const commentsColRef = collection(db, /artifacts/${appId}/public/data/comments/${sessionId}/messages);
     const q = query(commentsColRef);
     unsubscribeComments = onSnapshot(q, snapshot => {
       const arr = [];
@@ -919,17 +896,17 @@ function renderCurriculum() {
     await Promise.all(uniqueMissing.map(async uid => {
       try {
         const uSnap = await getDoc(doc(db, "users", uid));
-        if (uSnap.exists()) commentUserCache[uid] = { displayName: uSnap.data().displayName || uSnap.data().fullName || uSnap.data().email || `User-${uid.slice(-6)}` };
-        else commentUserCache[uid] = { displayName: `User-${uid.slice(-6)}` };
+        if (uSnap.exists()) commentUserCache[uid] = { displayName: uSnap.data().displayName || uSnap.data().fullName || uSnap.data().email || User-${uid.slice(-6)} };
+        else commentUserCache[uid] = { displayName: User-${uid.slice(-6)} };
       } catch (err) {
         console.warn('Could not load commenter profile', uid, err);
-        commentUserCache[uid] = { displayName: `User-${uid.slice(-6)}` };
+        commentUserCache[uid] = { displayName: User-${uid.slice(-6)} };
       }
     }));
 
     const html = comments.map(c => {
       const isMe = c.userId === currentUser.uid;
-      const profile = commentUserCache[c.userId] || { displayName: isMe ? 'You' : `User-${(c.userId||'').slice(-6)}` };
+      const profile = commentUserCache[c.userId] || { displayName: isMe ? 'You' : User-${(c.userId||'').slice(-6)} };
       const initials = getInitials(profile.displayName || '');
       const date = c.timestamp ? (c.timestamp.toDate ? c.timestamp.toDate().toLocaleString() : c.timestamp.toString()) : 'Just now';
       return `<div class="p-3 rounded-lg ${isMe ? 'bg-brand-brown text-white' : 'bg-gray-100'}">
@@ -956,7 +933,7 @@ function renderCurriculum() {
     const text = (DOM.commentInput.value || '').trim();
     if (!text) return;
     try {
-      await addDoc(collection(db, `/artifacts/${appId}/public/data/comments/${sessionId}/messages`), { text, userId: currentUser.uid, timestamp: serverTimestamp() });
+      await addDoc(collection(db, /artifacts/${appId}/public/data/comments/${sessionId}/messages), { text, userId: currentUser.uid, timestamp: serverTimestamp() });
       DOM.commentForm.reset();
     } catch (err) {
       console.error('Error adding comment', err);
@@ -1079,16 +1056,3 @@ function renderCurriculum() {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
