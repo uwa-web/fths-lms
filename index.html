@@ -305,8 +305,18 @@
   import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, query, onSnapshot, serverTimestamp, arrayUnion, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
   // --- Config & Data ---
-  const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-  const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "AIzaSyANLHq0jjjMTUxIuCfbQ19xL5UBmwLwpfs", authDomain: "fths-lms-50fc7.firebaseapp.com", projectId: "fths-lms-50fc7" };
+  let firebaseConfig;
+  try {
+    const response = await fetch('/api/config');
+    firebaseConfig = await response.json();
+  } catch (error) {
+    console.error("Failed to fetch Firebase config:", error);
+    DOM.authError.textContent = 'Could not load application configuration.';
+    DOM.loadingSpinner.classList.add('hidden');
+    DOM.authContainer.classList.remove('hidden');
+  }
+
+  const appId = typeof __app_id !== 'undefined' ? __app_id : firebaseConfig?.appId || 'default-app-id';
 
   const courseStartDate = new Date('2025-10-06T00:00:00Z');
   const ADMIN_EMAIL = 'firsttechhub1@gmail.com';
