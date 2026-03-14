@@ -381,9 +381,7 @@
     4: 'https://classroom.google.com/c/ODQ1MDY4MjExNzUx/a/ODUwMTEyMDA2Nzg2/details'
   }; // Fallback links, I will remove later
 
-  const ADMIN_EMAIL = 'firsttechhub1@gmail.com';
-
-    // const ADMIN_EMAIL = 'lukeprecious@gmail.com';
+  const ADMIN_EMAILS = ['firsttechhub1@gmail.com', 'lukeprecious@gmail.com'];
 
   const courseData = [
   { 
@@ -657,7 +655,7 @@
         console.warn('Could not read users doc', err);
       }
 
-      if (user.email === ADMIN_EMAIL) {
+      if (ADMIN_EMAILS.includes(user.email)) {
         // admin view
         DOM.lmsContainer.classList.add('hidden');
         DOM.adminContainer.classList.remove('hidden');
@@ -904,7 +902,7 @@
     try {
       const usersSnap = await getDocs(collection(db, "users"));
       const users = usersSnap.docs.map(d => ({ uid: d.id, ...(d.data() || {}) }));
-      const promises = users.filter(u => u.email && u.email !== ADMIN_EMAIL).map(async (u) => {
+      const promises = users.filter(u => u.email && !ADMIN_EMAILS.includes(u.email)).map(async (u) => {
         const uid = u.uid || u.uid;
         const progressDocRef = doc(db, `/artifacts/${appId}/users/${uid}/progress/googleWorkspace`);
         let progressData = { completedSessions: [] };
