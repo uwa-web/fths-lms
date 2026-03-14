@@ -195,6 +195,26 @@
             <input type="date" id="admin-week-4-date" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown">
           </div>
         </div>
+
+        <h3 class="text-xl font-bold text-brand-brown mb-4">Course Weekly Assessment Links</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div>
+            <label for="admin-week-1-link" class="block text-sm font-medium text-gray-700 mb-1">Week 1 Assessment Link</label>
+            <input type="url" id="admin-week-1-link" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown" placeholder="https://...">
+          </div>
+          <div>
+            <label for="admin-week-2-link" class="block text-sm font-medium text-gray-700 mb-1">Week 2 Assessment Link</label>
+            <input type="url" id="admin-week-2-link" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown" placeholder="https://...">
+          </div>
+          <div>
+            <label for="admin-week-3-link" class="block text-sm font-medium text-gray-700 mb-1">Week 3 Assessment Link</label>
+            <input type="url" id="admin-week-3-link" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown" placeholder="https://...">
+          </div>
+          <div>
+            <label for="admin-week-4-link" class="block text-sm font-medium text-gray-700 mb-1">Week 4 Assessment Link</label>
+            <input type="url" id="admin-week-4-link" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown" placeholder="https://...">
+          </div>
+        </div>
         <div class="flex justify-end">
           <button id="admin-save-course-date-btn" class="bg-brand-brown text-white font-bold py-2 px-6 rounded-lg hover:bg-brand-brown-dark transition duration-300">
             Save Dates
@@ -353,6 +373,14 @@
     3: new Date('2026-03-03T00:00:00Z'),
     4: new Date('2026-03-10T00:00:00Z')
   }; // Fallback dates
+
+  let weekAssessmentLinks = {
+    1: 'https://classroom.google.com/c/ODM1MzE3MDk0OTIz/a/ODM3OTQ0Nzg2NzQ4/details',
+    2: 'https://classroom.google.com/c/ODM1MzE3MDk0OTIz/a/ODM3OTQ2MzE2Njgw/details',
+    3: 'https://classroom.google.com/c/ODQ1MDY4MjExNzUx/a/ODUwMTExOTQ4MTQx/details',
+    4: 'https://classroom.google.com/c/ODQ1MDY4MjExNzUx/a/ODUwMTEyMDA2Nzg2/details'
+  }; // Fallback links, I will remove later
+
   const ADMIN_EMAIL = 'firsttechhub1@gmail.com';
 
     // const ADMIN_EMAIL = 'lukeprecious@gmail.com';
@@ -459,6 +487,10 @@
     adminWeek2DateInput: document.getElementById('admin-week-2-date'),
     adminWeek3DateInput: document.getElementById('admin-week-3-date'),
     adminWeek4DateInput: document.getElementById('admin-week-4-date'),
+    adminWeek1LinkInput: document.getElementById('admin-week-1-link'),
+    adminWeek2LinkInput: document.getElementById('admin-week-2-link'),
+    adminWeek3LinkInput: document.getElementById('admin-week-3-link'),
+    adminWeek4LinkInput: document.getElementById('admin-week-4-link'),
     adminSaveCourseDateBtn: document.getElementById('admin-save-course-date-btn'),
     adminCourseDateMsg: document.getElementById('admin-course-date-msg'),
     studentListBody: document.getElementById('student-list-body'),
@@ -549,31 +581,50 @@
     if (user) {
       DOM.authContainer.classList.add('hidden');
 
-      // Fetch dynamic course week dates from Firestore
+      // Fetch dynamic course week dates and assessment links from Firestore
       try {
         const settingsRef = doc(db, "settings", "course");
         const settingsSnap = await getDoc(settingsRef);
-        if (settingsSnap.exists() && settingsSnap.data().weekDates) {
-          const fetchedDates = settingsSnap.data().weekDates;
-          weekUnlockDates = {
-            1: new Date(fetchedDates[1] || '2026-02-17T00:00:00Z'),
-            2: new Date(fetchedDates[2] || '2026-02-24T00:00:00Z'),
-            3: new Date(fetchedDates[3] || '2026-03-03T00:00:00Z'),
-            4: new Date(fetchedDates[4] || '2026-03-10T00:00:00Z')
-          };
+        if (settingsSnap.exists()) {
+          const data = settingsSnap.data();
+          if (data.weekDates) {
+            weekUnlockDates = {
+              1: new Date(data.weekDates[1] || '2026-02-17T00:00:00Z'),
+              2: new Date(data.weekDates[2] || '2026-02-24T00:00:00Z'),
+              3: new Date(data.weekDates[3] || '2026-03-03T00:00:00Z'),
+              4: new Date(data.weekDates[4] || '2026-03-10T00:00:00Z')
+            };
+          }
+          if (data.assessmentLinks) {
+            weekAssessmentLinks = {
+              1: data.assessmentLinks[1] || weekAssessmentLinks[1],
+              2: data.assessmentLinks[2] || weekAssessmentLinks[2],
+              3: data.assessmentLinks[3] || weekAssessmentLinks[3],
+              4: data.assessmentLinks[4] || weekAssessmentLinks[4]
+            };
+          }
         } else {
           // Initialize with fallback if not present
           const initDates = { 
             1: weekUnlockDates[1].toISOString(), 2: weekUnlockDates[2].toISOString(), 
             3: weekUnlockDates[3].toISOString(), 4: weekUnlockDates[4].toISOString() 
           };
-          await setDoc(settingsRef, { weekDates: initDates }, { merge: true });
+          const initLinks = {
+            1: weekAssessmentLinks[1], 2: weekAssessmentLinks[2],
+            3: weekAssessmentLinks[3], 4: weekAssessmentLinks[4]
+          };
+          await setDoc(settingsRef, { weekDates: initDates, assessmentLinks: initLinks }, { merge: true });
         }
         if (DOM.adminWeek1DateInput) {
            DOM.adminWeek1DateInput.value = weekUnlockDates[1].toISOString().split('T')[0];
            DOM.adminWeek2DateInput.value = weekUnlockDates[2].toISOString().split('T')[0];
            DOM.adminWeek3DateInput.value = weekUnlockDates[3].toISOString().split('T')[0];
            DOM.adminWeek4DateInput.value = weekUnlockDates[4].toISOString().split('T')[0];
+           
+           DOM.adminWeek1LinkInput.value = weekAssessmentLinks[1];
+           DOM.adminWeek2LinkInput.value = weekAssessmentLinks[2];
+           DOM.adminWeek3LinkInput.value = weekAssessmentLinks[3];
+           DOM.adminWeek4LinkInput.value = weekAssessmentLinks[4];
         }
       } catch (err) {
         console.warn('Could not fetch course settings', err);
@@ -735,7 +786,7 @@
   `;
 }).join('');
 
-      const assessmentHtml = `<div class="p-4 border-t border-gray-200 bg-gray-50"><a href="${isLocked ? '#' : weekData.assessmentLink}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center font-bold py-2 px-4 rounded-md ${isLocked ? 'bg-gray-300 text-gray-600' : 'bg-green-600 text-white hover:bg-green-700'}">Week ${weekData.week} Assessment</a></div>`;
+      const assessmentHtml = `<div class="p-4 border-t border-gray-200 bg-gray-50"><a href="${isLocked ? '#' : (weekAssessmentLinks[weekData.week] || weekData.assessmentLink)}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center font-bold py-2 px-4 rounded-md ${isLocked ? 'bg-gray-300 text-gray-600' : 'bg-green-600 text-white hover:bg-green-700'}">Week ${weekData.week} Assessment</a></div>`;
 
       weekEl.innerHTML = `<button class="accordion-header flex justify-between items-center w-full p-5 text-left font-semibold text-lg"><span>${weekData.title}</span><svg class="w-6 h-6 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button><div class="accordion-content" ${isOpen ? 'style="max-height:1000px;"' : ''}>${sessionsHtml}${assessmentHtml}</div>`;
       DOM.curriculumContainer.appendChild(weekEl);
@@ -790,10 +841,15 @@
     const d3 = DOM.adminWeek3DateInput.value;
     const d4 = DOM.adminWeek4DateInput.value;
     
-    if (!d1 || !d2 || !d3 || !d4) {
+    const l1 = DOM.adminWeek1LinkInput.value.trim();
+    const l2 = DOM.adminWeek2LinkInput.value.trim();
+    const l3 = DOM.adminWeek3LinkInput.value.trim();
+    const l4 = DOM.adminWeek4LinkInput.value.trim();
+
+    if (!d1 || !d2 || !d3 || !d4 || !l1 || !l2 || !l3 || !l4) {
       DOM.adminCourseDateMsg.classList.remove('hidden');
       DOM.adminCourseDateMsg.className = 'text-sm mt-2 text-red-600 text-right';
-      DOM.adminCourseDateMsg.textContent = 'Please fill out all 4 dates.';
+      DOM.adminCourseDateMsg.textContent = 'Please fill out all dates and assessment links.';
       return;
     }
     
@@ -803,6 +859,10 @@
       2: new Date(`${d2}T00:00:00Z`),
       3: new Date(`${d3}T00:00:00Z`),
       4: new Date(`${d4}T00:00:00Z`)
+    };
+
+    const newLinks = {
+      1: l1, 2: l2, 3: l3, 4: l4
     };
     
     DOM.adminCourseDateMsg.classList.remove('hidden');
@@ -816,16 +876,23 @@
         1: newDates[1].toISOString(), 2: newDates[2].toISOString(), 
         3: newDates[3].toISOString(), 4: newDates[4].toISOString() 
       };
-      await setDoc(settingsRef, { weekDates: datesToSave }, { merge: true });
+      const linksToSave = {
+        1: newLinks[1], 2: newLinks[2], 3: newLinks[3], 4: newLinks[4]
+      };
+      await setDoc(settingsRef, { weekDates: datesToSave, assessmentLinks: linksToSave }, { merge: true });
       weekUnlockDates = newDates;
+      weekAssessmentLinks = newLinks;
       
       DOM.adminCourseDateMsg.className = 'text-sm mt-2 text-green-600 text-right';
-      DOM.adminCourseDateMsg.textContent = 'Course unlock dates saved successfully!';
+      DOM.adminCourseDateMsg.textContent = 'Course settings saved successfully!';
       setTimeout(() => DOM.adminCourseDateMsg.classList.add('hidden'), 3000);
+      
+      // Re-render curriculum if admin is viewing it (though admin usually doesn't, it's good practice)
+      renderCurriculum();
     } catch (err) {
-      console.error('Error saving start date', err);
+      console.error('Error saving course settings', err);
       DOM.adminCourseDateMsg.className = 'text-sm mt-2 text-red-600 text-right';
-      DOM.adminCourseDateMsg.textContent = 'Error saving dates. Please try again.';
+      DOM.adminCourseDateMsg.textContent = 'Error saving settings. Please try again.';
     } finally {
       DOM.adminSaveCourseDateBtn.disabled = false;
     }
