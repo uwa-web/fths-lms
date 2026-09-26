@@ -315,7 +315,7 @@
     .comment.is-me .comment-body { background: var(--choc-tint); border-color: #eadfd4; }
     .comment-meta { display: flex; gap: .6rem; align-items: baseline; flex-wrap: wrap; font-size: .78rem; color: var(--muted); }
     .comment-meta strong { color: var(--ink); font-size: .87rem; }
-    .comment-text { white-space: pre-wrap; word-wrap: break-word; margin-top: .2rem; font-size: .93rem; }
+    .comment-text { white-space: pre-wrap; overflow-wrap: anywhere; margin-top: .2rem; font-size: .93rem; }
     .comment-del { margin-left: auto; font-size: .78rem; color: var(--muted); background: none; border: 0; cursor: pointer; padding: 0; }
     .comment-del:hover { color: var(--danger); }
     .comment-form { display: grid; gap: 10px; }
@@ -410,6 +410,86 @@
     .result-list li.ok { background: var(--green-tint); }
     .result-list li.err { background: var(--danger-tint); }
 
+
+    /* ---------- Assessments ---------- */
+    .st { display: inline-flex; align-items: center; gap: .35rem; font-size: .75rem; font-weight: 700; padding: .25rem .65rem; border-radius: 999px; white-space: nowrap; }
+    .st::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .st-todo { background: #eceff7; color: #34407a; }
+    .st-soon { background: var(--gold-tint); color: #8a560a; }
+    .st-missing { background: var(--danger-tint); color: var(--danger); }
+    .st-turned { background: var(--green-tint); color: var(--green); }
+    .st-late { background: #fdefe2; color: #9a4d0b; }
+    .st-graded { background: var(--night); color: var(--gold); }
+    .st-none { background: #efebe6; color: var(--muted); }
+    .nav-badge { margin-left: auto; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px; background: var(--gold); color: var(--night); font-size: .74rem; font-weight: 700; display: grid; place-items: center; }
+    .as-rows { display: grid; gap: 10px; }
+    .as-row { display: grid; grid-template-columns: 46px minmax(0,1fr) auto; gap: 14px; align-items: center; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); text-decoration: none; color: inherit; transition: border-color .15s, box-shadow .15s; }
+    a.as-row:hover { border-color: var(--line-strong); box-shadow: var(--shadow); }
+    .as-ic { width: 46px; height: 46px; border-radius: 14px; background: color-mix(in srgb, var(--c, var(--choc)) 13%, white); color: var(--c, var(--choc)); display: grid; place-items: center; }
+    .as-ic svg { width: 22px; height: 22px; }
+    .as-row strong { display: block; line-height: 1.3; }
+    .as-row .sub { font-size: .83rem; color: var(--muted); }
+    .as-row .right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; font-size: .82rem; color: var(--muted); text-align: right; }
+    .as-row .acts { display: flex; gap: 6px; }
+    @media (max-width: 640px) { .as-row { grid-template-columns: 46px minmax(0,1fr); } .as-row .right { grid-column: 2; align-items: flex-start; text-align: left; } }
+    .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 4px; margin: 18px 0; width: fit-content; max-width: 100%; overflow-x: auto; }
+    .tabs button { border: 0; background: none; padding: .55rem 1rem; border-radius: 10px; font-weight: 600; font-size: .9rem; color: var(--ink-soft); cursor: pointer; white-space: nowrap; }
+    .tabs button:hover { background: var(--bg); }
+    .tabs button[aria-selected="true"] { background: var(--night); color: #fff; }
+    .tabs .count { opacity: .65; margin-left: .35rem; font-weight: 500; }
+    .as-layout { display: grid; gap: 20px; margin-top: 14px; grid-template-columns: minmax(0,1fr); }
+    @media (min-width: 1100px) { .as-layout { grid-template-columns: minmax(0,1fr) 390px; align-items: start; } }
+    .as-main, .as-side { display: grid; gap: 20px; align-content: start; min-width: 0; }
+    .as-head { position: relative; overflow: hidden; }
+    .as-head::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 5px; background: var(--c, var(--choc)); }
+    .as-head h1 { font-size: clamp(1.45rem, 3vw, 2rem); }
+    .as-meta { display: flex; flex-wrap: wrap; gap: 8px 22px; color: var(--muted); font-size: .9rem; }
+    .as-meta span { display: inline-flex; align-items: center; gap: .4rem; }
+    .as-meta svg { width: 17px; height: 17px; }
+    .as-instr { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.65; }
+    .as-instr.answer { background: var(--bg); border-radius: 12px; padding: 12px 14px; }
+    .course-chip .dot { width: 8px; height: 8px; border-radius: 3px; background: var(--c); }
+    .sec-label { font-size: .85rem; font-weight: 700; color: var(--ink-soft); margin-bottom: 8px; }
+    .att-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .att { display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); min-width: 0; }
+    .att-ic { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--choc-tint); color: var(--choc); flex: none; }
+    .att-ic svg { width: 18px; height: 18px; }
+    .att-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; color: var(--ink); text-decoration: none; font-size: .9rem; }
+    .att-name:hover { text-decoration: underline; }
+    .att-meta { font-size: .76rem; color: var(--muted); }
+    .att .att-del { width: 30px; height: 30px; border-radius: 8px; }
+    .att-add { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .att-add .att-link { display: flex; gap: 8px; flex: 1 1 240px; }
+    .att-add .att-link .input { min-height: 36px; padding: .4rem .7rem; font-size: .88rem; }
+    .att-progress { margin-top: 6px; }
+    .work { border-top: 5px solid var(--c, var(--choc)); }
+    .grade-box { display: grid; gap: 12px; background: var(--night); color: #efe5da; border-radius: 16px; padding: 16px; }
+    .grade-num { font-family: var(--head); font-weight: 700; font-size: 2.1rem; color: var(--gold); line-height: 1; white-space: nowrap; }
+    .grade-num span { font-size: 1rem; color: #bfae9e; }
+    .grade-box strong { color: #fff; display: block; margin-bottom: .2rem; }
+    .grade-box .muted { color: #bfae9e; }
+    .review { display: grid; gap: 18px; }
+    @media (min-width: 1000px) { .review { grid-template-columns: 300px minmax(0,1fr); align-items: start; } .roster { position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow: auto; } }
+    .roster { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); padding: 8px; display: grid; gap: 2px; align-content: start; }
+    .roster-head { padding: 8px 10px 6px; font-size: .78rem; font-weight: 600; color: var(--muted); }
+    .roster button { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; border: 0; background: none; padding: 9px 10px; border-radius: 12px; cursor: pointer; }
+    .roster button:hover { background: var(--bg); }
+    .roster button[aria-current="true"] { background: var(--choc-tint); }
+    .roster .nm { flex: 1; min-width: 0; font-weight: 600; font-size: .88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .roster .st { font-size: .68rem; padding: .18rem .5rem; }
+    .grader { display: grid; gap: 18px; }
+    .sub-box { border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: grid; gap: 10px; }
+    .sub-box h3, .priv h3 { font-size: 1rem; }
+    .grade-form { display: grid; gap: 14px; background: #fbf9f7; border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+    .pts { display: flex; align-items: center; gap: 10px; }
+    .pts input { max-width: 120px; font-family: var(--head); font-weight: 600; font-size: 1.1rem !important; }
+    .kpis.k4 { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
+    .tutor { font-size: .68rem; font-weight: 700; padding: .1rem .45rem; border-radius: 999px; background: var(--gold-tint); color: #8a560a; }
+    .group-title { display: flex; align-items: center; gap: 10px; margin: 28px 0 12px; }
+    .group-title h2 { font-size: 1.1rem; }
+    .group-title .dot { width: 12px; height: 12px; border-radius: 4px; background: var(--c); }
+    @media (max-width: 1099px) { .as-main, .as-side { display: contents; } .as-head { order: 1; } .work { order: 2; } .as-class { order: 3; } .as-priv { order: 4; } }
+
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
   </style>
 </head>
@@ -449,7 +529,8 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, updateProfile, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  import { getStorage, ref as sref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
   // ================= SETTINGS =================
   // Keep this list in sync with isAdmin() in firestore.rules
@@ -541,6 +622,11 @@
     trophy: svg('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0zM7 6H4v1a3 3 0 003 3M17 6h3v1a3 3 0 01-3 3"/>'),
     calendar: svg('<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>'),
     plus: svg('<path d="M12 5v14M5 12h14"/>'),
+    link: svg('<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>'),
+    file: svg('<path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/>'),
+    upload: svg('<path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/>'),
+    clip: svg('<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>'),
+    edit: svg('<path d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16z"/>'),
   };
 
   // ================= HELPERS =================
@@ -637,6 +723,8 @@
   const fbApp = initializeApp(firebaseConfig);
   const auth = getAuth(fbApp);
   const db = getFirestore(fbApp);
+  let storage = null;
+  try { if (firebaseConfig.storageBucket) storage = getStorage(fbApp); } catch (e) { console.warn('Storage unavailable', e); }
   let secondaryAuth = null; // used only by admin to create student logins without signing out
   const getSecondaryAuth = () => secondaryAuth ||= getAuth(initializeApp(firebaseConfig, 'student-creator'));
 
@@ -645,14 +733,15 @@
     user: null, profile: null, isAdmin: false,
     courses: new Map(), progress: new Map(), students: null,
     draft: null, draftId: null, draftDirty: false,
-    unsubComments: null, studentFilter: '', studentCourse: null,
+    unsubs: [], studentFilter: '', studentCourse: null,
+    assess: new Map(), subs: new Map(), adminSubs: new Map(), adraft: null, adraftId: null, asTab: 'todo', asCourse: 'all', privUnsub: null,
   };
   const nameCache = new Map();
   const myName = () => S.profile?.displayName || S.profile?.fullName || S.user?.displayName || (S.user?.email || '').split('@')[0] || 'Student';
 
   // ================= AUTH FLOW =================
   onAuthStateChanged(auth, async (user) => {
-    S.user = user; S.courses.clear(); S.progress.clear(); S.students = null; S.profile = null;
+    S.user = user; S.courses.clear(); S.progress.clear(); S.students = null; S.profile = null; S.assess.clear(); S.subs.clear(); S.adminSubs.clear();
     if (!user) { $('#shell').hidden = true; boot(false); route(); return; }
     boot(true);
     try { await loadSession(); }
@@ -678,6 +767,9 @@
     if (S.isAdmin) {
       const cs = await getDocs(collection(db, 'courses'));
       cs.forEach(d => S.courses.set(d.id, { id: d.id, ...d.data() }));
+      try { const as = await getDocs(collection(db, 'assessments')); as.forEach(d => S.assess.set(d.id, { id: d.id, ...d.data() })); }
+      catch (e) { console.warn('assessments load', e); }
+      ensureAdminSubs().then(() => paintSide()).catch(e => console.warn(e));
     } else {
       // Students only ever load the courses listed on their own record
       const ids = Array.isArray(S.profile.courses) ? S.profile.courses : [];
@@ -688,7 +780,20 @@
         } catch (e) { console.warn('course load', id, e); }
       }));
       await Promise.all([...S.courses.keys()].map(loadProgress));
+      await loadStudentAssessments();
     }
+  }
+
+  async function loadStudentAssessments() {
+    await Promise.all([...S.courses.keys()].map(async (cid) => {
+      try {
+        const snap = await getDocs(query(collection(db, 'assessments'), where('courseId', '==', cid), where('published', '==', true)));
+        snap.forEach(d => S.assess.set(d.id, { id: d.id, ...d.data() }));
+      } catch (e) { console.warn('assessments load', cid, e); }
+    }));
+    await Promise.all([...S.assess.keys()].map(async (aid) => {
+      try { const s = await getDoc(subRef(aid, S.user.uid)); if (s.exists()) S.subs.set(aid, s.data()); } catch (e) { console.warn('submission load', aid, e); }
+    }));
   }
 
   async function loadProgress(cid) {
@@ -707,11 +812,16 @@
     $('#side-name').textContent = name;
     $('#side-email').textContent = S.user.email || '';
     const h = location.hash || '#/';
+    const badge = S.isAdmin ? totalToGrade() : assessList().filter(a => assessOpen(a) && ['todo', 'missing'].includes(statusOf(a, S.subs.get(a.id)).key)).length;
     const links = S.isAdmin
-      ? [['#/admin', 'Courses', I.grid, h === '#/' || h === '#/admin' || h.startsWith('#/admin/course') || h.startsWith('#/course')], ['#/admin/students', 'Students', I.people, h.startsWith('#/admin/students')]]
-      : [['#/', 'Dashboard', I.home, h === '#/' || h === '' || h === '#'], [COMMUNITY_LINK, 'Alumni community', I.people, false, true]];
-    $('#side-nav').innerHTML = links.map(([href, label, icon, active, ext]) =>
-      `<a href="${esc(href)}" ${ext ? 'target="_blank" rel="noopener"' : ''} ${active ? 'aria-current="page"' : ''}>${icon}<span>${esc(label)}</span>${ext ? `<span style="margin-left:auto;opacity:.5;display:flex">${I.ext}</span>` : ''}</a>`).join('');
+      ? [['#/admin', 'Courses', I.grid, h === '#/' || h === '' || h === '#/admin' || h.startsWith('#/admin/course') || h.startsWith('#/course')],
+         ['#/admin/assessments', 'Assessments', I.clip, h.startsWith('#/admin/assessments'), false, badge],
+         ['#/admin/students', 'Students', I.people, h.startsWith('#/admin/students')]]
+      : [['#/', 'Dashboard', I.home, h === '#/' || h === '' || h === '#'],
+         ['#/assessments', 'Assessments', I.clip, h.startsWith('#/assessment'), false, badge],
+         [COMMUNITY_LINK, 'Alumni community', I.people, false, true]];
+    $('#side-nav').innerHTML = links.map(([href, label, icon, active, ext, count]) =>
+      `<a href="${esc(href)}" ${ext ? 'target="_blank" rel="noopener"' : ''} ${active ? 'aria-current="page"' : ''}>${icon}<span>${esc(label)}</span>${ext ? `<span style="margin-left:auto;opacity:.5;display:flex">${I.ext}</span>` : ''}${count ? `<span class="nav-badge" title="${S.isAdmin ? 'Waiting to be graded' : 'To do'}">${count}</span>` : ''}</a>`).join('');
     const courses = sortedCourses();
     $('#side-courses').innerHTML = courses.length ? `<div class="side-label">${S.isAdmin ? 'All courses' : 'My courses'}</div>` + courses.map(c => {
       const target = S.isAdmin ? `#/admin/course/${encodeURIComponent(c.id)}` : courseHref(c.id);
@@ -734,8 +844,8 @@
   // ================= ROUTER =================
   let lastHash = location.hash;
   window.addEventListener('hashchange', () => {
-    if (S.draftDirty && lastHash.startsWith('#/admin/course/') && location.hash !== lastHash) {
-      if (!confirm('You have unsaved changes to this course. Leave without saving?')) { history.replaceState(null, '', lastHash); return; }
+    if (S.draftDirty && location.hash !== lastHash) {
+      if (!confirm('You have unsaved changes. Leave without saving?')) { history.replaceState(null, '', lastHash); return; }
       S.draftDirty = false;
     }
     lastHash = location.hash;
@@ -745,17 +855,26 @@
 
   function route() {
     setMenu(false);
-    if (S.unsubComments) { S.unsubComments(); S.unsubComments = null; }
+    S.unsubs.forEach(u => { try { u(); } catch {} }); S.unsubs = [];
+    if (S.privUnsub) { S.privUnsub(); S.privUnsub = null; }
     window.scrollTo(0, 0);
     if (!S.user) return renderLogin();
     paintSide();
     const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
     if (parts[0] === 'course' && parts[1]) return renderCourse(parts[1], parts[2]);
+    if (parts[0] === 'assessment' && parts[1]) return S.isAdmin ? (location.hash = `#/admin/assessments/${encodeURIComponent(parts[1])}`) : renderAssessment(parts[1]);
     if (S.isAdmin) {
+      if (parts[0] === 'admin' && parts[1] === 'assessments') {
+        if (parts[2] === 'new') return renderAssessEditor('new');
+        if (parts[2] && parts[3] === 'edit') return renderAssessEditor(parts[2]);
+        if (parts[2]) return renderAssessReview(parts[2], parts[3]);
+        return renderAdminAssessments();
+      }
       if (parts[0] === 'admin' && parts[1] === 'students') return renderStudents();
       if (parts[0] === 'admin' && parts[1] === 'course' && parts[2]) return renderEditor(parts[2]);
       return renderAdminCourses();
     }
+    if (parts[0] === 'assessments') return renderStudentAssessments();
     return renderDashboard();
   }
 
@@ -877,7 +996,7 @@
     const totalDone = courses.reduce((a, c) => a + courseStats(c, S.progress.get(c.id)).done, 0);
     let nextUnlock = null;
     courses.forEach(c => (c.weeks || []).forEach((w, wi) => { if (!weekOpen(w) && (!nextUnlock || parseDay(w.unlockDate) < parseDay(nextUnlock.w.unlockDate))) nextUnlock = { c, w, wi }; }));
-    const assessments = courses.reduce((a, c) => a + (c.weeks || []).filter(w => weekOpen(w) && safeUrl(w.assessmentLink)).length, 0);
+    const todo = assessList().filter(a => assessOpen(a) && ['todo', 'missing'].includes(statusOf(a, S.subs.get(a.id)).key));
 
     appEl.innerHTML = `
       <div class="page">
@@ -908,10 +1027,11 @@
           <section class="stats">
             <div class="stat"><span class="ic">${I.book}</span><div><strong>${courses.length}</strong><span>${courses.length === 1 ? 'Course enrolled' : 'Courses enrolled'}</span></div></div>
             <div class="stat"><span class="ic green">${I.trophy}</span><div><strong>${totalDone}</strong><span>Sessions completed</span></div></div>
-            <div class="stat"><span class="ic gold">${nextUnlock ? I.calendar : I.task}</span><div>${nextUnlock
-              ? `<strong>${esc(fmtDay(nextUnlock.w.unlockDate))}</strong><span>Week ${nextUnlock.wi + 1} unlocks</span>`
-              : `<strong>${assessments}</strong><span>Assessments open</span>`}</div></div>
+            <div class="stat"><span class="ic gold">${I.clip}</span><div><strong>${todo.length}</strong><span>${todo.length === 1 ? 'Assessment to do' : 'Assessments to do'}${nextUnlock ? `, week ${nextUnlock.wi + 1} opens ${esc(fmtDay(nextUnlock.w.unlockDate))}` : ''}</span></div></div>
           </section>
+          ${todo.length ? `
+          <div class="section-head"><h2>Assessments to do</h2><a class="small" href="#/assessments">See all</a></div>
+          <div class="as-rows" style="margin-bottom:36px">${todo.slice(0, 3).map(assessRowHTML).join('')}</div>` : ''}
           <div class="section-head"><h2>My courses</h2><span class="small muted">${plural(courses.length, 'course')}</span></div>
           <section class="course-grid">${courses.map(courseCard).join('')}</section>`}
         <section class="help">
@@ -1036,6 +1156,7 @@
         return `<li><a class="${cls}" href="${courseHref(courseId, s.id)}" ${s.id === cur.s.id ? 'aria-current="true"' : ''}><span class="mark">${mark}</span><span class="sess-t">${esc(s.title)}</span></a></li>`;
       }).join('');
       const assess = safeUrl(w.assessmentLink);
+      const inLms = assessList().filter(a => a.courseId === courseId && a.weekId === w.id);
       const pct = ids.length ? Math.round(wDone * 100 / ids.length) : 0;
       return `
         <details class="wk" ${wi === cur.wi ? 'open' : ''}>
@@ -1047,46 +1168,20 @@
             </div>${I.chev}
           </summary>
           <ol class="sess-list">${items}</ol>
-          ${assess ? `<a class="wk-assess ${open ? '' : 'is-locked'}" href="${open ? esc(assess) : '#'}" target="_blank" rel="noopener" ${open ? '' : 'aria-disabled="true" tabindex="-1"'}>${open ? I.task : I.lock} Week ${wi + 1} assessment${open ? `<span style="margin-left:auto;display:flex">${I.ext}</span>` : ''}</a>` : ''}
+          ${inLms.map(a => { const st = statusOf(a, S.subs.get(a.id)); return `<a class="wk-assess ${open ? '' : 'is-locked'}" href="${open ? (S.isAdmin ? `#/admin/assessments/${encodeURIComponent(a.id)}` : `#/assessment/${encodeURIComponent(a.id)}`) : '#'}" ${open ? '' : 'aria-disabled="true" tabindex="-1"'}>${open ? I.clip : I.lock}<span style="flex:1">${esc(a.title)}</span>${open && !S.isAdmin ? `<span class="st ${st.cls}" style="font-size:.68rem">${esc(st.label)}</span>` : ''}</a>`; }).join('')}
+          ${!inLms.length && assess ? `<a class="wk-assess ${open ? '' : 'is-locked'}" href="${open ? esc(assess) : '#'}" target="_blank" rel="noopener" ${open ? '' : 'aria-disabled="true" tabindex="-1"'}>${open ? I.task : I.lock} Week ${wi + 1} assessment${open ? `<span style="margin-left:auto;display:flex">${I.ext}</span>` : ''}</a>` : ''}
         </details>`;
     }).join('');
     return `<div class="outline-head"><h2>Course outline</h2><span class="small muted">${plural(sessionsOf(course).length, 'session')}</span></div>${weeks}`;
   }
 
-  // ---------- Discussion ----------
+  // ---------- Discussion threads (session comments, class comments, private comments) ----------
   function renderTalk(courseId, cur, unlocked) {
     const talk = $('#talk');
     if (!unlocked) { talk.innerHTML = `<h3>Discussion</h3><p class="muted" style="margin-top:.4rem">Comments open when this week unlocks.</p>`; return; }
-    talk.innerHTML = `
-      <div class="row between"><h3>Discussion</h3><span class="small muted" id="c-count"></span></div>
-      <div class="comment-list" id="comment-list"><p class="muted">Loading comments…</p></div>
-      <form class="comment-form" id="comment-form">
-        <label class="field"><span class="visually-hidden">Your comment</span>
-          <textarea name="text" maxlength="2000" placeholder="Ask a question or share a tip about this session" required></textarea></label>
-        <div class="row between"><span class="small muted">Posting as ${esc(myName())}</span><button class="btn btn-primary btn-sm" type="submit">Post comment</button></div>
-      </form>`;
-    const key = commentKey(courseId, cur.s.id);
-    const col = collection(db, 'artifacts', APP_ID, 'public', 'data', 'comments', key, 'messages');
-    S.unsubComments = onSnapshot(col, async (snap) => {
-      const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      list.sort((a, b) => (a.timestamp?.toMillis?.() ?? Date.now()) - (b.timestamp?.toMillis?.() ?? Date.now()));
-      await resolveNames(list);
-      paintComments(list, col);
-    }, (err) => {
-      console.error(err);
-      const el = $('#comment-list'); if (el) el.innerHTML = '<p class="muted">Comments couldn’t load right now.</p>';
-    });
-    $('#comment-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const f = e.currentTarget, text = f.text.value.trim();
-      if (!text) return;
-      const btn = f.querySelector('button'); btn.disabled = true;
-      try {
-        await addDoc(col, { text, userId: S.user.uid, userName: myName(), timestamp: serverTimestamp() });
-        f.reset();
-      } catch (err) { console.error(err); toast('Your comment didn’t post. Try again.', 'error'); }
-      finally { btn.disabled = false; }
-    });
+    talk.innerHTML = `<div class="row between"><h3>Discussion</h3></div><div id="talk-thread"></div>`;
+    const col = collection(db, 'artifacts', APP_ID, 'public', 'data', 'comments', commentKey(courseId, cur.s.id), 'messages');
+    S.unsubs.push(mountThread($('#talk-thread'), col, { placeholder: 'Ask a question or share a tip about this session', empty: 'No comments yet. Questions about this session? Start the conversation.' }));
   }
 
   async function resolveNames(list) {
@@ -1097,26 +1192,50 @@
     }));
   }
 
-  function paintComments(list, col) {
-    const el = $('#comment-list'); if (!el) return;
-    const cc = $('#c-count'); if (cc) cc.textContent = list.length ? plural(list.length, 'comment') : '';
-    if (!list.length) { el.innerHTML = '<p class="muted">No comments yet. Questions about this session? Start the conversation.</p>'; return; }
-    el.innerHTML = list.map(c => {
-      const me = c.userId === S.user.uid;
-      const name = me ? 'You' : (c.userName || nameCache.get(c.userId) || 'Student');
-      const when = c.timestamp?.toDate ? c.timestamp.toDate().toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Just now';
-      return `<div class="comment ${me ? 'is-me' : ''}">
-        <span class="avatar sm ${me ? '' : 'plain'}">${esc(initials(me ? myName() : name))}</span>
-        <div class="comment-body">
-          <div class="comment-meta"><strong>${esc(name)}</strong><span>${esc(when)}</span>
-            ${me || S.isAdmin ? `<button class="comment-del" data-del="${esc(c.id)}">Delete</button>` : ''}</div>
-          <p class="comment-text">${esc(c.text)}</p>
-        </div></div>`;
-    }).join('');
-    $$('[data-del]', el).forEach(b => b.addEventListener('click', async () => {
-      if (!confirm('Delete this comment?')) return;
-      try { await deleteDoc(doc(col, b.dataset.del)); } catch (e) { console.error(e); toast('That comment couldn’t be deleted.', 'error'); }
-    }));
+  // Mounts a live comment thread with a post box. Returns the unsubscribe function.
+  function mountThread(el, col, { placeholder = 'Add a comment', empty = 'No comments yet.', onPosted } = {}) {
+    el.innerHTML = `
+      <div class="comment-list"><p class="muted small">Loading comments…</p></div>
+      <form class="comment-form">
+        <label class="field"><span class="visually-hidden">Comment</span><textarea name="text" maxlength="2000" rows="2" placeholder="${esc(placeholder)}" required></textarea></label>
+        <div class="row between"><span class="small muted">Posting as ${esc(myName())}</span><button class="btn btn-primary btn-sm" type="submit">Post</button></div>
+      </form>`;
+    const listEl = $('.comment-list', el);
+    const unsub = onSnapshot(col, async (snap) => {
+      const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      list.sort((a, b) => (a.timestamp?.toMillis?.() ?? Date.now()) - (b.timestamp?.toMillis?.() ?? Date.now()));
+      await resolveNames(list);
+      if (!list.length) { listEl.innerHTML = `<p class="muted small">${esc(empty)}</p>`; return; }
+      listEl.innerHTML = list.map(c => {
+        const me = c.userId === S.user.uid;
+        const name = me ? 'You' : (c.userName || nameCache.get(c.userId) || 'Student');
+        return `<div class="comment ${me ? 'is-me' : ''}">
+          <span class="avatar sm ${me || c.staff ? '' : 'plain'}">${esc(initials(me ? myName() : name))}</span>
+          <div class="comment-body">
+            <div class="comment-meta"><strong>${esc(name)}</strong>${c.staff ? '<span class="tutor">Tutor</span>' : ''}<span>${esc(fmtTs(c.timestamp))}</span>
+              ${me || S.isAdmin ? `<button class="comment-del" data-del="${esc(c.id)}">Delete</button>` : ''}</div>
+            <p class="comment-text">${linkify(c.text)}</p>
+          </div></div>`;
+      }).join('');
+      $$('[data-del]', listEl).forEach(b => b.addEventListener('click', async () => {
+        if (!confirm('Delete this comment?')) return;
+        try { await deleteDoc(doc(col, b.dataset.del)); } catch (e) { console.error(e); toast('That comment couldn’t be deleted.', 'error'); }
+      }));
+    }, (err) => { console.error(err); listEl.innerHTML = '<p class="muted small">Comments couldn’t load right now.</p>'; });
+    $('form', el).addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.currentTarget, text = f.text.value.trim();
+      if (!text) return;
+      const btn = f.querySelector('button'); btn.disabled = true;
+      try {
+        const data = { text, userId: S.user.uid, userName: myName(), timestamp: serverTimestamp() };
+        if (S.isAdmin) data.staff = true;
+        await addDoc(col, data);
+        f.reset(); onPosted?.(text);
+      } catch (err) { console.error(err); toast('Your comment didn’t post. Try again.', 'error'); }
+      finally { btn.disabled = false; }
+    });
+    return unsub;
   }
 
   // ================= MODALS =================
@@ -1339,7 +1458,7 @@
                 <div class="wk-fields">
                   <label class="field"><span>Week title</span><input data-bind="weeks.${wi}.title" value="${esc(w.title)}" placeholder="e.g. Setting up your profile"></label>
                   <label class="field"><span>Opens on <span class="hint">Blank = open now</span></span><input type="date" data-bind="weeks.${wi}.unlockDate" value="${esc(w.unlockDate)}"></label>
-                  <label class="field"><span>Assessment link</span><input type="url" data-bind="weeks.${wi}.assessmentLink" value="${esc(w.assessmentLink)}" placeholder="https://classroom.google.com/..."></label>
+                  <label class="field"><span>External assessment link <span class="hint">Optional. Only shown if the week has no LMS assessment</span></span><input type="url" data-bind="weeks.${wi}.assessmentLink" value="${esc(w.assessmentLink)}" placeholder="https://..."></label>
                 </div>
                 <div class="s-rows">
                   ${w.sessions.map((s, si) => { n++; const vi = videoInfo(s.video); return `
@@ -1652,6 +1771,534 @@
     a.download = `${slugify(course.title)}-progress.csv`;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  // ================= ASSESSMENTS: SHARED =================
+  const subRef = (aid, uid) => doc(db, 'assessments', aid, 'submissions', uid);
+  const parseDue = (s) => { if (!s) return null; const d = new Date(s); return isNaN(d) ? null : d; };
+  const fmtDue = (s) => { const d = parseDue(s); return d ? d.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'No due date'; };
+  const tsDate = (t) => t?.toDate ? t.toDate() : (t instanceof Date ? t : null);
+  const fmtTs = (t) => { const d = tsDate(t); return d ? d.toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Just now'; };
+  const linkify = (t) => esc(t).replace(/https?:\/\/[^\s<]+/g, u => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
+  const pointsOf = (a) => Number(a.points) > 0 ? Number(a.points) : 100;
+  const fmtSize = (n) => n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
+  const safeName = (n) => `${Date.now().toString(36)}-${String(n).replace(/[^\w.\-]+/g, '_').slice(-80)}`;
+
+  function assessWeek(a) {
+    const c = S.courses.get(a.courseId);
+    if (!c || !a.weekId) return null;
+    const wi = (c.weeks || []).findIndex(w => w.id === a.weekId);
+    return wi < 0 ? null : { w: c.weeks[wi], wi };
+  }
+  const assessOpen = (a) => { const wk = assessWeek(a); return !wk || weekOpen(wk.w); };
+  const assessList = () => [...S.assess.values()].filter(a => S.courses.has(a.courseId))
+    .sort((a, b) => (parseDue(a.dueDate)?.getTime() ?? 9e15) - (parseDue(b.dueDate)?.getTime() ?? 9e15) || String(a.title).localeCompare(String(b.title)));
+
+  function statusOf(a, sub) {
+    const due = parseDue(a.dueDate), now = Date.now();
+    if (sub?.status === 'returned') return { key: 'graded', label: sub.grade != null && sub.grade !== '' ? `${sub.grade}/${pointsOf(a)}` : 'Returned', cls: 'st-graded' };
+    if (sub?.status === 'submitted') {
+      const at = tsDate(sub.submittedAt), late = due && at && at > due;
+      return { key: 'turned', label: late ? 'Turned in late' : 'Turned in', cls: late ? 'st-late' : 'st-turned' };
+    }
+    if (due && now > due.getTime()) return { key: 'missing', label: 'Missing', cls: 'st-missing' };
+    if (due && due.getTime() - now < 3 * 864e5) return { key: 'todo', label: 'Due soon', cls: 'st-soon' };
+    return { key: 'todo', label: 'Assigned', cls: 'st-todo' };
+  }
+
+  function linkName(u) {
+    if (/docs\.google\.com\/document/.test(u)) return 'Google Doc';
+    if (/docs\.google\.com\/spreadsheets/.test(u)) return 'Google Sheet';
+    if (/docs\.google\.com\/presentation/.test(u)) return 'Google Slides';
+    if (/docs\.google\.com\/forms|forms\.gle/.test(u)) return 'Google Form';
+    if (/drive\.google\.com/.test(u)) return 'Google Drive file';
+    try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return 'Link'; }
+  }
+
+  function attachListHTML(list, editable) {
+    if (!list?.length) return '';
+    return `<ul class="att-list">${list.map((f, i) => `
+      <li class="att"><span class="att-ic">${f.type === 'link' ? I.link : I.file}</span>
+        <a class="att-name" href="${esc(safeUrl(f.url))}" target="_blank" rel="noopener" title="${esc(f.url)}">${esc(f.name)}</a>
+        ${f.size ? `<span class="att-meta">${fmtSize(f.size)}</span>` : ''}
+        ${editable ? `<button type="button" class="icon-btn att-del" data-att-del="${i}" aria-label="Remove ${esc(f.name)}">${I.close}</button>` : ''}</li>`).join('')}</ul>`;
+  }
+
+  function uploadFile(file, path, onProgress) {
+    return new Promise((resolve, reject) => {
+      const task = uploadBytesResumable(sref(storage, path), file, { contentType: file.type || 'application/octet-stream' });
+      task.on('state_changed', s => onProgress?.(s.bytesTransferred / (s.totalBytes || 1)), reject, async () => {
+        try { resolve({ type: 'file', name: file.name, size: file.size, path, url: await getDownloadURL(task.snapshot.ref) }); }
+        catch (e) { reject(e); }
+      });
+    });
+  }
+
+  // File + link picker. get() returns the list; set(list) stores it (may be async).
+  function mountAttach(el, { get, set, pathFor, editable = () => true, emptyText = '' }) {
+    const paint = () => {
+      const ed = editable();
+      const list = get() || [];
+      el.innerHTML = `${attachListHTML(list, ed) || (emptyText ? `<p class="small muted">${esc(emptyText)}</p>` : '')}
+        ${ed ? `<div class="att-add">
+          <label class="btn btn-outline btn-sm">${I.upload} Upload file<input type="file" multiple hidden></label>
+          <form class="att-link"><input class="input" type="url" placeholder="Or paste a link, e.g. a Google Doc" aria-label="Link"><button class="btn btn-outline btn-sm" type="submit">Add link</button></form>
+        </div><p class="att-progress small muted" hidden></p>` : ''}`;
+      if (!ed) return;
+      const save = async (next) => { try { await set(next); return true; } catch (e) { console.error(e); toast('That change didn’t save. Try again.', 'error'); return false; } };
+      $$('[data-att-del]', el).forEach(b => b.addEventListener('click', async () => {
+        const next = [...get()]; const [rm] = next.splice(+b.dataset.attDel, 1);
+        if (await save(next) && rm?.path && storage) deleteObject(sref(storage, rm.path)).catch(() => {});
+        paint();
+      }));
+      $('.att-link', el).addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const inp = e.currentTarget.querySelector('input'), url = safeUrl(inp.value);
+        if (!url) { toast('Paste a full link starting with https://', 'error'); return; }
+        await save([...get(), { type: 'link', name: linkName(url), url }]);
+        paint();
+      });
+      $('input[type=file]', el).addEventListener('change', async (e) => {
+        const files = [...e.target.files]; if (!files.length) return;
+        if (!storage) { toast('File uploads aren’t switched on yet. Add a Google Drive link instead.', 'error'); return; }
+        const prog = $('.att-progress', el); prog.hidden = false;
+        const added = [];
+        for (const f of files) {
+          if (f.size > 25 * 1048576) { toast(`${f.name} is over 25 MB. Share it as a Google Drive link instead.`, 'error'); continue; }
+          try { added.push(await uploadFile(f, pathFor(f), p => prog.textContent = `Uploading ${f.name}… ${Math.round(p * 100)}%`)); }
+          catch (err) {
+            console.error(err);
+            toast(/unauthorized|unknown|bucket|project|quota/.test(err.code || '') ? 'File uploads aren’t switched on yet. Add a Google Drive link instead.' : `${f.name} didn’t upload. Try again.`, 'error');
+          }
+        }
+        if (added.length) await save([...get(), ...added]);
+        paint();
+      });
+    };
+    paint();
+    return paint;
+  }
+
+  function assessRowHTML(a) {
+    const c = S.courses.get(a.courseId), wk = assessWeek(a), st = statusOf(a, S.subs.get(a.id));
+    return `<a class="as-row" href="#/assessment/${encodeURIComponent(a.id)}" style="--c:${esc(c?.accent || ACCENTS[0])}">
+      <span class="as-ic">${I.clip}</span>
+      <div style="min-width:0"><strong>${esc(a.title)}</strong><span class="sub">${esc(c?.title || '')}${wk ? `, week ${wk.wi + 1}` : ''}</span></div>
+      <div class="right"><span class="st ${st.cls}">${esc(st.label)}</span><span>${a.dueDate ? 'Due ' + esc(fmtDue(a.dueDate)) : 'No due date'}</span></div>
+    </a>`;
+  }
+
+  // ================= STUDENT: ASSESSMENTS =================
+  function renderStudentAssessments() {
+    const list = assessList().filter(assessOpen);
+    const groups = {
+      todo: list.filter(a => ['todo', 'missing'].includes(statusOf(a, S.subs.get(a.id)).key)),
+      turned: list.filter(a => statusOf(a, S.subs.get(a.id)).key === 'turned'),
+      graded: list.filter(a => statusOf(a, S.subs.get(a.id)).key === 'graded'),
+    };
+    const labels = { todo: 'To do', turned: 'Turned in', graded: 'Graded' };
+    const empty = { todo: 'You’re all caught up. New assessments appear here as each week opens.', turned: 'Work you turn in shows here until it’s graded.', graded: 'Graded work and your tutor’s feedback show here.' };
+    const tab = groups[S.asTab] ? S.asTab : 'todo';
+    const rows = tab === 'graded' ? [...groups.graded].reverse() : groups[tab];
+    appEl.innerHTML = `
+      <div class="page">
+        <div class="page-head"><div><h1>Assessments</h1><p>Weekly assessments for the courses you’re registered for.</p></div></div>
+        <div class="tabs" role="tablist">${Object.keys(labels).map(k => `<button role="tab" data-tab="${k}" aria-selected="${k === tab}">${labels[k]}<span class="count">${groups[k].length}</span></button>`).join('')}</div>
+        ${rows.length ? `<div class="as-rows">${rows.map(assessRowHTML).join('')}</div>` : `<div class="empty"><img src="IMG/fth-mark.png" alt=""><h2>Nothing here</h2><p>${empty[tab]}</p></div>`}
+      </div>`;
+    $$('[data-tab]').forEach(b => b.addEventListener('click', () => { S.asTab = b.dataset.tab; renderStudentAssessments(); }));
+  }
+
+  async function renderAssessment(aid) {
+    const a = S.assess.get(aid);
+    const course = a && S.courses.get(a.courseId);
+    if (!a || !course) {
+      appEl.innerHTML = `<div class="page"><div class="empty"><img src="IMG/fth-mark.png" alt=""><h2>This assessment isn’t available</h2><p>It may have been removed, or it belongs to a course that isn’t on your account.</p><a class="btn btn-primary" href="#/assessments">Back to assessments</a></div></div>`;
+      return;
+    }
+    const wk = assessWeek(a);
+    if (!assessOpen(a)) {
+      appEl.innerHTML = `<div class="page"><div class="empty"><img src="IMG/fth-mark.png" alt=""><h2>Opens ${esc(fmtDay(wk.w.unlockDate))}</h2><p>This assessment is part of week ${wk.wi + 1}. You’ll be able to open it when the week unlocks.</p><a class="btn btn-primary" href="#/assessments">Back to assessments</a></div></div>`;
+      return;
+    }
+    try { const s = await getDoc(subRef(aid, S.user.uid)); if (s.exists()) S.subs.set(aid, s.data()); } catch (e) { console.warn(e); }
+    const sub = { text: '', attachments: [], status: 'none', ...(S.subs.get(aid) || {}) };
+    const pts = pointsOf(a);
+    appEl.innerHTML = `
+      <div class="page" style="--c:${esc(course.accent || ACCENTS[0])}">
+        <a class="back dark" href="#/assessments">${I.back} Assessments</a>
+        <div class="as-layout">
+          <section class="as-main">
+            <div class="panel as-head">
+              <div class="row wrap" style="gap:8px"><span class="chip course-chip"><span class="dot"></span>${esc(course.title)}</span>${wk ? `<span class="chip">Week ${wk.wi + 1}</span>` : ''}</div>
+              <h1>${esc(a.title)}</h1>
+              <div class="as-meta"><span>${I.calendar} ${a.dueDate ? 'Due ' + esc(fmtDue(a.dueDate)) : 'No due date'}</span><span>${I.trophy} ${pts} points</span></div>
+              ${a.instructions ? `<div class="as-instr">${linkify(a.instructions)}</div>` : ''}
+              ${a.attachments?.length ? `<div><p class="sec-label">Materials</p>${attachListHTML(a.attachments, false)}</div>` : ''}
+            </div>
+            <div class="panel as-class"><div><h2>Class comments</h2><p class="small muted">Everyone in ${esc(course.title)} can see these.</p></div><div id="as-public"></div></div>
+          </section>
+          <aside class="as-side">
+            <div class="panel work" id="as-work"></div>
+            <div class="panel as-priv"><div><h2>Private comments</h2><p class="small muted">Only you and your tutor can see these.</p></div><div id="as-private"></div></div>
+          </aside>
+        </div>
+      </div>`;
+
+    const work = $('#as-work');
+    let timer = null;
+    const save = async (extra = {}) => {
+      const data = { uid: S.user.uid, name: myName(), email: S.user.email || '', text: sub.text || '', attachments: sub.attachments || [], updatedAt: serverTimestamp(), ...extra };
+      if (sub.status === 'none' && !data.status) data.status = 'draft';
+      await setDoc(subRef(aid, S.user.uid), data, { merge: true });
+      if (data.status) sub.status = data.status;
+      if (extra.submittedAt) sub.submittedAt = new Date();
+      S.subs.set(aid, { ...sub });
+      const el = $('#w-save'); if (el) el.textContent = 'Saved';
+    };
+    const paintWork = () => {
+      const st = statusOf(a, sub.status === 'none' ? null : sub);
+      const locked = sub.status === 'submitted', returned = sub.status === 'returned';
+      const late = a.dueDate && Date.now() > parseDue(a.dueDate).getTime();
+      work.innerHTML = `
+        <div class="row between"><h2>Your work</h2><span class="st ${st.cls}">${esc(st.label)}</span></div>
+        ${returned ? `<div class="grade-box"><div class="grade-num">${sub.grade ?? '–'}<span>/${pts}</span></div><div style="min-width:0"><strong>Feedback from your tutor</strong><div class="as-instr">${sub.feedback ? linkify(sub.feedback) : '<span class="muted">No written feedback.</span>'}</div></div></div>` : ''}
+        ${locked ? `<p class="small muted">Turned in ${esc(fmtTs(sub.submittedAt))}. You’ll get an email when it’s graded.</p>` : ''}
+        <label class="field"><span>Your answer <span class="hint">Optional if you attach files</span></span><textarea id="w-text" rows="5" ${locked ? 'readonly' : ''} placeholder="Type your answer, or a note for your tutor">${esc(sub.text || '')}</textarea></label>
+        <div><p class="sec-label">Attachments</p><div id="w-att"></div></div>
+        <p class="small muted" id="w-save" aria-live="polite"></p>
+        ${locked
+          ? `<button class="btn btn-outline btn-block" id="w-unsubmit">Unsubmit</button><p class="small muted">Unsubmit to make changes, then turn it in again${late ? '. It will be marked late' : ''}.</p>`
+          : `<button class="btn btn-primary btn-block" id="w-turnin">${returned ? 'Resubmit' : late ? 'Turn in late' : 'Turn in'}</button>`}`;
+      mountAttach($('#w-att'), {
+        get: () => sub.attachments || [],
+        set: async (list) => { sub.attachments = list; await save(); },
+        pathFor: (f) => `submissions/${aid}/${S.user.uid}/${safeName(f.name)}`,
+        editable: () => sub.status !== 'submitted',
+        emptyText: sub.status === 'submitted' ? 'No files attached.' : '',
+      });
+      const ta = $('#w-text');
+      ta.addEventListener('input', () => {
+        if (locked) return;
+        sub.text = ta.value; $('#w-save').textContent = 'Saving…';
+        clearTimeout(timer);
+        timer = setTimeout(() => save().catch(e => { console.error(e); $('#w-save').textContent = 'Not saved. Check your connection.'; }), 900);
+      });
+      $('#w-turnin')?.addEventListener('click', async (e) => {
+        clearTimeout(timer); sub.text = ta.value;
+        if (!sub.text.trim() && !(sub.attachments || []).length && !confirm('You haven’t added any work. Turn it in anyway?')) return;
+        e.currentTarget.disabled = true;
+        try { await save({ status: 'submitted', submittedAt: serverTimestamp() }); toast('Turned in'); paintWork(); paintSide(); }
+        catch (err) { console.error(err); e.currentTarget.disabled = false; toast('Your work didn’t turn in. Try again.', 'error'); }
+      });
+      $('#w-unsubmit')?.addEventListener('click', async (e) => {
+        e.currentTarget.disabled = true;
+        try { await save({ status: 'draft' }); toast('Unsubmitted. Make your changes, then turn it in again.'); paintWork(); paintSide(); }
+        catch (err) { console.error(err); e.currentTarget.disabled = false; toast('That didn’t work. Try again.', 'error'); }
+      });
+    };
+    paintWork();
+    S.unsubs.push(mountThread($('#as-public'), collection(db, 'assessments', aid, 'comments'), { placeholder: 'Add a class comment', empty: 'No class comments yet.' }));
+    S.unsubs.push(mountThread($('#as-private'), collection(db, 'assessments', aid, 'submissions', S.user.uid, 'private'), { placeholder: 'Message your tutor privately', empty: 'No private comments yet.' }));
+  }
+
+  // ================= ADMIN: ASSESSMENTS =================
+  async function loadSubsFor(aid) {
+    const m = new Map();
+    const snap = await getDocs(collection(db, 'assessments', aid, 'submissions'));
+    snap.forEach(d => m.set(d.id, d.data()));
+    S.adminSubs.set(aid, m);
+    return m;
+  }
+  async function ensureAdminSubs(force = false) {
+    await Promise.all([...S.assess.keys()].filter(aid => force || !S.adminSubs.has(aid)).map(aid => loadSubsFor(aid).catch(e => console.warn('subs', aid, e))));
+  }
+  const toGradeFor = (aid) => [...(S.adminSubs.get(aid)?.values() || [])].filter(s => s.status === 'submitted').length;
+  const totalToGrade = () => [...S.assess.keys()].reduce((n, aid) => n + toGradeFor(aid), 0);
+  const enrolledFor = (a) => (S.students || []).filter(s => s.courses.includes(a.courseId));
+
+  async function renderAdminAssessments() {
+    adminLoading();
+    try { await ensureStudents(); } catch (e) { console.error(e); S.students = S.students || []; }
+    await ensureAdminSubs();
+    paintSide();
+    const courses = sortedCourses();
+    const filter = S.asCourse !== 'all' && S.courses.has(S.asCourse) ? S.asCourse : 'all';
+    const shown = courses.filter(c => filter === 'all' || c.id === filter);
+    const all = [...S.assess.values()];
+    appEl.innerHTML = `
+      <div class="page">
+        <div class="page-head">
+          <div><h1>Assessments</h1><p>${plural(all.length, 'assessment')}, ${totalToGrade() ? `<strong style="color:var(--ink)">${totalToGrade()} waiting to be graded</strong>` : 'nothing waiting to be graded'}.</p></div>
+          <div class="row wrap">
+            <select class="input" id="as-filter" aria-label="Filter by course" style="min-height:44px;width:auto">
+              <option value="all">All courses</option>${courses.map(c => `<option value="${esc(c.id)}" ${c.id === filter ? 'selected' : ''}>${esc(c.title)}</option>`).join('')}
+            </select>
+            <a class="btn btn-primary" href="#/admin/assessments/new" ${courses.length ? '' : 'aria-disabled="true"'}>${I.plus} New assessment</a>
+          </div>
+        </div>
+        ${!all.length ? `<div class="empty"><img src="IMG/fth-mark.png" alt=""><h2>No assessments yet</h2><p>Create your first assessment: add instructions, attach files or links, set a due date and points. Students turn their work in here instead of Google Classroom.</p><a class="btn btn-primary" href="#/admin/assessments/new">${I.plus} New assessment</a></div>` : ''}
+        ${all.length ? shown.map(c => {
+          const list = all.filter(a => a.courseId === c.id).sort((x, y) => {
+            const wx = assessWeek(x)?.wi ?? 99, wy = assessWeek(y)?.wi ?? 99;
+            return wx - wy || (parseDue(x.dueDate)?.getTime() ?? 9e15) - (parseDue(y.dueDate)?.getTime() ?? 9e15);
+          });
+          if (!list.length) return filter === 'all' ? '' : `<div class="empty"><h2>No assessments in ${esc(c.title)} yet</h2><p>Create one and link it to a week of the course.</p></div>`;
+          return `<div class="group-title" style="--c:${esc(c.accent || ACCENTS[0])}"><span class="dot"></span><h2>${esc(c.title)}</h2><span class="small muted">${plural(list.length, 'assessment')}</span></div>
+            <div class="as-rows">${list.map(a => {
+              const subs = S.adminSubs.get(a.id) || new Map(), enrolled = enrolledFor(a);
+              const turned = [...subs.values()].filter(s => ['submitted', 'returned'].includes(s.status)).length;
+              const graded = [...subs.values()].filter(s => s.status === 'returned').length;
+              const tg = toGradeFor(a.id), wk = assessWeek(a);
+              return `<div class="as-row" style="--c:${esc(c.accent || ACCENTS[0])}">
+                <span class="as-ic">${I.clip}</span>
+                <div style="min-width:0">
+                  <div class="row wrap" style="gap:8px"><strong>${esc(a.title)}</strong>${a.published ? '' : '<span class="chip draft">Hidden</span>'}${tg ? `<span class="st st-soon">${tg} to grade</span>` : ''}</div>
+                  <span class="sub">${wk ? `Week ${wk.wi + 1}, ` : ''}${a.dueDate ? 'due ' + esc(fmtDue(a.dueDate)) : 'no due date'}, ${pointsOf(a)} points. ${turned} of ${enrolled.length} turned in, ${graded} graded.</span>
+                </div>
+                <div class="right"><div class="acts">
+                  <a class="btn btn-outline btn-sm" href="#/admin/assessments/${encodeURIComponent(a.id)}/edit">Edit</a>
+                  <a class="btn btn-primary btn-sm" href="#/admin/assessments/${encodeURIComponent(a.id)}">${tg ? 'Grade' : 'Open'}</a>
+                </div></div>
+              </div>`;
+            }).join('')}</div>`;
+        }).join('') : ''}
+      </div>`;
+    $('#as-filter').addEventListener('change', (e) => { S.asCourse = e.target.value; renderAdminAssessments(); });
+  }
+
+  function renderAssessEditor(aid) {
+    const isNew = aid === 'new';
+    if (!isNew && !S.assess.has(aid)) { location.hash = '#/admin/assessments'; return; }
+    if (S.adraftId !== aid || !S.adraft) {
+      const firstCourse = (S.asCourse !== 'all' && S.courses.has(S.asCourse)) ? S.asCourse : sortedCourses()[0]?.id || '';
+      S.adraft = isNew
+        ? { newId: 'a' + rid(), courseId: firstCourse, weekId: '', title: '', instructions: '', dueDate: '', points: 100, attachments: [], published: true }
+        : clone({ ...S.assess.get(aid) });
+      delete S.adraft.id; delete S.adraft.createdAt; delete S.adraft.updatedAt;
+      S.adraftId = aid; S.draftDirty = false;
+    }
+    const d = S.adraft, storeId = isNew ? d.newId : aid;
+    const course = S.courses.get(d.courseId);
+    appEl.innerHTML = `
+      <div class="page">
+        <a class="back dark" href="${isNew ? '#/admin/assessments' : `#/admin/assessments/${encodeURIComponent(aid)}`}">${I.back} ${isNew ? 'Assessments' : 'Back to submissions'}</a>
+        <div class="page-head" style="margin-top:.6rem"><div><h1>${isNew ? 'New assessment' : 'Edit assessment'}</h1><p>Students in the course see it as soon as it’s visible and its week has opened.</p></div></div>
+        <div class="editor" id="a-editor">
+          <section class="panel">
+            <div class="grid-2">
+              <label class="field"><span>Course</span><select data-a="courseId">${sortedCourses().map(c => `<option value="${esc(c.id)}" ${c.id === d.courseId ? 'selected' : ''}>${esc(c.title)}</option>`).join('')}</select></label>
+              <label class="field"><span>Week <span class="hint">It opens when the week opens</span></span><select data-a="weekId"><option value="">Not linked to a week (open now)</option>${(course?.weeks || []).map((w, wi) => `<option value="${esc(w.id)}" ${w.id === d.weekId ? 'selected' : ''}>Week ${wi + 1}${w.title ? ': ' + esc(w.title) : ''}</option>`).join('')}</select></label>
+            </div>
+            <label class="field"><span>Title</span><input data-a="title" value="${esc(d.title)}" placeholder="e.g. Week 1 assessment: Organise a shared Drive" maxlength="140"></label>
+            <label class="field"><span>Instructions</span><textarea data-a="instructions" rows="8" placeholder="Tell students exactly what to do and what to turn in. Links you paste become clickable.">${esc(d.instructions)}</textarea></label>
+            <div class="grid-2">
+              <label class="field"><span>Due <span class="hint">Your local time. Leave blank for no due date</span></span><input type="datetime-local" data-a="dueDate" value="${esc(d.dueDate)}"></label>
+              <label class="field"><span>Points</span><input type="number" min="1" max="1000" data-a="points" value="${esc(d.points ?? 100)}"></label>
+            </div>
+            <div class="field"><span>Materials <span class="hint">Worksheets, templates or reference links students need</span></span><div id="a-att"></div></div>
+            <label class="check"><input type="checkbox" data-a="published" ${d.published ? 'checked' : ''}><span><strong>Visible to students</strong><br><span class="small muted">Untick to keep it as a draft.</span></span></label>
+          </section>
+        </div>
+      </div>
+      <div class="savebar"><div class="savebar-inner">
+        <div class="row">${isNew ? '' : '<button class="btn btn-danger btn-sm" id="a-delete">Delete</button>'}<span class="status" id="a-status">${S.draftDirty ? 'Unsaved changes' : ''}</span></div>
+        <button class="btn btn-primary" id="a-save">${isNew ? 'Create assessment' : 'Save changes'}</button>
+      </div></div>`;
+    const markDirty = () => { S.draftDirty = true; $('#a-status').textContent = 'Unsaved changes'; };
+    const ed = $('#a-editor');
+    const onField = (e) => {
+      const k = e.target.dataset.a; if (!k) return;
+      d[k] = e.target.type === 'checkbox' ? e.target.checked : e.target.type === 'number' ? Number(e.target.value) : e.target.value;
+      markDirty();
+      if (k === 'courseId' && e.type === 'change') { d.weekId = ''; renderAssessEditor(aid); }
+    };
+    ed.addEventListener('input', onField);
+    ed.addEventListener('change', onField);
+    mountAttach($('#a-att'), {
+      get: () => d.attachments || [],
+      set: (list) => { d.attachments = list; markDirty(); },
+      pathFor: (f) => `assessments/${storeId}/${safeName(f.name)}`,
+    });
+    $('#a-save').addEventListener('click', async (e) => {
+      d.title = (d.title || '').trim();
+      if (!d.courseId) { toast('Choose a course.', 'error'); return; }
+      if (!d.title) { toast('Give the assessment a title.', 'error'); $('[data-a=title]').focus(); return; }
+      if (!(Number(d.points) > 0)) { toast('Points must be more than 0.', 'error'); return; }
+      const btn = e.currentTarget; btn.disabled = true; $('#a-status').textContent = 'Saving…';
+      try {
+        const { newId, ...data } = clone(d);
+        data.points = Number(data.points);
+        const payload = { ...data, updatedAt: serverTimestamp() };
+        if (isNew) payload.createdAt = serverTimestamp();
+        await setDoc(doc(db, 'assessments', storeId), payload, { merge: true });
+        S.assess.set(storeId, { id: storeId, ...(S.assess.get(storeId) || {}), ...data });
+        if (!S.adminSubs.has(storeId)) S.adminSubs.set(storeId, new Map());
+        S.draftDirty = false; S.adraft = null; S.adraftId = null;
+        toast(isNew ? 'Assessment created' : 'Changes saved');
+        location.hash = `#/admin/assessments/${encodeURIComponent(storeId)}`;
+      } catch (err) { console.error(err); btn.disabled = false; $('#a-status').textContent = 'Not saved'; toast('The assessment didn’t save. Try again.', 'error'); }
+    });
+    $('#a-delete')?.addEventListener('click', () => {
+      const n = (S.adminSubs.get(aid)?.size) || 0;
+      const { el, close } = openModal({
+        title: 'Delete this assessment?',
+        body: `<p>“${esc(S.assess.get(aid).title)}” will disappear for students${n ? `, along with access to ${plural(n, 'submission')} and their grades` : ''}. This can’t be undone.</p>`,
+        foot: `<button class="btn btn-quiet" data-close>Cancel</button><button class="btn btn-danger" id="a-del-go">Delete assessment</button>`
+      });
+      $('#a-del-go', el).addEventListener('click', async (ev) => {
+        ev.currentTarget.disabled = true;
+        try {
+          await deleteDoc(doc(db, 'assessments', aid));
+          S.assess.delete(aid); S.adminSubs.delete(aid); S.adraft = null; S.adraftId = null; S.draftDirty = false;
+          close(); toast('Assessment deleted'); location.hash = '#/admin/assessments';
+        } catch (err) { console.error(err); ev.currentTarget.disabled = false; toast('It couldn’t be deleted.', 'error'); }
+      });
+    });
+  }
+
+  async function renderAssessReview(aid, selUid) {
+    const a = S.assess.get(aid);
+    if (!a) { location.hash = '#/admin/assessments'; return; }
+    adminLoading();
+    try { await ensureStudents(); } catch (e) { console.error(e); S.students = S.students || []; }
+    let subs;
+    try { subs = await loadSubsFor(aid); } catch (e) { console.error(e); subs = new Map(); toast('Submissions didn’t load. Check your Firestore rules.', 'error'); }
+    paintSide();
+    const course = S.courses.get(a.courseId), wk = assessWeek(a), pts = pointsOf(a);
+    const enrolled = enrolledFor(a);
+    // Anyone who submitted but is no longer enrolled still shows up
+    subs.forEach((sub, uid) => { if (!enrolled.some(s => s.uid === uid)) { const s = S.students.find(x => x.uid === uid) || { uid, email: sub.email || '', displayName: sub.name || 'Former student', courses: [] }; enrolled.push(s); } });
+    const rank = (s) => ({ turned: 0, missing: 2, todo: 3, graded: 4 })[statusOf(a, subs.get(s.uid)).key] ?? 5;
+    enrolled.sort((x, y) => rank(x) - rank(y) || studentName(x).localeCompare(studentName(y)));
+    const count = (k) => enrolled.filter(s => statusOf(a, subs.get(s.uid)).key === k).length;
+    let tab = 'work';
+    const current = selUid && enrolled.some(s => s.uid === selUid) ? selUid : enrolled[0]?.uid;
+
+    appEl.innerHTML = `
+      <div class="page" style="--c:${esc(course?.accent || ACCENTS[0])}">
+        <a class="back dark" href="#/admin/assessments">${I.back} Assessments</a>
+        <section class="panel as-head" style="margin-top:12px">
+          <div class="row wrap" style="gap:8px"><span class="chip course-chip"><span class="dot"></span>${esc(course?.title || 'Unknown course')}</span>${wk ? `<span class="chip">Week ${wk.wi + 1}</span>` : ''}${a.published ? '<span class="chip live">Visible</span>' : '<span class="chip draft">Hidden</span>'}</div>
+          <div class="row between wrap"><h1>${esc(a.title)}</h1><a class="btn btn-outline btn-sm" href="#/admin/assessments/${encodeURIComponent(aid)}/edit">${I.edit} Edit</a></div>
+          <div class="as-meta"><span>${I.calendar} ${a.dueDate ? 'Due ' + esc(fmtDue(a.dueDate)) : 'No due date'}</span><span>${I.trophy} ${pts} points</span><span>${I.people} ${plural(enrolledFor(a).length, 'student')}</span></div>
+          <div class="kpis k4">
+            <div class="kpi"><b>${count('turned')}</b><span>To grade</span></div>
+            <div class="kpi"><b>${count('graded')}</b><span>Graded</span></div>
+            <div class="kpi"><b>${count('todo')}</b><span>Not turned in</span></div>
+            <div class="kpi"><b>${count('missing')}</b><span>Missing</span></div>
+          </div>
+        </section>
+        <div class="tabs" role="tablist">
+          <button role="tab" data-tab="work" aria-selected="true">Student work</button>
+          <button role="tab" data-tab="class" aria-selected="false">Class comments</button>
+          <button role="tab" data-tab="details" aria-selected="false">Instructions</button>
+        </div>
+        <div id="tab-work">
+          ${enrolled.length ? `<div class="review">
+            <nav class="roster" aria-label="Students"><div class="roster-head">${plural(enrolled.length, 'student')}</div>${enrolled.map(s => { const st = statusOf(a, subs.get(s.uid)); return `<button data-uid="${esc(s.uid)}" ${s.uid === current ? 'aria-current="true"' : ''}><span class="avatar sm plain">${esc(initials(studentName(s)))}</span><span class="nm">${esc(studentName(s))}</span><span class="st ${st.cls}">${esc(st.label)}</span></button>`; }).join('')}</nav>
+            <section class="panel grader" id="grader"></section>
+          </div>` : `<div class="empty"><h2>No students in this course yet</h2><p>Give students access to ${esc(course?.title || 'the course')} from the Students page and they’ll appear here.</p><a class="btn btn-primary" href="#/admin/students">Go to Students</a></div>`}
+        </div>
+        <div id="tab-class" class="panel" hidden><div><h2>Class comments</h2><p class="small muted">Everyone in the course can see these.</p></div><div id="rv-public"></div></div>
+        <div id="tab-details" class="panel" hidden>
+          ${a.instructions ? `<div class="as-instr">${linkify(a.instructions)}</div>` : '<p class="muted">No instructions.</p>'}
+          ${a.attachments?.length ? `<div><p class="sec-label">Materials</p>${attachListHTML(a.attachments, false)}</div>` : ''}
+        </div>
+      </div>`;
+
+    $$('[data-tab]').forEach(b => b.addEventListener('click', () => {
+      tab = b.dataset.tab;
+      $$('[data-tab]').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+      ['work', 'class', 'details'].forEach(k => $(`#tab-${k}`).hidden = k !== tab);
+    }));
+    S.unsubs.push(mountThread($('#rv-public'), collection(db, 'assessments', aid, 'comments'), { placeholder: 'Post a comment the whole class can see', empty: 'No class comments yet.' }));
+
+    const paintRoster = () => $$('.roster [data-uid]').forEach(b => {
+      const st = statusOf(a, subs.get(b.dataset.uid));
+      const chip = b.querySelector('.st'); chip.className = `st ${st.cls}`; chip.textContent = st.label;
+    });
+    const select = (uid) => {
+      $$('.roster [data-uid]').forEach(b => b.setAttribute('aria-current', String(b.dataset.uid === uid)));
+      const h = `#/admin/assessments/${encodeURIComponent(aid)}/${encodeURIComponent(uid)}`;
+      history.replaceState(null, '', h); lastHash = h;
+      paintGrader(uid);
+    };
+    $$('.roster [data-uid]').forEach(b => b.addEventListener('click', () => select(b.dataset.uid)));
+
+    function paintGrader(uid) {
+      const s = enrolled.find(x => x.uid === uid); if (!s) return;
+      const sub = subs.get(uid) || null, st = statusOf(a, sub);
+      const first = studentName(s).split(' ')[0];
+      const at = tsDate(sub?.submittedAt), due = parseDue(a.dueDate);
+      $('#grader').innerHTML = `
+        <div class="row between wrap">
+          <div class="who-cell"><span class="avatar plain">${esc(initials(studentName(s)))}</span><div><strong>${esc(studentName(s))}</strong><span>${esc(s.email)}</span></div></div>
+          <span class="st ${st.cls}">${esc(st.label)}</span>
+        </div>
+        <div class="sub-box">
+          <h3>Their work</h3>
+          <p class="small muted">${sub?.status === 'submitted' || sub?.status === 'returned'
+            ? (at ? `Turned in ${esc(fmtTs(at))}${due && at > due ? ', after the due date' : ''}` : 'Turned in')
+            : sub?.status === 'draft' ? 'Started but not turned in yet.' : 'Nothing turned in yet.'}</p>
+          ${sub?.text ? `<div class="as-instr answer">${linkify(sub.text)}</div>` : ''}
+          ${attachListHTML(sub?.attachments || [], false)}
+        </div>
+        <form class="grade-form" id="grade-form" novalidate>
+          <label class="field"><span>Grade</span><div class="pts"><input type="number" name="grade" min="0" max="${pts}" step="0.5" value="${sub?.grade ?? ''}" aria-label="Grade out of ${pts}"><span class="muted">out of ${pts}</span></div></label>
+          <label class="field"><span>Feedback <span class="hint">${esc(first)} sees this with the grade</span></span><textarea name="feedback" rows="4" placeholder="What went well, and what to improve">${esc(sub?.feedback || '')}</textarea></label>
+          <label class="check"><input type="checkbox" name="notify" checked><span>Email ${esc(first)} the grade and feedback when I return it</span></label>
+          <div class="row wrap">
+            <button type="button" class="btn btn-outline" data-g="draft">Save draft</button>
+            <button type="submit" class="btn btn-primary">${sub?.status === 'returned' ? 'Update and return' : 'Return to student'}</button>
+          </div>
+          ${sub?.returnedAt ? `<p class="small muted">Last returned ${esc(fmtTs(sub.returnedAt))}${sub.notifiedAt ? ', email sent' : ''}.</p>` : ''}
+          <p class="form-msg" id="g-msg" role="status"></p>
+        </form>
+        <div class="priv"><h3>Private comments</h3><p class="small muted">Only ${esc(first)} and you can see these.</p><div id="rv-private" style="margin-top:10px"></div></div>`;
+
+      const form = $('#grade-form'), msg = $('#g-msg');
+      const submitGrade = async (ret) => {
+        msg.className = 'form-msg'; msg.textContent = '';
+        const raw = form.grade.value.trim();
+        const grade = raw === '' ? null : Number(raw);
+        if (grade != null && (isNaN(grade) || grade < 0 || grade > pts)) { msg.className = 'form-msg is-error'; msg.textContent = `Enter a grade between 0 and ${pts}.`; return; }
+        if (ret && grade == null && !form.feedback.value.trim() && !confirm('Return it without a grade or feedback?')) return;
+        const btns = $$('button', form); btns.forEach(b => b.disabled = true);
+        const feedback = form.feedback.value.trim();
+        const data = { uid, name: studentName(s), email: s.email, grade, feedback, gradedAt: serverTimestamp(), status: ret ? 'returned' : (sub?.status || 'draft') };
+        if (ret) data.returnedAt = serverTimestamp();
+        try {
+          await setDoc(subRef(aid, uid), data, { merge: true });
+          const local = { ...(sub || { attachments: [], text: '' }), ...data, gradedAt: new Date() };
+          if (ret) local.returnedAt = new Date();
+          subs.set(uid, local);
+          let note = ret ? 'Returned to ' + first + '.' : 'Draft saved. ' + first + ' can’t see it until you return it.';
+          if (ret && form.notify.checked) {
+            const r = await notifyStudent({ to: s.email, studentName: studentName(s), courseTitle: course?.title || '', assessmentTitle: a.title, assessmentId: aid, grade, points: pts, feedback });
+            if (r.ok) { note += ' Email sent.'; local.notifiedAt = new Date(); setDoc(subRef(aid, uid), { notifiedAt: serverTimestamp() }, { merge: true }).catch(() => {}); }
+            else note += ` The email didn’t send: ${r.error}`;
+          }
+          paintRoster(); paintSide(); paintGrader(uid);
+          const m2 = $('#g-msg'); m2.className = 'form-msg ' + (note.includes('didn’t') ? 'is-error' : 'is-ok'); m2.textContent = note;
+          toast(ret ? 'Returned' : 'Draft saved');
+        } catch (err) { console.error(err); btns.forEach(b => b.disabled = false); msg.className = 'form-msg is-error'; msg.textContent = 'The grade didn’t save. Try again.'; }
+      };
+      form.addEventListener('submit', (e) => { e.preventDefault(); submitGrade(true); });
+      $('[data-g=draft]', form).addEventListener('click', () => submitGrade(false));
+      if (S.privUnsub) S.privUnsub();
+      S.privUnsub = mountThread($('#rv-private'), collection(db, 'assessments', aid, 'submissions', uid, 'private'), { placeholder: `Message ${first} privately`, empty: 'No private comments yet.' });
+    }
+    if (current) paintGrader(current);
+  }
+
+  async function notifyStudent(payload) {
+    try {
+      const token = await S.user.getIdToken();
+      const r = await fetch('/api/notify', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
+      const j = await r.json().catch(() => ({}));
+      return r.ok ? { ok: true } : { ok: false, error: j.error || `the mail service answered ${r.status}.` };
+    } catch (e) { console.error(e); return { ok: false, error: 'the mail service couldn’t be reached.' }; }
   }
 </script>
 </body>
