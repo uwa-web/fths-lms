@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" href="IMG/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
   <style>
     :root {
       --choc: #5c3214;          /* logo brown */
@@ -490,6 +490,33 @@
     .group-title .dot { width: 12px; height: 12px; border-radius: 4px; background: var(--c); }
     @media (max-width: 1099px) { .as-main, .as-side { display: contents; } .as-head { order: 1; } .work { order: 2; } .as-class { order: 3; } .as-priv { order: 4; } }
 
+
+    /* ---------- Certificates ---------- */
+    .modal.cert-modal { max-width: 1180px; }
+    .cert-grid { display: grid; gap: 20px; }
+    @media (min-width: 960px) { .cert-grid { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); align-items: start; } }
+    .cert-preview canvas { display: block; width: 100%; height: auto; border-radius: 12px; box-shadow: 0 12px 30px -16px rgba(28,18,11,.5); background: #f4efe8; aspect-ratio: 1448 / 1086; }
+    .cert-fields { display: grid; gap: 14px; }
+    .cert-cards { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); margin-bottom: 36px; }
+    .cert-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); overflow: hidden; display: flex; flex-direction: column; }
+    .cert-card.waiting { flex-direction: row; gap: 14px; padding: 18px; align-items: flex-start; border-style: dashed; }
+    .cert-thumb { width: 100%; aspect-ratio: 1448 / 1086; object-fit: cover; background: #f4efe8; }
+    .cert-card-body { padding: 16px 18px 18px; display: grid; gap: 2px; }
+    .cert-card.waiting .cert-card-body { padding: 0; }
+    .verify { min-height: 100vh; display: grid; place-items: center; padding: 32px 16px; background: radial-gradient(120% 80% at 50% 0%, #3a2413 0%, var(--night) 60%); }
+    .verify-card { width: 100%; max-width: 760px; background: var(--surface); border-radius: var(--r-xl); padding: 32px 24px; display: grid; gap: 14px; justify-items: center; text-align: center; }
+    .verify-logo { width: 200px; }
+    .verify-ok, .verify-bad { display: inline-flex; align-items: center; gap: .45rem; font-weight: 700; font-size: .88rem; padding: .35rem .8rem; border-radius: 999px; }
+    .verify-ok { background: var(--green-tint); color: var(--green); }
+    .verify-bad { background: var(--danger-tint); color: var(--danger); }
+    .verify-ok svg, .verify-bad svg { width: 16px; height: 16px; }
+    .verify-card h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); }
+    .verify-card .lede { color: var(--ink-soft); max-width: 46ch; }
+    .verify-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 28px; margin: 0; }
+    .verify-meta dt { font-size: .76rem; color: var(--muted); font-weight: 600; }
+    .verify-meta dd { margin: 0; font-weight: 700; font-family: var(--head); }
+    .verify-img { width: 100%; border-radius: 12px; box-shadow: 0 16px 36px -18px rgba(28,18,11,.5); background: #f4efe8; aspect-ratio: 1448 / 1086; }
+
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
   </style>
 </head>
@@ -529,7 +556,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, updateProfile, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, getDocs, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
   // ================= SETTINGS =================
   // Keep this list in sync with isAdmin() in firestore.rules
@@ -626,6 +653,8 @@
     upload: svg('<path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/>'),
     clip: svg('<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>'),
     edit: svg('<path d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16z"/>'),
+    award: svg('<circle cx="12" cy="9" r="6"/><path d="M8.5 13.8L7 22l5-3 5 3-1.5-8.2"/>'),
+    download: svg('<path d="M12 4v12M7 11l5 5 5-5M4 20h16"/>'),
   };
 
   // ================= HELPERS =================
@@ -731,14 +760,14 @@
     courses: new Map(), progress: new Map(), students: null,
     draft: null, draftId: null, draftDirty: false,
     unsubs: [], studentFilter: '', studentCourse: null,
-    assess: new Map(), subs: new Map(), adminSubs: new Map(), adraft: null, adraftId: null, asTab: 'todo', asCourse: 'all', privUnsub: null,
+    assess: new Map(), subs: new Map(), adminSubs: new Map(), certs: new Map(), certTab: null, certFilter: '', adraft: null, adraftId: null, asTab: 'todo', asCourse: 'all', privUnsub: null,
   };
   const nameCache = new Map();
   const myName = () => S.profile?.displayName || S.profile?.fullName || S.user?.displayName || (S.user?.email || '').split('@')[0] || 'Student';
 
   // ================= AUTH FLOW =================
   onAuthStateChanged(auth, async (user) => {
-    S.user = user; S.courses.clear(); S.progress.clear(); S.students = null; S.profile = null; S.assess.clear(); S.subs.clear(); S.adminSubs.clear();
+    S.user = user; S.courses.clear(); S.progress.clear(); S.students = null; S.profile = null; S.assess.clear(); S.subs.clear(); S.adminSubs.clear(); S.certs.clear();
     if (!user) { $('#shell').hidden = true; boot(false); route(); return; }
     boot(true);
     try { await loadSession(); }
@@ -766,7 +795,7 @@
       cs.forEach(d => S.courses.set(d.id, { id: d.id, ...d.data() }));
       try { const as = await getDocs(collection(db, 'assessments')); as.forEach(d => S.assess.set(d.id, { id: d.id, ...d.data() })); }
       catch (e) { console.warn('assessments load', e); }
-      ensureAdminSubs().then(() => paintSide()).catch(e => console.warn(e));
+      Promise.all([ensureAdminSubs(), ensureStudents(), loadAllCerts()]).then(() => { if (S.user) paintSide(); }).catch(e => console.warn(e));
     } else {
       // Students only ever load the courses listed on their own record
       const ids = Array.isArray(S.profile.courses) ? S.profile.courses : [];
@@ -778,6 +807,7 @@
       }));
       await Promise.all([...S.courses.keys()].map(loadProgress));
       await loadStudentAssessments();
+      await loadMyCerts();
     }
   }
 
@@ -813,12 +843,13 @@
     const links = S.isAdmin
       ? [['#/admin', 'Courses', I.grid, h === '#/' || h === '' || h === '#/admin' || h.startsWith('#/admin/course') || h.startsWith('#/course')],
          ['#/admin/assessments', 'Assessments', I.clip, h.startsWith('#/admin/assessments'), false, badge],
+         ['#/admin/certificates', 'Certificates', I.award, h.startsWith('#/admin/certificates'), false, S.students ? readyCount() : 0],
          ['#/admin/students', 'Students', I.people, h.startsWith('#/admin/students')]]
       : [['#/', 'Dashboard', I.home, h === '#/' || h === '' || h === '#'],
          ['#/assessments', 'Assessments', I.clip, h.startsWith('#/assessment'), false, badge],
          [COMMUNITY_LINK, 'Alumni community', I.people, false, true]];
     $('#side-nav').innerHTML = links.map(([href, label, icon, active, ext, count]) =>
-      `<a href="${esc(href)}" ${ext ? 'target="_blank" rel="noopener"' : ''} ${active ? 'aria-current="page"' : ''}>${icon}<span>${esc(label)}</span>${ext ? `<span style="margin-left:auto;opacity:.5;display:flex">${I.ext}</span>` : ''}${count ? `<span class="nav-badge" title="${S.isAdmin ? 'Waiting to be graded' : 'To do'}">${count}</span>` : ''}</a>`).join('');
+      `<a href="${esc(href)}" ${ext ? 'target="_blank" rel="noopener"' : ''} ${active ? 'aria-current="page"' : ''}>${icon}<span>${esc(label)}</span>${ext ? `<span style="margin-left:auto;opacity:.5;display:flex">${I.ext}</span>` : ''}${count ? `<span class="nav-badge" title="${label === 'Certificates' ? 'Ready for a certificate' : S.isAdmin ? 'Waiting to be graded' : 'To do'}">${count}</span>` : ''}</a>`).join('');
     const courses = sortedCourses();
     $('#side-courses').innerHTML = courses.length ? `<div class="side-label">${S.isAdmin ? 'All courses' : 'My courses'}</div>` + courses.map(c => {
       const target = S.isAdmin ? `#/admin/course/${encodeURIComponent(c.id)}` : courseHref(c.id);
@@ -855,7 +886,10 @@
     S.unsubs.forEach(u => { try { u(); } catch {} }); S.unsubs = [];
     if (S.privUnsub) { S.privUnsub(); S.privUnsub = null; }
     window.scrollTo(0, 0);
+    const vm = location.hash.match(/^#\/verify\/(.+)$/);
+    if (vm) { $('#shell').hidden = true; boot(false); return renderVerify(decodeURIComponent(vm[1])); }
     if (!S.user) return renderLogin();
+    $('#auth-root').innerHTML = ''; $('#shell').hidden = false;
     paintSide();
     const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
     if (parts[0] === 'course' && parts[1]) return renderCourse(parts[1], parts[2]);
@@ -868,6 +902,7 @@
         return renderAdminAssessments();
       }
       if (parts[0] === 'admin' && parts[1] === 'students') return renderStudents();
+      if (parts[0] === 'admin' && parts[1] === 'certificates') return renderCertificates();
       if (parts[0] === 'admin' && parts[1] === 'course' && parts[2]) return renderEditor(parts[2]);
       return renderAdminCourses();
     }
@@ -1029,6 +1064,7 @@
           ${todo.length ? `
           <div class="section-head"><h2>Assessments to do</h2><a class="small" href="#/assessments">See all</a></div>
           <div class="as-rows" style="margin-bottom:36px">${todo.slice(0, 3).map(assessRowHTML).join('')}</div>` : ''}
+          ${certSectionHTML()}
           <div class="section-head"><h2>My courses</h2><span class="small muted">${plural(courses.length, 'course')}</span></div>
           <section class="course-grid">${courses.map(courseCard).join('')}</section>`}
         <section class="help">
@@ -1045,6 +1081,7 @@
         </section>
       </div>`;
     $('#tutorial-btn').addEventListener('click', () => openVideoModal('Submitting assignments on Google Classroom', ASSIGNMENT_TUTORIAL_VIDEO));
+    bindCertSection();
   }
 
   // ================= COURSE PLAYER =================
@@ -1297,9 +1334,9 @@
     const snap = await getDocs(collection(db, 'users'));
     const list = snap.docs.map(d => ({ uid: d.id, ...d.data() }))
       .filter(u => u.email && !ADMIN_EMAILS.includes(String(u.email).toLowerCase()))
-      .map(u => ({ ...u, courses: Array.isArray(u.courses) ? u.courses : [], progress: new Map() }));
+      .map(u => ({ ...u, courses: Array.isArray(u.courses) ? u.courses : [], progress: new Map(), progressAt: new Map() }));
     await Promise.all(list.map(u => Promise.all(u.courses.filter(cid => S.courses.has(cid)).map(async (cid) => {
-      try { const p = await getDoc(progressRef(u.uid, cid)); u.progress.set(cid, new Set(p.exists() ? (p.data().completedSessions || []) : [])); }
+      try { const p = await getDoc(progressRef(u.uid, cid)); u.progress.set(cid, new Set(p.exists() ? (p.data().completedSessions || []) : [])); if (p.exists() && p.data().updatedAt) u.progressAt.set(cid, tsDate(p.data().updatedAt)); }
       catch { u.progress.set(cid, new Set()); }
     }))));
     list.sort((a, b) => studentName(a).localeCompare(studentName(b)));
@@ -2267,6 +2304,562 @@
       const j = await r.json().catch(() => ({}));
       return r.ok ? { ok: true } : { ok: false, error: j.error || `the mail service answered ${r.status}.` };
     } catch (e) { console.error(e); return { ok: false, error: 'the mail service couldn’t be reached.' }; }
+  }
+
+  // ---------- Minimal QR code encoder (byte mode, error correction level M, versions 1-6) ----------
+  function qrMatrix(text) {
+    const data = [...new TextEncoder().encode(text)];
+    // [EC codewords per block, number of blocks, data codewords per block] for level M
+    const SPEC = [null, [10, 1, 16], [16, 1, 28], [26, 1, 44], [18, 2, 32], [24, 2, 43], [16, 4, 27]];
+    const ALIGN = [null, [], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34]];
+    let ver = 1;
+    while (ver <= 6 && 12 + data.length * 8 > SPEC[ver][1] * SPEC[ver][2] * 8) ver++;
+    if (ver > 6) throw new Error('Text too long for QR code');
+    const [ecLen, nBlocks, dLen] = SPEC[ver], cap = nBlocks * dLen, size = 17 + ver * 4;
+    // Bit stream: byte mode, 8-bit length, data, terminator, pad
+    const bits = [];
+    const put = (v, n) => { for (let i = n - 1; i >= 0; i--) bits.push((v >>> i) & 1); };
+    put(4, 4); put(data.length, 8); data.forEach(b => put(b, 8));
+    put(0, Math.min(4, cap * 8 - bits.length));
+    while (bits.length % 8) bits.push(0);
+    const cw = [];
+    for (let i = 0; i < bits.length; i += 8) cw.push(bits.slice(i, i + 8).reduce((a, b) => (a << 1) | b, 0));
+    for (let p = 0xEC; cw.length < cap; p ^= 0xEC ^ 0x11) cw.push(p);
+    // Reed-Solomon over GF(256), polynomial 0x11D
+    const EXP = new Array(512), LOG = new Array(256);
+    for (let i = 0, x = 1; i < 255; i++) { EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 256) x ^= 0x11D; }
+    for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+    const mul = (a, b) => (a && b) ? EXP[LOG[a] + LOG[b]] : 0;
+    let gen = [1];
+    for (let i = 0; i < ecLen; i++) { const n = new Array(gen.length + 1).fill(0); gen.forEach((g, j) => { n[j] ^= g; n[j + 1] ^= mul(g, EXP[i]); }); gen = n; }
+    const blocks = [], ecs = [];
+    for (let b = 0; b < nBlocks; b++) {
+      const blk = cw.slice(b * dLen, (b + 1) * dLen), rem = new Array(ecLen).fill(0);
+      blk.forEach(v => { const f = v ^ rem.shift(); rem.push(0); for (let j = 0; j < ecLen; j++) rem[j] ^= mul(gen[j + 1], f); });
+      blocks.push(blk); ecs.push(rem);
+    }
+    const out = [];
+    for (let i = 0; i < dLen; i++) blocks.forEach(b => out.push(b[i]));
+    for (let i = 0; i < ecLen; i++) ecs.forEach(e => out.push(e[i]));
+    // Matrix with function patterns
+    const M = Array.from({ length: size }, () => new Array(size).fill(false));
+    const F = Array.from({ length: size }, () => new Array(size).fill(false));
+    const setF = (x, y, dark) => { M[y][x] = dark; F[y][x] = true; };
+    for (let i = 0; i < size; i++) { setF(6, i, i % 2 === 0); setF(i, 6, i % 2 === 0); }
+    [[3, 3], [size - 4, 3], [3, size - 4]].forEach(([cx, cy]) => {
+      for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) {
+        const x = cx + dx, y = cy + dy, d = Math.max(Math.abs(dx), Math.abs(dy));
+        if (x >= 0 && x < size && y >= 0 && y < size) setF(x, y, d !== 2 && d !== 4);
+      }
+    });
+    const al = ALIGN[ver];
+    al.forEach((ay, i) => al.forEach((ax, j) => {
+      if ((i === 0 && j === 0) || (i === 0 && j === al.length - 1) || (i === al.length - 1 && j === 0)) return;
+      for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) setF(ax + dx, ay + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1);
+    }));
+    const drawFormat = (mask) => {
+      const d = (0 << 3) | mask; // level M = 00
+      let r = d; for (let i = 0; i < 10; i++) r = (r << 1) ^ ((r >>> 9) * 0x537);
+      const f = ((d << 10) | r) ^ 0x5412, bit = (i) => ((f >>> i) & 1) === 1;
+      for (let i = 0; i <= 5; i++) setF(8, i, bit(i));
+      setF(8, 7, bit(6)); setF(8, 8, bit(7)); setF(7, 8, bit(8));
+      for (let i = 9; i < 15; i++) setF(14 - i, 8, bit(i));
+      for (let i = 0; i < 8; i++) setF(size - 1 - i, 8, bit(i));
+      for (let i = 8; i < 15; i++) setF(8, size - 15 + i, bit(i));
+      setF(8, size - 8, true);
+    };
+    drawFormat(0);
+    // Data placement in the zigzag order
+    let k = 0;
+    for (let right = size - 1; right >= 1; right -= 2) {
+      if (right === 6) right = 5;
+      for (let v = 0; v < size; v++) for (let j = 0; j < 2; j++) {
+        const x = right - j, up = ((right + 1) & 2) === 0, y = up ? size - 1 - v : v;
+        if (!F[y][x] && k < out.length * 8) { M[y][x] = ((out[k >>> 3] >>> (7 - (k & 7))) & 1) === 1; k++; }
+      }
+    }
+    const MASKS = [(x, y) => (x + y) % 2 === 0, (x, y) => y % 2 === 0, (x) => x % 3 === 0, (x, y) => (x + y) % 3 === 0,
+      (x, y) => (Math.floor(x / 3) + Math.floor(y / 2)) % 2 === 0, (x, y) => (x * y) % 2 + (x * y) % 3 === 0,
+      (x, y) => ((x * y) % 2 + (x * y) % 3) % 2 === 0, (x, y) => ((x + y) % 2 + (x * y) % 3) % 2 === 0];
+    const applyMask = (m) => { for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) if (!F[y][x] && MASKS[m](x, y)) M[y][x] = !M[y][x]; };
+    const penalty = () => {
+      let p = 0, dark = 0;
+      for (let y = 0; y < size; y++) for (let pass = 0; pass < 2; pass++) {
+        let run = 1;
+        for (let x = 1; x < size; x++) {
+          const a = pass ? M[x - 1][y] : M[y][x - 1], b = pass ? M[x][y] : M[y][x];
+          if (a === b) { run++; if (run === 5) p += 3; else if (run > 5) p++; } else run = 1;
+        }
+      }
+      for (let y = 0; y < size - 1; y++) for (let x = 0; x < size - 1; x++) if (M[y][x] === M[y][x + 1] && M[y][x] === M[y + 1][x] && M[y][x] === M[y + 1][x + 1]) p += 3;
+      M.forEach(r => r.forEach(c => { if (c) dark++; }));
+      return p + Math.floor(Math.abs(dark * 20 - size * size * 10) / (size * size)) * 10;
+    };
+    let best = 0, bestP = Infinity;
+    for (let m = 0; m < 8; m++) { applyMask(m); drawFormat(m); const pp = penalty(); if (pp < bestP) { bestP = pp; best = m; } applyMask(m); }
+    applyMask(best); drawFormat(best);
+    return M;
+  }
+
+  // ================= CERTIFICATES =================
+  // Positions are in pixels on the 1448 x 1086 template (IMG/certificate-template.jpg).
+  const CERT = {
+    src: 'IMG/certificate-template.jpg', w: 1448, h: 1086,
+    name: { x: 724, y: 578, maxW: 840, size: 82, font: '"Great Vibes", "Playfair Display", Georgia, serif', weight: '400' },
+    course: { x: 840, y: 641, maxW: 468, size: 27, font: '"Plus Jakarta Sans", Arial, sans-serif', weight: '700' },
+    date: { x: 227, y: 971, maxW: 206, size: 22, font: '"Plus Jakarta Sans", Arial, sans-serif', weight: '600' },
+    id: { x: 1019, y: 971, maxW: 196, size: 20, font: '"Plus Jakarta Sans", Arial, sans-serif', weight: '600' },
+    qr: { x: 1199, y: 827, w: 136, h: 138 },
+    ink: '#3a2210',
+  };
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthYearOf = (d) => `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  // The public verification website. QR codes and share links point here.
+  const VERIFY_SITE = 'https://verify.firsttechhubsolutions.com/';
+  const verifyUrl = (id) => `${VERIFY_SITE}?id=${encodeURIComponent(id)}`;
+  // Certificates are stored under a normalised key (capitals, letters and digits only),
+  // so "fthgw250001", "FTHGW250001 " and "FTHS-2609-KFNQG4" / "fths2609kfnqg4" all match.
+  const certDocKey = (id) => String(id || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const certFromDoc = (d) => { const x = d.data() || {}; return { ...x, key: d.id, id: x.id || d.id, status: x.status || 'valid', source: x.source || 'lms' }; };
+  const certKey = (uid, cid) => `${uid}|${cid}`;
+  const certFor = (uid, cid) => [...S.certs.values()].find(c => c.uid === uid && c.courseId === cid) || null;
+  function newCertId() {
+    const d = new Date(), chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const rnd = Array.from(crypto.getRandomValues(new Uint8Array(6)), b => chars[b % chars.length]).join('');
+    return `FTHS-${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}-${rnd}`;
+  }
+
+  let templateImg = null;
+  function loadTemplate() {
+    if (templateImg) return templateImg;
+    templateImg = new Promise((resolve, reject) => { const im = new Image(); im.onload = () => resolve(im); im.onerror = () => { templateImg = null; reject(new Error('Certificate template didn’t load')); }; im.src = CERT.src; });
+    return templateImg;
+  }
+
+  async function drawCertificate(canvas, f, scale = 2) {
+    const im = await loadTemplate();
+    try { await Promise.all([document.fonts.load(`82px ${CERT.name.font}`), document.fonts.load(`700 27px ${CERT.course.font}`)]); } catch {}
+    canvas.width = CERT.w * scale; canvas.height = CERT.h * scale;
+    const g = canvas.getContext('2d');
+    g.setTransform(scale, 0, 0, scale, 0, 0);
+    g.drawImage(im, 0, 0, CERT.w, CERT.h);
+    g.fillStyle = CERT.ink; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+    const text = (t, p) => {
+      if (!t) return;
+      let size = p.size;
+      do { g.font = `${p.weight} ${size}px ${p.font}`; size -= 1; } while (g.measureText(t).width > p.maxW && size > 10);
+      g.fillText(t, p.x, p.y);
+    };
+    text(f.name, CERT.name);
+    text(f.course, CERT.course);
+    text(f.monthYear, CERT.date);
+    text(f.id, CERT.id);
+    // Replace the sample QR code with one that opens this certificate's verification page
+    const q = CERT.qr;
+    g.fillStyle = '#ffffff'; g.fillRect(q.x, q.y, q.w, q.h);
+    if (f.id) {
+      const m = qrMatrix(verifyUrl(f.id)), n = m.length, quiet = 2, cell = Math.floor((Math.min(q.w, q.h) - 4) / (n + quiet * 2) * scale) / scale;
+      const side = cell * (n + quiet * 2), ox = q.x + (q.w - side) / 2 + cell * quiet, oy = q.y + (q.h - side) / 2 + cell * quiet;
+      g.fillStyle = '#1c120b';
+      for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (m[y][x]) g.fillRect(ox + x * cell, oy + y * cell, cell + 0.02, cell + 0.02);
+    }
+    return canvas;
+  }
+
+  // Builds a one-page PDF (landscape, same shape as the template) around a JPEG image
+  function jpegToPdf(jpg, pw, ph) {
+    const W = 842, H = Math.round(842 * ph / pw * 100) / 100, enc = new TextEncoder();
+    const chunks = [], offs = []; let len = 0;
+    const add = (c) => { const b = typeof c === 'string' ? enc.encode(c) : c; chunks.push(b); len += b.length; };
+    const obj = (n, dict, stream) => { offs[n] = len; add(`${n} 0 obj\n${dict}\n`); if (stream) { add('stream\n'); add(stream); add('\nendstream\n'); } add('endobj\n'); };
+    add('%PDF-1.4\n%âãÏÓ\n');
+    obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+    obj(2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+    obj(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>`);
+    const content = enc.encode(`q ${W} 0 0 ${H} 0 0 cm /Im0 Do Q`);
+    obj(4, `<< /Length ${content.length} >>`, content);
+    obj(5, `<< /Type /XObject /Subtype /Image /Width ${pw} /Height ${ph} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>`, jpg);
+    const xref = len;
+    add(`xref\n0 6\n0000000000 65535 f \n${[1, 2, 3, 4, 5].map(i => String(offs[i]).padStart(10, '0') + ' 00000 n \n').join('')}trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
+    const out = new Uint8Array(len); let o = 0;
+    chunks.forEach(c => { out.set(c, o); o += c.length; });
+    return out;
+  }
+
+  async function certificatePdf(f) {
+    const canvas = await drawCertificate(document.createElement('canvas'), f, 2);
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.9));
+    return jpegToPdf(new Uint8Array(await blob.arrayBuffer()), canvas.width, canvas.height);
+  }
+  function toBase64(bytes) { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); }
+  function downloadBytes(bytes, filename, type = 'application/pdf') {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([bytes], { type })); a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+  }
+  const certFileName = (c) => `First-Tech-Hub-Certificate-${slugify(c.course || 'course')}.pdf`;
+  async function downloadCertificate(c, btn) {
+    if (btn) btn.disabled = true;
+    try { downloadBytes(await certificatePdf(c), certFileName(c)); }
+    catch (e) { console.error(e); toast('The certificate couldn’t be created. Refresh and try again.', 'error'); }
+    finally { if (btn) btn.disabled = false; }
+  }
+  async function certThumb(img, c, scale = 0.5) {
+    try { const cv = await drawCertificate(document.createElement('canvas'), c, scale); img.src = cv.toDataURL('image/jpeg', 0.8); } catch (e) { console.warn(e); }
+  }
+
+  // ---------- Completion status (admin) ----------
+  function completionOf(s, c) {
+    const all = sessionsOf(c);
+    const done = s.progress.get(c.id) || new Set();
+    const sessDone = all.filter(x => done.has(x.s.id)).length;
+    const as = [...S.assess.values()].filter(a => a.courseId === c.id && a.published);
+    let lastAt = s.progressAt?.get(c.id) || null;
+    const turned = as.filter(a => {
+      const sub = S.adminSubs.get(a.id)?.get(s.uid);
+      const at = tsDate(sub?.submittedAt);
+      if (at && (!lastAt || at > lastAt)) lastAt = at;
+      return ['submitted', 'returned'].includes(sub?.status);
+    }).length;
+    return { sessDone, sessTotal: all.length, asDone: turned, asTotal: as.length, ready: all.length > 0 && sessDone === all.length && turned === as.length, lastAt };
+  }
+  function certRows() {
+    const rows = [];
+    (S.students || []).forEach(s => s.courses.filter(cid => S.courses.has(cid)).forEach(cid => {
+      const c = S.courses.get(cid);
+      rows.push({ s, c, st: completionOf(s, c), cert: certFor(s.uid, cid) });
+    }));
+    return rows;
+  }
+  const readyCount = () => certRows().filter(r => r.st.ready && !r.cert).length;
+
+  async function loadAllCerts() {
+    const snap = await getDocs(collection(db, 'certificates'));
+    S.certs.clear(); snap.forEach(d => S.certs.set(d.id, certFromDoc(d)));
+  }
+
+  // ================= ADMIN: CERTIFICATES =================
+  async function renderCertificates() {
+    adminLoading();
+    try { await Promise.all([ensureStudents(), ensureAdminSubs(), loadAllCerts()]); }
+    catch (e) { console.error(e); appEl.innerHTML = `<div class="page"><div class="empty"><h2>Certificates didn’t load</h2><p>Check that the latest Firestore rules are published, then refresh.</p></div></div>`; return; }
+    paintSide();
+    const rows = certRows();
+    const groups = {
+      ready: rows.filter(r => r.st.ready && !r.cert).sort((a, b) => (b.st.lastAt?.getTime() || 0) - (a.st.lastAt?.getTime() || 0)),
+      progress: rows.filter(r => !r.st.ready && !r.cert).sort((a, b) => (b.st.sessDone / (b.st.sessTotal || 1)) - (a.st.sessDone / (a.st.sessTotal || 1))),
+      issued: [...S.certs.values()].sort((a, b) => (tsDate(b.issuedAt)?.getTime() || 0) - (tsDate(a.issuedAt)?.getTime() || 0)),
+    };
+    const labels = { ready: 'Ready for certificate', progress: 'Still in progress', issued: 'Issued' };
+    if (!groups[S.certTab]) S.certTab = groups.ready.length ? 'ready' : 'issued';
+    const q = (S.certFilter || '').toLowerCase().trim();
+    const match = (name, email, course) => !q || `${name} ${email} ${course}`.toLowerCase().includes(q);
+    const tab = S.certTab;
+    let list = '';
+    if (tab === 'issued') {
+      const items = groups.issued.filter(c => match(c.name, S.students?.find(s => s.uid === c.uid)?.email || '', `${c.course} ${c.id}`));
+      list = items.map(c => `
+        <div class="as-row" style="--c:${esc(S.courses.get(c.courseId)?.accent || ACCENTS[0])}">
+          <span class="as-ic">${I.award}</span>
+          <div style="min-width:0">
+            <div class="row wrap" style="gap:8px"><strong>${esc(c.name)}</strong>${c.source === 'legacy' ? '<span class="chip">Imported</span>' : ''}${c.status === 'revoked' ? '<span class="st st-missing">Revoked</span>' : ''}</div>
+            <span class="sub">${esc(c.course)}, ${esc(c.monthYear || '')}. ID ${esc(c.id)}${c.sentAt ? '. Emailed ' + esc(fmtTs(c.sentAt)) : ''}${c.source === 'legacy' && !c.uid ? '. No LMS account linked' : ''}</span></div>
+          <div class="right"><div class="acts">
+            <a class="btn btn-quiet btn-sm" href="${esc(verifyUrl(c.id))}" target="_blank" rel="noopener">Verify page</a>
+            <button class="btn btn-quiet btn-sm" data-revoke="${esc(c.key)}">${c.status === 'revoked' ? 'Restore' : 'Revoke'}</button>
+            ${c.source === 'legacy' ? '' : `<button class="btn btn-outline btn-sm" data-edit="${esc(c.key)}">Edit or resend</button>`}
+          </div></div>
+        </div>`).join('');
+    } else {
+      const items = groups[tab].filter(r => match(studentName(r.s), r.s.email, r.c.title));
+      list = items.map(r => `
+        <div class="as-row" style="--c:${esc(r.c.accent || ACCENTS[0])}">
+          <span class="avatar plain">${esc(initials(studentName(r.s)))}</span>
+          <div style="min-width:0"><strong>${esc(studentName(r.s))}</strong>
+            <span class="sub">${esc(r.c.title)}. ${r.st.sessDone}/${r.st.sessTotal} sessions, ${r.st.asDone}/${r.st.asTotal} assessments turned in${r.st.ready && r.st.lastAt ? `. Finished ${esc(monthYearOf(r.st.lastAt))}` : ''}</span></div>
+          <div class="right"><div class="acts">
+            <button class="btn ${r.st.ready ? 'btn-primary' : 'btn-outline'} btn-sm" data-prep="${esc(certKey(r.s.uid, r.c.id))}">${r.st.ready ? 'Prepare certificate' : 'Issue anyway'}</button>
+          </div></div>
+        </div>`).join('');
+    }
+    appEl.innerHTML = `
+      <div class="page">
+        <div class="page-head">
+          <div><h1>Certificates</h1><p>Students appear under “Ready” once they’ve completed every session and turned in every assessment in a course.</p></div>
+          <div class="row wrap"><a class="btn btn-outline" href="${esc(VERIFY_SITE)}" target="_blank" rel="noopener">${I.ext} Verification site</a><button class="btn btn-outline" id="cert-import">${I.upload} Import past certificates</button></div>
+        </div>
+        <div class="tabs" role="tablist">${Object.keys(labels).map(k => `<button role="tab" data-tab="${k}" aria-selected="${k === tab}">${labels[k]}<span class="count">${groups[k].length}</span></button>`).join('')}</div>
+        <div class="toolbar"><input class="input" type="search" id="cert-search" placeholder="Search by name, email or course" value="${esc(S.certFilter || '')}" aria-label="Search"></div>
+        ${list ? `<div class="as-rows">${list}</div>` : `<div class="empty"><img src="IMG/fth-mark.png" alt=""><h2>${tab === 'ready' ? 'No one is waiting for a certificate' : tab === 'issued' ? 'No certificates issued yet' : 'Nobody in progress'}</h2><p>${tab === 'ready' ? 'When a student finishes every session and turns in every assessment in a course, they’ll show up here.' : tab === 'issued' ? 'Certificates you send appear here, with their verification links.' : 'Students who are still working through a course appear here.'}</p></div>`}
+      </div>`;
+    $$('[data-tab]').forEach(b => b.addEventListener('click', () => { S.certTab = b.dataset.tab; renderCertificates(); }));
+    const search = $('#cert-search');
+    search.addEventListener('input', () => { S.certFilter = search.value; clearTimeout(renderCertificates._t); renderCertificates._t = setTimeout(async () => { await renderCertificates(); const s2 = $('#cert-search'); s2.focus(); s2.setSelectionRange(s2.value.length, s2.value.length); }, 250); });
+    $$('[data-prep]').forEach(b => b.addEventListener('click', () => {
+      const r = rows.find(x => certKey(x.s.uid, x.c.id) === b.dataset.prep);
+      if (!r.st.ready && !confirm(`${studentName(r.s)} hasn’t finished ${r.c.title} yet (${r.st.sessDone}/${r.st.sessTotal} sessions, ${r.st.asDone}/${r.st.asTotal} assessments). Issue a certificate anyway?`)) return;
+      openCertEditor({ uid: r.s.uid, courseId: r.c.id, name: r.s.fullName || studentName(r.s), course: r.c.title, date: r.st.lastAt || new Date(), email: r.s.email });
+    }));
+    $('#cert-import').addEventListener('click', openCertImport);
+    $$('[data-revoke]').forEach(b => b.addEventListener('click', async () => {
+      const c = S.certs.get(b.dataset.revoke), revoke = c.status !== 'revoked';
+      if (!confirm(revoke ? `Revoke certificate ${c.id} for ${c.name}? The verification site will show it as revoked.` : `Restore certificate ${c.id} for ${c.name}? It will show as valid again.`)) return;
+      b.disabled = true;
+      try { await setDoc(doc(db, 'certificates', c.key), { status: revoke ? 'revoked' : 'valid', updatedAt: serverTimestamp() }, { merge: true }); c.status = revoke ? 'revoked' : 'valid'; toast(revoke ? 'Certificate revoked' : 'Certificate restored'); renderCertificates(); }
+      catch (e) { console.error(e); b.disabled = false; toast('That change didn’t save.', 'error'); }
+    }));
+    $$('[data-edit]').forEach(b => b.addEventListener('click', () => {
+      const c = S.certs.get(b.dataset.edit), s = S.students.find(x => x.uid === c.uid);
+      const [mName, yr] = String(c.monthYear || '').split(' ');
+      const mi = MONTHS.indexOf(mName);
+      openCertEditor({ existing: c, uid: c.uid, courseId: c.courseId, name: c.name, course: c.course, date: mi >= 0 ? new Date(Number(yr), mi, 1) : new Date(), email: s?.email || '' });
+    }));
+  }
+
+  function openCertEditor({ existing = null, uid, courseId, name, course, date, email }) {
+    let id = existing?.id || newCertId();
+    while (!existing && S.certs.has(certDocKey(id))) id = newCertId(); // never reuse an ID
+    const key = existing?.key || certDocKey(id);
+    const year = date.getFullYear();
+    const { el, close } = openModal({
+      title: existing ? 'Edit certificate' : 'Prepare certificate',
+      body: `
+        <div class="cert-grid">
+          <div class="cert-preview"><canvas id="cert-canvas" aria-label="Certificate preview"></canvas></div>
+          <form id="cert-form" class="cert-fields" novalidate>
+            <label class="field"><span>Student’s name <span class="hint">As it should appear on the certificate</span></span><input name="name" value="${esc(name)}" maxlength="60" required></label>
+            <label class="field"><span>Course</span><input name="course" value="${esc(course)}" maxlength="70" required></label>
+            <div class="field"><span>Completed in</span>
+              <div class="row" style="gap:8px">
+                <select class="input" name="month" aria-label="Month">${MONTHS.map((m, i) => `<option value="${i}" ${i === date.getMonth() ? 'selected' : ''}>${m}</option>`).join('')}</select>
+                <input class="input" name="year" type="number" min="2020" max="2100" value="${year}" style="max-width:110px" aria-label="Year">
+              </div></div>
+            <div class="field"><span>Certificate ID</span><input value="${esc(id)}" readonly></div>
+            <label class="check"><input type="checkbox" name="send" ${email ? 'checked' : 'disabled'}><span>Email the PDF to ${email ? esc(email) : 'the student (no email on file)'}</span></label>
+            <p class="small muted">The student can also download it from their dashboard, and the QR code opens a page confirming it’s genuine.</p>
+            <p class="form-msg" id="cert-msg" role="status"></p>
+          </form>
+        </div>`,
+      foot: `<button class="btn btn-quiet" data-close>Cancel</button><button class="btn btn-outline" id="cert-dl">${I.download} Download PDF</button><button class="btn btn-primary" id="cert-go">${existing ? 'Save changes' : 'Issue certificate'}</button>`,
+    });
+    el.classList.add('cert-modal');
+    const form = $('#cert-form', el), canvas = $('#cert-canvas', el), msg = $('#cert-msg', el);
+    const fields = () => ({ id, name: form.name.value.trim(), course: form.course.value.trim(), monthYear: `${MONTHS[+form.month.value]} ${form.year.value}` });
+    let t; const repaint = () => { clearTimeout(t); t = setTimeout(() => drawCertificate(canvas, fields(), 1).catch(e => { console.error(e); msg.className = 'form-msg is-error'; msg.textContent = 'The certificate template didn’t load. Check IMG/certificate-template.jpg is uploaded.'; }), 120); };
+    form.addEventListener('input', repaint); form.addEventListener('change', repaint);
+    repaint();
+    $('#cert-dl', el).addEventListener('click', (e) => downloadCertificate(fields(), e.currentTarget));
+    $('#cert-go', el).addEventListener('click', async (e) => {
+      const f = fields();
+      if (!f.name || !f.course || !(+form.year.value >= 2000)) { msg.className = 'form-msg is-error'; msg.textContent = 'Fill in the name, course and year.'; return; }
+      const btns = $$('.modal-foot button', el); btns.forEach(b => b.disabled = true);
+      msg.className = 'form-msg'; msg.textContent = 'Saving…';
+      try {
+        const data = { id, uid, courseId, name: f.name, course: f.course, monthYear: f.monthYear, status: existing?.status || 'valid', source: 'lms', updatedAt: serverTimestamp() };
+        if (!existing) data.issuedAt = serverTimestamp();
+        await setDoc(doc(db, 'certificates', key), data, { merge: true });
+        const local = { ...(existing || {}), ...data, key, issuedAt: existing?.issuedAt || new Date(), updatedAt: new Date() };
+        S.certs.set(key, local);
+        let note = existing ? 'Certificate updated.' : 'Certificate issued.';
+        if (form.send.checked && email) {
+          msg.textContent = 'Creating the PDF and sending it…';
+          const pdf = await certificatePdf(f);
+          const r = await notifyStudent({ type: 'certificate', to: email, studentName: f.name, courseTitle: f.course, monthYear: f.monthYear, certId: id, pdfBase64: toBase64(pdf), fileName: certFileName(f) });
+          if (r.ok) { note += ` Emailed to ${email}.`; local.sentAt = new Date(); setDoc(doc(db, 'certificates', key), { sentAt: serverTimestamp() }, { merge: true }).catch(() => {}); }
+          else { note += ` The email didn’t send: ${r.error}`; toast(note, 'error'); close(); renderCertificates(); return; }
+        }
+        toast(note); close(); S.certTab = 'issued'; renderCertificates();
+      } catch (err) { console.error(err); btns.forEach(b => b.disabled = false); msg.className = 'form-msg is-error'; msg.textContent = 'The certificate didn’t save. Try again.'; }
+    });
+  }
+
+  // ================= STUDENT: CERTIFICATES =================
+  async function loadMyCerts() {
+    try {
+      const snap = await getDocs(query(collection(db, 'certificates'), where('uid', '==', S.user.uid)));
+      snap.forEach(d => S.certs.set(d.id, certFromDoc(d)));
+    } catch (e) { console.warn('certificates load', e); }
+  }
+  // A student's own view of whether a course is finished (sessions + assessments turned in)
+  function myCourseFinished(c) {
+    const all = sessionsOf(c), done = S.progress.get(c.id) || new Set();
+    if (!all.length || !all.every(x => done.has(x.s.id))) return false;
+    return [...S.assess.values()].filter(a => a.courseId === c.id).every(a => ['submitted', 'returned'].includes(S.subs.get(a.id)?.status));
+  }
+  function certSectionHTML() {
+    const mine = [...S.certs.values()].filter(c => c.uid === S.user.uid);
+    const waiting = sortedCourses().filter(c => myCourseFinished(c) && !mine.some(x => x.courseId === c.id));
+    if (!mine.length && !waiting.length) return '';
+    return `
+      <div class="section-head"><h2>Certificates</h2></div>
+      <div class="cert-cards">
+        ${mine.map(c => c.source === 'legacy' ? `
+          <article class="cert-card waiting" style="border-style:solid">
+            <span class="as-ic">${I.award}</span>
+            <div class="cert-card-body"><strong>${esc(c.course)}</strong><span class="small muted">${esc(c.monthYear || '')}. ID ${esc(c.id)}${c.status === 'revoked' ? '. Revoked' : ''}</span>
+              <div class="row wrap" style="gap:8px;margin-top:10px"><a class="btn btn-outline btn-sm" href="${esc(verifyUrl(c.id))}" target="_blank" rel="noopener">Verification link</a></div></div>
+          </article>` : `
+          <article class="cert-card">
+            <img class="cert-thumb" data-cert-thumb="${esc(c.key)}" alt="Certificate for ${esc(c.course)}">
+            <div class="cert-card-body">
+              <strong>${esc(c.course)}</strong><span class="small muted">Completed ${esc(c.monthYear)}. ID ${esc(c.id)}${c.status === 'revoked' ? '. Revoked' : ''}</span>
+              <div class="row wrap" style="gap:8px;margin-top:10px">
+                <button class="btn btn-primary btn-sm" data-cert-dl="${esc(c.key)}">${I.download} Download PDF</button>
+                <a class="btn btn-outline btn-sm" href="${esc(verifyUrl(c.id))}" target="_blank" rel="noopener">Verification link</a>
+              </div>
+            </div>
+          </article>`).join('')}
+        ${waiting.map(c => `
+          <article class="cert-card waiting">
+            <span class="as-ic" style="--c:${esc(c.accent || ACCENTS[0])}">${I.award}</span>
+            <div class="cert-card-body"><strong>You’ve finished ${esc(c.title)}!</strong><span class="small muted">Your certificate is being prepared. You’ll get it by email and it will appear here.</span></div>
+          </article>`).join('')}
+      </div>`;
+  }
+  function bindCertSection() {
+    $$('[data-cert-thumb]').forEach(img => certThumb(img, S.certs.get(img.dataset.certThumb)));
+    $$('[data-cert-dl]').forEach(b => b.addEventListener('click', () => downloadCertificate(S.certs.get(b.dataset.certDl), b)));
+  }
+
+  // ================= PUBLIC: VERIFY =================
+  async function renderVerify(id) {
+    const root = $('#auth-root');
+    root.innerHTML = `<section class="verify"><div class="verify-card"><div class="spinner" style="margin:40px auto"></div></div></section>`;
+    let c = null;
+    try { const d = await getDoc(doc(db, 'certificates', certDocKey(id))); if (d.exists()) c = certFromDoc(d); } catch (e) { console.warn(e); }
+    const revoked = c?.status === 'revoked';
+    root.innerHTML = `
+      <section class="verify">
+        <div class="verify-card">
+          <img class="verify-logo" src="IMG/fth-logo.png" alt="First Tech Hub Solutions">
+          ${c ? `
+            ${revoked ? `<div class="verify-bad">${I.close} Revoked</div>` : `<div class="verify-ok">${I.check} Valid certificate</div>`}
+            <h1>${esc(c.name)}</h1>
+            <p class="lede">${revoked ? 'This certificate was issued for' : 'completed'} <strong>${esc(c.course)}</strong> with First Tech Hub Solutions${c.monthYear ? ` in ${esc(c.monthYear)}` : ''}.${revoked ? ' It has since been revoked and is no longer valid.' : ''}</p>
+            <dl class="verify-meta"><div><dt>Certificate ID</dt><dd>${esc(c.id)}</dd></div><div><dt>Issued by</dt><dd>First Tech Hub Solutions</dd></div></dl>`
+          : `
+            <div class="verify-bad">${I.close} Not found</div>
+            <h1>We couldn’t find this certificate</h1>
+            <p class="lede">No First Tech Hub Solutions certificate has the ID <strong>${esc(id)}</strong>. Check the ID, or email <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a> to confirm it.</p>`}
+          <a class="small" href="#/" style="margin-top:8px">${S.user ? 'Back to the LMS' : 'Student sign in'}</a>
+        </div>
+      </section>`;
+  }
+
+  // ================= ADMIN: IMPORT PAST CERTIFICATES =================
+  function parseCSV(text) {
+    const rows = []; let row = [], cell = '', q = false;
+    text = String(text).replace(/^﻿/, '');
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (q) {
+        if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+        else cell += ch;
+      } else if (ch === '"') q = true;
+      else if (ch === ',' || ch === '\t') { row.push(cell); cell = ''; }
+      else if (ch === '\n' || ch === '\r') { if (ch === '\r' && text[i + 1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; }
+      else cell += ch;
+    }
+    if (cell || row.length) { row.push(cell); rows.push(row); }
+    return rows.map(r => r.map(c => c.trim())).filter(r => r.some(Boolean));
+  }
+  function parseDate(v) {
+    v = String(v || '').trim(); if (!v) return null;
+    let m = v.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/); // day-month-year, as in the sheet
+    if (m) { const d = new Date(+m[3], +m[2] - 1, +m[1]); return isNaN(d) || d.getMonth() !== +m[2] - 1 ? null : d; }
+    m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (m) { const d = new Date(+m[1], +m[2] - 1, +m[3]); return isNaN(d) ? null : d; }
+    const d = new Date(v); return isNaN(d) ? null : d;
+  }
+  const isoDay = (d) => d ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` : '';
+  const niceTitle = (t) => t && t === t.toUpperCase() ? t.toLowerCase().replace(/\b[a-z]/g, c => c.toUpperCase()) : t;
+  const tidyName = (t) => String(t || '').replace(/\s+/g, ' ').trim().replace(/\b([a-z])/g, (m, c, i, str) => (i === 0 || str[i - 1] === ' ' || str[i - 1] === '-') ? c.toUpperCase() : c);
+
+  function openCertImport() {
+    const { el, close } = openModal({
+      title: 'Import past certificates',
+      body: `
+        <p class="small muted" style="margin-top:-.4rem">Adds certificates you issued before the LMS, so they can be checked on the verification site. Existing IDs are kept exactly as printed.</p>
+        <ol class="small" style="margin:0;padding-left:1.2rem;display:grid;gap:4px">
+          <li>Open your “VALID Certificates” sheet, on the <strong>Valid Certificates</strong> tab.</li>
+          <li><strong>File > Download > Comma-separated values (.csv)</strong>.</li>
+          <li>Choose that file below.</li>
+        </ol>
+        <label class="btn btn-outline" style="justify-self:start">${I.upload} Choose CSV file<input type="file" accept=".csv,text/csv,.tsv,text/plain" hidden id="imp-file"></label>
+        <details class="small"><summary style="cursor:pointer;color:var(--muted)">Or paste the rows instead</summary><textarea class="input" id="imp-paste" rows="5" placeholder="Paste from the sheet, including the header row" style="margin-top:8px;width:100%"></textarea><button class="btn btn-outline btn-sm" id="imp-paste-go" style="margin-top:6px">Read pasted rows</button></details>
+        <div id="imp-preview"></div>`,
+      foot: `<button class="btn btn-quiet" data-close>Cancel</button><button class="btn btn-primary" id="imp-go" disabled>Import</button>`,
+    });
+    let plan = null;
+    const preview = $('#imp-preview', el), go = $('#imp-go', el);
+    const read = async (text) => {
+      const rows = parseCSV(text);
+      if (rows.length < 2) { preview.innerHTML = '<p class="form-msg is-error">No rows found. Make sure you include the header row.</p>'; return; }
+      const head = rows[0].map(h => h.toLowerCase());
+      const col = (re) => head.findIndex(h => re.test(h));
+      const C = { name: col(/full\s*name|^name$/), email: col(/e-?mail/), course: col(/course/), id: col(/certificate\s*id|cert.*id|^id$/), issued: col(/date\s*issued|issue\s*date|issued/), completed: col(/completion|completed/), status: col(/status/), batch: col(/batch/) };
+      if (C.id < 0 || C.name < 0) { preview.innerHTML = '<p class="form-msg is-error">Couldn’t find the “FULL NAME” and “CERTIFICATE ID” columns. Check the first row is the header row.</p>'; return; }
+      const emailToUid = new Map((S.students || []).map(s => [s.email.toLowerCase(), s.uid]));
+      const courseNames = [...new Set(rows.slice(1).map(r => (r[C.course] || '').trim()).filter(Boolean))];
+      const items = [], skipped = [], seen = new Set();
+      rows.slice(1).forEach((r, i) => {
+        const line = i + 2, id = (r[C.id] || '').trim(), name = tidyName(r[C.name]);
+        if (!id && !name) return;
+        if (!id) { skipped.push(`Row ${line}: no certificate ID`); return; }
+        if (!name) { skipped.push(`Row ${line} (${id}): no name, so it was left out`); return; }
+        const key = certDocKey(id);
+        if (seen.has(key)) { skipped.push(`Row ${line} (${id}): same ID as an earlier row`); return; }
+        seen.add(key);
+        const issued = parseDate(r[C.issued]), completed = parseDate(r[C.completed]);
+        const status = /revok|invalid|cancel/i.test(r[C.status] || '') ? 'revoked' : 'valid';
+        const email = (r[C.email] || '').trim().toLowerCase();
+        items.push({ key, id, name, courseRaw: (r[C.course] || '').trim(), issued, completed, status, email, uid: emailToUid.get(email) || null, batch: (r[C.batch] || '').trim() });
+      });
+      const existing = items.filter(x => S.certs.has(x.key));
+      const clash = existing.filter(x => S.certs.get(x.key).source !== 'legacy');
+      plan = { items: items.filter(x => !clash.includes(x)), courseNames };
+      const guess = (n) => sortedCourses().find(c => /workspace/i.test(n) && /workspace/i.test(c.title))?.id || '';
+      preview.innerHTML = `
+        <div class="panel" style="padding:14px;gap:10px;background:#fbfaf8">
+          <strong>${plural(plan.items.length, 'certificate')} ready to import</strong>
+          <ul class="small" style="margin:0;padding-left:1.1rem">
+            <li>${plan.items.filter(x => !S.certs.has(x.key)).length} new, ${plan.items.filter(x => S.certs.has(x.key)).length} already imported (will be updated)</li>
+            <li>${plan.items.filter(x => x.uid).length} matched to a student’s LMS account by email, so they’ll see it on their dashboard</li>
+            ${plan.items.some(x => x.status === 'revoked') ? `<li>${plan.items.filter(x => x.status === 'revoked').length} marked as revoked</li>` : ''}
+            ${clash.length ? `<li style="color:var(--danger)">${clash.length} skipped: the ID is already used by a certificate issued in the LMS</li>` : ''}
+            ${skipped.length ? `<li>${plural(skipped.length, 'row')} left out:<br>${skipped.slice(0, 6).map(esc).join('<br>')}${skipped.length > 6 ? '<br>…' : ''}</li>` : ''}
+          </ul>
+          ${courseNames.length ? `<div class="field"><span>Link each course name to an LMS course <span class="hint">So those students aren’t offered a second certificate</span></span>
+            ${courseNames.map((n, i) => `<label class="row" style="gap:10px"><span class="small" style="flex:1">${esc(niceTitle(n))}</span><select class="input" data-course-map="${i}" style="max-width:260px"><option value="">Not an LMS course</option>${sortedCourses().map(c => `<option value="${esc(c.id)}" ${guess(n) === c.id ? 'selected' : ''}>${esc(c.title)}</option>`).join('')}</select></label>`).join('')}</div>` : ''}
+        </div>`;
+      go.disabled = !plan.items.length;
+    };
+    $('#imp-file', el).addEventListener('change', async (e) => { const f = e.target.files[0]; if (f) read(await f.text()); });
+    $('#imp-paste-go', el).addEventListener('click', () => read($('#imp-paste', el).value));
+    go.addEventListener('click', async () => {
+      if (!plan) return;
+      go.disabled = true; go.textContent = 'Importing…';
+      const courseFor = new Map(plan.courseNames.map((n, i) => [n, $(`[data-course-map="${i}"]`, el)?.value || '']));
+      try {
+        for (let i = 0; i < plan.items.length; i += 400) {
+          const batch = writeBatch(db);
+          plan.items.slice(i, i + 400).forEach(x => {
+            const when = x.completed || x.issued;
+            const data = {
+              id: x.id, name: x.name, course: niceTitle(x.courseRaw) || 'First Tech Hub course', courseId: courseFor.get(x.courseRaw) || null,
+              monthYear: when ? monthYearOf(when) : '', issuedDate: isoDay(x.issued), completedDate: isoDay(x.completed),
+              // A certificate you revoked in the LMS stays revoked even if the sheet still says VALID
+              status: S.certs.get(x.key)?.status === 'revoked' ? 'revoked' : x.status, source: 'legacy', uid: x.uid || S.certs.get(x.key)?.uid || null, batch: x.batch || null, importedAt: serverTimestamp(),
+            };
+            batch.set(doc(db, 'certificates', x.key), data, { merge: true });
+            S.certs.set(x.key, { ...data, key: x.key, importedAt: new Date() });
+          });
+          await batch.commit();
+        }
+        close(); toast(`${plural(plan.items.length, 'certificate')} imported`); S.certTab = 'issued'; renderCertificates();
+      } catch (err) { console.error(err); go.disabled = false; go.textContent = 'Import'; preview.insertAdjacentHTML('beforeend', '<p class="form-msg is-error">The import didn’t finish. Check the latest Firestore rules are published, then try again. Rows already saved are kept.</p>'); }
+    });
   }
 </script>
 </body>
