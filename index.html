@@ -530,7 +530,6 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, updateProfile, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-  import { getStorage, ref as sref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
   // ================= SETTINGS =================
   // Keep this list in sync with isAdmin() in firestore.rules
@@ -723,8 +722,6 @@
   const fbApp = initializeApp(firebaseConfig);
   const auth = getAuth(fbApp);
   const db = getFirestore(fbApp);
-  let storage = null;
-  try { if (firebaseConfig.storageBucket) storage = getStorage(fbApp); } catch (e) { console.warn('Storage unavailable', e); }
   let secondaryAuth = null; // used only by admin to create student logins without signing out
   const getSecondaryAuth = () => secondaryAuth ||= getAuth(initializeApp(firebaseConfig, 'student-creator'));
 
@@ -1782,8 +1779,7 @@
   const linkify = (t) => esc(t).replace(/https?:\/\/[^\s<]+/g, u => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
   const pointsOf = (a) => Number(a.points) > 0 ? Number(a.points) : 100;
   const fmtSize = (n) => n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
-  const safeName = (n) => `${Date.now().toString(36)}-${String(n).replace(/[^\w.\-]+/g, '_').slice(-80)}`;
-
+  
   function assessWeek(a) {
     const c = S.courses.get(a.courseId);
     if (!c || !a.weekId) return null;
@@ -1824,54 +1820,27 @@
         ${editable ? `<button type="button" class="icon-btn att-del" data-att-del="${i}" aria-label="Remove ${esc(f.name)}">${I.close}</button>` : ''}</li>`).join('')}</ul>`;
   }
 
-  function uploadFile(file, path, onProgress) {
-    return new Promise((resolve, reject) => {
-      const task = uploadBytesResumable(sref(storage, path), file, { contentType: file.type || 'application/octet-stream' });
-      task.on('state_changed', s => onProgress?.(s.bytesTransferred / (s.totalBytes || 1)), reject, async () => {
-        try { resolve({ type: 'file', name: file.name, size: file.size, path, url: await getDownloadURL(task.snapshot.ref) }); }
-        catch (e) { reject(e); }
-      });
-    });
-  }
-
-  // File + link picker. get() returns the list; set(list) stores it (may be async).
-  function mountAttach(el, { get, set, pathFor, editable = () => true, emptyText = '' }) {
+  // Link picker (no file uploads: everything is shared as links, e.g. Google Drive, Docs, Forms).
+  // get() returns the list; set(list) stores it (may be async).
+  function mountAttach(el, { get, set, editable = () => true, emptyText = '', placeholder = 'Paste a link, e.g. a Google Doc or Drive file' }) {
     const paint = () => {
       const ed = editable();
       const list = get() || [];
       el.innerHTML = `${attachListHTML(list, ed) || (emptyText ? `<p class="small muted">${esc(emptyText)}</p>` : '')}
-        ${ed ? `<div class="att-add">
-          <label class="btn btn-outline btn-sm">${I.upload} Upload file<input type="file" multiple hidden></label>
-          <form class="att-link"><input class="input" type="url" placeholder="Or paste a link, e.g. a Google Doc" aria-label="Link"><button class="btn btn-outline btn-sm" type="submit">Add link</button></form>
-        </div><p class="att-progress small muted" hidden></p>` : ''}`;
+        ${ed ? `<div class="att-add"><form class="att-link"><input class="input" type="url" placeholder="${esc(placeholder)}" aria-label="Link"><button class="btn btn-outline btn-sm" type="submit">${I.link} Add link</button></form></div>
+        <p class="small muted" style="margin-top:6px">For Google Drive files, set sharing to “Anyone with the link can view” so your tutor can open them.</p>` : ''}`;
       if (!ed) return;
       const save = async (next) => { try { await set(next); return true; } catch (e) { console.error(e); toast('That change didn’t save. Try again.', 'error'); return false; } };
       $$('[data-att-del]', el).forEach(b => b.addEventListener('click', async () => {
-        const next = [...get()]; const [rm] = next.splice(+b.dataset.attDel, 1);
-        if (await save(next) && rm?.path && storage) deleteObject(sref(storage, rm.path)).catch(() => {});
-        paint();
+        const next = [...get()]; next.splice(+b.dataset.attDel, 1);
+        await save(next); paint();
       }));
       $('.att-link', el).addEventListener('submit', async (e) => {
         e.preventDefault();
         const inp = e.currentTarget.querySelector('input'), url = safeUrl(inp.value);
         if (!url) { toast('Paste a full link starting with https://', 'error'); return; }
+        if ((get() || []).length >= 10) { toast('You can add up to 10 links.', 'error'); return; }
         await save([...get(), { type: 'link', name: linkName(url), url }]);
-        paint();
-      });
-      $('input[type=file]', el).addEventListener('change', async (e) => {
-        const files = [...e.target.files]; if (!files.length) return;
-        if (!storage) { toast('File uploads aren’t switched on yet. Add a Google Drive link instead.', 'error'); return; }
-        const prog = $('.att-progress', el); prog.hidden = false;
-        const added = [];
-        for (const f of files) {
-          if (f.size > 25 * 1048576) { toast(`${f.name} is over 25 MB. Share it as a Google Drive link instead.`, 'error'); continue; }
-          try { added.push(await uploadFile(f, pathFor(f), p => prog.textContent = `Uploading ${f.name}… ${Math.round(p * 100)}%`)); }
-          catch (err) {
-            console.error(err);
-            toast(/unauthorized|unknown|bucket|project|quota/.test(err.code || '') ? 'File uploads aren’t switched on yet. Add a Google Drive link instead.' : `${f.name} didn’t upload. Try again.`, 'error');
-          }
-        }
-        if (added.length) await save([...get(), ...added]);
         paint();
       });
     };
@@ -1964,8 +1933,8 @@
         <div class="row between"><h2>Your work</h2><span class="st ${st.cls}">${esc(st.label)}</span></div>
         ${returned ? `<div class="grade-box"><div class="grade-num">${sub.grade ?? '–'}<span>/${pts}</span></div><div style="min-width:0"><strong>Feedback from your tutor</strong><div class="as-instr">${sub.feedback ? linkify(sub.feedback) : '<span class="muted">No written feedback.</span>'}</div></div></div>` : ''}
         ${locked ? `<p class="small muted">Turned in ${esc(fmtTs(sub.submittedAt))}. You’ll get an email when it’s graded.</p>` : ''}
-        <label class="field"><span>Your answer <span class="hint">Optional if you attach files</span></span><textarea id="w-text" rows="5" ${locked ? 'readonly' : ''} placeholder="Type your answer, or a note for your tutor">${esc(sub.text || '')}</textarea></label>
-        <div><p class="sec-label">Attachments</p><div id="w-att"></div></div>
+        <label class="field"><span>Your answer <span class="hint">Optional if you add links</span></span><textarea id="w-text" rows="5" ${locked ? 'readonly' : ''} placeholder="Type your answer, or a note for your tutor">${esc(sub.text || '')}</textarea></label>
+        <div><p class="sec-label">Links to your work</p><div id="w-att"></div></div>
         <p class="small muted" id="w-save" aria-live="polite"></p>
         ${locked
           ? `<button class="btn btn-outline btn-block" id="w-unsubmit">Unsubmit</button><p class="small muted">Unsubmit to make changes, then turn it in again${late ? '. It will be marked late' : ''}.</p>`
@@ -1973,9 +1942,8 @@
       mountAttach($('#w-att'), {
         get: () => sub.attachments || [],
         set: async (list) => { sub.attachments = list; await save(); },
-        pathFor: (f) => `submissions/${aid}/${S.user.uid}/${safeName(f.name)}`,
         editable: () => sub.status !== 'submitted',
-        emptyText: sub.status === 'submitted' ? 'No files attached.' : '',
+        emptyText: sub.status === 'submitted' ? 'No links added.' : '',
       });
       const ta = $('#w-text');
       ta.addEventListener('input', () => {
@@ -2037,7 +2005,7 @@
             <a class="btn btn-primary" href="#/admin/assessments/new" ${courses.length ? '' : 'aria-disabled="true"'}>${I.plus} New assessment</a>
           </div>
         </div>
-        ${!all.length ? `<div class="empty"><img src="IMG/fth-mark.png" alt=""><h2>No assessments yet</h2><p>Create your first assessment: add instructions, attach files or links, set a due date and points. Students turn their work in here instead of Google Classroom.</p><a class="btn btn-primary" href="#/admin/assessments/new">${I.plus} New assessment</a></div>` : ''}
+        ${!all.length ? `<div class="empty"><img src="IMG/fth-mark.png" alt=""><h2>No assessments yet</h2><p>Create your first assessment: add instructions, attach links to materials, set a due date and points. Students turn their work in here instead of Google Classroom.</p><a class="btn btn-primary" href="#/admin/assessments/new">${I.plus} New assessment</a></div>` : ''}
         ${all.length ? shown.map(c => {
           const list = all.filter(a => a.courseId === c.id).sort((x, y) => {
             const wx = assessWeek(x)?.wi ?? 99, wy = assessWeek(y)?.wi ?? 99;
@@ -2096,7 +2064,7 @@
               <label class="field"><span>Due <span class="hint">Your local time. Leave blank for no due date</span></span><input type="datetime-local" data-a="dueDate" value="${esc(d.dueDate)}"></label>
               <label class="field"><span>Points</span><input type="number" min="1" max="1000" data-a="points" value="${esc(d.points ?? 100)}"></label>
             </div>
-            <div class="field"><span>Materials <span class="hint">Worksheets, templates or reference links students need</span></span><div id="a-att"></div></div>
+            <div class="field"><span>Materials <span class="hint">Links to worksheets, templates or reference material</span></span><div id="a-att"></div></div>
             <label class="check"><input type="checkbox" data-a="published" ${d.published ? 'checked' : ''}><span><strong>Visible to students</strong><br><span class="small muted">Untick to keep it as a draft.</span></span></label>
           </section>
         </div>
@@ -2118,7 +2086,7 @@
     mountAttach($('#a-att'), {
       get: () => d.attachments || [],
       set: (list) => { d.attachments = list; markDirty(); },
-      pathFor: (f) => `assessments/${storeId}/${safeName(f.name)}`,
+      placeholder: 'Paste a link to a worksheet, template or Drive folder',
     });
     $('#a-save').addEventListener('click', async (e) => {
       d.title = (d.title || '').trim();
