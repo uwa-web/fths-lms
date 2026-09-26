@@ -3,1327 +3,1656 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>First Tech Hub Solutions - LMS</title>
-    <link rel="icon" type="image/png" href="IMG/firsttechhublogo.png">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'brand-brown': '#6d5d4b',
-            'brand-brown-dark': '#5a4d3f',
-            'brand-offwhite': '#fdfdfd',
-          }
-        }
-      }
-    }
-  </script>
+  <meta name="theme-color" content="#1c120b" />
+  <title>First Tech Hub Solutions LMS</title>
+  <link rel="icon" type="image/png" href="IMG/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Georgia, 'Times New Roman', Times, serif; } 
-    .hidden { display: none; }
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.65); align-items: center; justify-content: center; }
-    .modal-content { position: relative; padding: 20px; width: 90%; max-width: 800px; }
-    .video-responsive { position: relative; padding-bottom: 56.25%; height: 0; }
-    .video-responsive iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-    .accordion-content { max-height: 0; overflow: hidden; transition: max-height .3s ease-out; }
-    .comment-modal-content { background: #fff; margin: auto; padding: 2rem; border-radius: .5rem; width: 90%; max-width: 600px; height: 80vh; display: flex; flex-direction: column; }
-    .comments-container { flex-grow: 1; overflow-y: auto; }
-    .loader { border: 4px solid #f3f3f3; border-radius: 50%; border-top: 4px solid #6d5d4b; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-    @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
-    .comment-reply { margin-left: 2.5rem; border-left: 2px solid #e5e7eb; padding-left: 1rem; }
-    .tooltip { position: relative; display: inline-block; cursor: pointer; }
-    .tooltip .tooltiptext { visibility: hidden; width: 250px; background: #555; color: #fff; text-align: left; border-radius: 6px; padding: 10px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -125px; opacity: 0; transition: opacity .3s; font-size: .75rem; line-height: 1.25; white-space: normal; }
-    .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
-    .expanded-row { background-color: #f3f4f6; }
-    .avatar-initials { display:inline-flex; align-items:center; justify-content:center; border-radius:9999px; width:36px; height:36px; font-weight:600; color:white; background:#6d5d4b; }
+    :root {
+      --choc: #5c3214;          /* logo brown */
+      --choc-dark: #45240d;
+      --choc-tint: #f3ebe4;
+      --night: #1c120b;         /* sidebar + hero cards */
+      --night-2: #2a1b11;
+      --gold: #e2a23b;          /* highlight on dark */
+      --gold-deep: #b87412;     /* highlight on light */
+      --gold-tint: #fbf0dc;
+      --green: #1f7a55;
+      --green-tint: #e2f3eb;
+      --bg: #f4f2ef;
+      --surface: #ffffff;
+      --line: #e8e3dd;
+      --line-strong: #d6cec5;
+      --ink: #20150d;
+      --ink-soft: #4d4037;
+      --muted: #74685f;
+      --danger: #b3261e;
+      --danger-tint: #fdecea;
+      --r-xl: 24px; --r-lg: 18px; --r: 12px; --r-sm: 8px;
+      --shadow: 0 1px 2px rgba(28,18,11,.05), 0 12px 32px -16px rgba(28,18,11,.22);
+      --head: 'Sora', system-ui, sans-serif;
+      --body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --side-w: 272px;
+      /* circuit motif taken from the logo: traces ending in open nodes */
+      --circuit: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' fill='none' stroke='%23fff' stroke-width='2'%3E%3Cpath d='M20 0v46M20 60v40l30 26h60M124 126h40M180 0v30l-24 22H96M82 52H40M0 170h60l24-22v-8M84 126v14M150 220v-40l24-20h46M110 220v-26'/%3E%3Ccircle cx='20' cy='53' r='7'/%3E%3Ccircle cx='117' cy='126' r='7'/%3E%3Ccircle cx='89' cy='52' r='7'/%3E%3Ccircle cx='84' cy='133' r='0'/%3E%3Ccircle cx='110' cy='187' r='7'/%3E%3C/svg%3E");
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15.5px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+    img { max-width: 100%; display: block; }
+    a { color: var(--choc); }
+    h1, h2, h3 { font-family: var(--head); font-weight: 600; line-height: 1.18; margin: 0; letter-spacing: -0.02em; }
+    p { margin: 0; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 8px; }
+    .muted { color: var(--muted); }
+    .small { font-size: .85rem; }
+    .row { display: flex; align-items: center; gap: .75rem; }
+    .between { justify-content: space-between; }
+    .wrap { flex-wrap: wrap; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    /* ---------- Buttons & fields ---------- */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 44px; padding: 0 1.15rem; border-radius: 12px; border: 1px solid transparent; font-weight: 600; font-size: .93rem; text-decoration: none; cursor: pointer; white-space: nowrap; transition: background-color .15s, border-color .15s, color .15s, transform .15s; }
+    .btn:active { transform: translateY(1px); }
+    .btn:disabled, .btn[aria-disabled="true"] { opacity: .5; cursor: not-allowed; pointer-events: none; }
+    .btn svg { width: 18px; height: 18px; flex: none; }
+    .btn-primary { background: var(--choc); color: #fff; }
+    .btn-primary:hover { background: var(--choc-dark); }
+    .btn-gold { background: var(--gold); color: var(--night); }
+    .btn-gold:hover { background: #f0b451; }
+    .btn-green { background: var(--green); color: #fff; }
+    .btn-green:hover { background: #18633f; }
+    .btn-outline { background: var(--surface); border-color: var(--line-strong); color: var(--ink); }
+    .btn-outline:hover { border-color: var(--choc); }
+    .btn-ghost-light { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); color: #fff; }
+    .btn-ghost-light:hover { background: rgba(255,255,255,.14); }
+    .btn-quiet { background: transparent; color: var(--ink-soft); }
+    .btn-quiet:hover { background: var(--choc-tint); }
+    .btn-danger { background: var(--surface); border-color: #efc2bd; color: var(--danger); }
+    .btn-danger:hover { background: var(--danger-tint); }
+    .btn-sm { min-height: 36px; padding: 0 .85rem; font-size: .86rem; border-radius: 10px; }
+    .btn-block { width: 100%; }
+    .icon-btn { width: 40px; height: 40px; display: inline-grid; place-items: center; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; color: var(--ink-soft); text-decoration: none; flex: none; }
+    .icon-btn:hover { border-color: var(--choc); color: var(--ink); }
+    .icon-btn:disabled, .icon-btn[aria-disabled="true"] { opacity: .35; pointer-events: none; }
+    .icon-btn svg { width: 18px; height: 18px; }
+    .field { display: grid; gap: .35rem; }
+    .field > span { font-size: .85rem; font-weight: 600; color: var(--ink-soft); }
+    .hint { font-size: .78rem; color: var(--muted); font-weight: 400; }
+    .input, .field input:not([type=checkbox]):not([type=radio]), .field select, .field textarea {
+      width: 100%; min-height: 46px; padding: .65rem .85rem; background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r); outline: none; transition: border-color .15s, box-shadow .15s;
+    }
+    .field textarea { min-height: 100px; resize: vertical; }
+    .input:focus, .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--choc); box-shadow: 0 0 0 4px rgba(92,50,20,.12); }
+    .check { display: flex; gap: .65rem; align-items: flex-start; cursor: pointer; }
+    .check input { width: 18px; height: 18px; margin-top: .2rem; accent-color: var(--choc); flex: none; }
+    .form-msg { font-size: .88rem; min-height: 1.3em; }
+    .form-msg.is-error { color: var(--danger); }
+    .form-msg.is-ok { color: var(--green); }
+    .chip { display: inline-flex; align-items: center; gap: .3rem; font-size: .74rem; font-weight: 600; padding: .2rem .6rem; border-radius: 999px; background: #efebe6; color: var(--ink-soft); white-space: nowrap; }
+    .chip.live { background: var(--green-tint); color: var(--green); }
+    .chip.draft { background: var(--gold-tint); color: #8a560a; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pbar { height: 8px; border-radius: 999px; background: #ebe5de; overflow: hidden; }
+    .pbar > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--gold-deep), var(--gold)); transition: width .5s ease; }
+    .pbar.on-dark { background: rgba(255,255,255,.12); }
+    .ring { display: block; }
+    .ring text { font-family: var(--head); font-weight: 600; }
+
+    /* ---------- Boot / toast ---------- */
+    .boot { position: fixed; inset: 0; display: grid; place-items: center; background: var(--night); z-index: 90; }
+    .boot img { width: 64px; animation: pulse 1.4s ease-in-out infinite; }
+    @keyframes pulse { 50% { opacity: .45; transform: scale(.94); } }
+    .spinner { width: 36px; height: 36px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--choc); animation: spin .9s linear infinite; margin: 80px auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); background: var(--night); color: #fff; padding: .8rem 1.15rem; border-radius: 14px; font-size: .92rem; font-weight: 500; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 120; max-width: calc(100% - 32px); box-shadow: var(--shadow); }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .toast.is-error { background: var(--danger); }
+
+    /* ---------- App shell ---------- */
+    .shell { min-height: 100vh; }
+    .side { position: fixed; inset: 0 auto 0 0; width: var(--side-w); background: var(--night); color: #e9ded3; display: flex; flex-direction: column; padding: 22px 16px 16px; z-index: 60; overflow-y: auto; transform: translateX(-100%); transition: transform .25s ease; }
+    .side::before { content: ""; position: absolute; inset: auto 0 0 0; height: 260px; background: var(--circuit); opacity: .05; pointer-events: none; }
+    .side.open { transform: none; }
+    .side-brand { display: block; padding: 4px 8px 22px; }
+    .side-brand img { width: 176px; height: auto; }
+    .side-label { font-size: .75rem; font-weight: 600; color: #9d8c7d; padding: 14px 12px 6px; }
+    .side-nav { display: grid; gap: 2px; }
+    .side-nav a, .side-course { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; color: #d9cbbd; text-decoration: none; font-weight: 500; font-size: .93rem; position: relative; }
+    .side-nav a svg { width: 20px; height: 20px; opacity: .8; flex: none; }
+    .side-nav a:hover, .side-course:hover { background: rgba(255,255,255,.06); color: #fff; }
+    .side-nav a[aria-current="page"] { background: rgba(226,162,59,.14); color: #fff; }
+    .side-nav a[aria-current="page"] svg { color: var(--gold); opacity: 1; }
+    .side-nav a[aria-current="page"]::before { content: ""; position: absolute; left: -16px; top: 10px; bottom: 10px; width: 4px; border-radius: 0 4px 4px 0; background: var(--gold); }
+    .side-course { font-size: .87rem; }
+    .side-course .dot { width: 10px; height: 10px; border-radius: 3px; background: var(--c); flex: none; box-shadow: 0 0 0 2px rgba(255,255,255,.15); }
+    .side-course .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .side-course .p { font-size: .75rem; color: #a8978a; font-weight: 600; }
+    .side-course[aria-current="page"] { background: rgba(255,255,255,.06); color: #fff; }
+    .side-spacer { flex: 1; min-height: 24px; }
+    .side-user { position: relative; display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 16px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.07); }
+    .side-user .who { flex: 1; min-width: 0; }
+    .side-user strong { display: block; font-size: .9rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .side-user span { display: block; font-size: .76rem; color: #a8978a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .side-user .icon-btn { width: 34px; height: 34px; background: transparent; border-color: rgba(255,255,255,.12); color: #d9cbbd; border-radius: 10px; }
+    .side-user .icon-btn:hover { border-color: var(--gold); color: #fff; }
+    .avatar { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, var(--gold), var(--gold-deep)); color: var(--night); font-family: var(--head); font-weight: 700; font-size: .85rem; flex: none; }
+    .avatar.sm { width: 34px; height: 34px; font-size: .74rem; border-radius: 10px; }
+    .avatar.lg { width: 60px; height: 60px; font-size: 1.15rem; border-radius: 16px; }
+    .avatar.plain { background: var(--choc-tint); color: var(--choc); }
+    .scrim { position: fixed; inset: 0; background: rgba(20,12,6,.5); z-index: 55; }
+    .mbar { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 12px; height: 62px; padding: 0 16px; background: rgba(28,18,11,.97); color: #fff; }
+    .mbar img { height: 34px; width: auto; }
+    .mbar .spacer { flex: 1; }
+    .mbar .icon-btn { background: transparent; border-color: rgba(255,255,255,.14); color: #fff; }
+    .main { min-width: 0; }
+    @media (min-width: 1024px) {
+      .side { transform: none; }
+      .scrim, .mbar { display: none !important; }
+      .main { margin-left: var(--side-w); }
+    }
+    .page { max-width: 1240px; margin: 0 auto; padding: 24px 16px 80px; }
+    @media (min-width: 720px) { .page { padding: 36px 36px 96px; } }
+
+    /* ---------- Auth ---------- */
+    .auth { min-height: 100vh; display: grid; background: var(--surface); }
+    @media (min-width: 960px) { .auth { grid-template-columns: 1.1fr 1fr; } }
+    .auth-panel { display: none; position: relative; overflow: hidden; background: radial-gradient(120% 90% at 0% 0%, #3a2413 0%, var(--night) 55%); color: #efe5da; padding: 44px 52px; }
+    .auth-panel::after { content: ""; position: absolute; inset: 0; background: var(--circuit); background-size: 240px; opacity: .07; mask-image: linear-gradient(200deg, #000 20%, transparent 75%); -webkit-mask-image: linear-gradient(200deg, #000 20%, transparent 75%); }
+    @media (min-width: 960px) { .auth-panel { display: flex; flex-direction: column; justify-content: space-between; } }
+    .auth-panel > * { position: relative; z-index: 1; }
+    .auth-panel .logo { width: 230px; }
+    .auth-hero { font-family: var(--head); font-weight: 600; font-size: clamp(2.5rem, 4.2vw, 3.7rem); line-height: 1.04; letter-spacing: -0.035em; max-width: 11ch; color: #fff; }
+    .auth-hero em { font-style: normal; color: var(--gold); }
+    .auth-panel .lede { color: #c9b9aa; max-width: 40ch; margin-top: 1.1rem; font-size: 1.05rem; }
+    .auth-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+    .auth-stat { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09); border-radius: 16px; padding: 14px 18px; min-width: 150px; }
+    .auth-stat strong { display: block; font-family: var(--head); font-size: 1.05rem; color: #fff; font-weight: 600; }
+    .auth-stat span { font-size: .84rem; color: #b6a595; }
+    .auth-form-wrap { display: grid; place-items: center; padding: 40px 20px; }
+    .auth-form { width: 100%; max-width: 400px; display: grid; gap: 1.15rem; }
+    .auth-form .m-logo { width: 210px; margin-bottom: .6rem; }
+    @media (min-width: 960px) { .auth-form .m-logo { display: none; } }
+    .auth-form h2 { font-size: 1.9rem; }
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 4.6rem !important; }
+    .pw-toggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: 0; background: none; font-size: .84rem; font-weight: 600; color: var(--choc); padding: .45rem .6rem; cursor: pointer; border-radius: 8px; }
+    .linkish { background: none; border: 0; padding: 0; color: var(--choc); font-weight: 600; cursor: pointer; font-size: .88rem; }
+    .linkish:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .auth-note { font-size: .86rem; color: var(--muted); background: var(--bg); border-radius: 14px; padding: 14px 16px; }
+
+    /* ---------- Dashboard ---------- */
+    .hello { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; }
+    .hello .date { color: var(--muted); font-weight: 500; font-size: .92rem; }
+    .hello h1 { font-size: clamp(1.75rem, 3.6vw, 2.4rem); margin-top: .2rem; }
+    .resume { position: relative; overflow: hidden; display: grid; gap: 22px; background: radial-gradient(130% 120% at 100% 0%, #3d2614 0%, var(--night) 60%); color: #efe5da; border-radius: var(--r-xl); padding: 24px; }
+    .resume::after { content: ""; position: absolute; inset: 0; background: var(--circuit); background-size: 220px; opacity: .06; pointer-events: none; }
+    .resume > * { position: relative; z-index: 1; }
+    @media (min-width: 900px) { .resume { grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); align-items: center; padding: 32px; gap: 36px; } }
+    .resume .kicker { display: inline-flex; align-items: center; gap: 8px; font-size: .84rem; font-weight: 600; color: var(--gold); }
+    .resume .kicker::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 4px rgba(226,162,59,.2); }
+    .resume .course-name { color: #bfae9e; font-size: .92rem; margin-top: 14px; }
+    .resume h2 { font-size: clamp(1.4rem, 2.6vw, 2rem); color: #fff; margin-top: 4px; max-width: 26ch; }
+    .resume .meta { display: flex; align-items: center; gap: 12px; margin: 18px 0 22px; font-size: .88rem; color: #cbbcae; }
+    .resume .meta .pbar { flex: 1; max-width: 260px; }
+    .resume .acts { display: flex; gap: 10px; flex-wrap: wrap; }
+    .thumb { position: relative; aspect-ratio: 16/9; border-radius: var(--r-lg); overflow: hidden; background: var(--c, var(--choc)); display: block; }
+    .thumb::before { content: ""; position: absolute; inset: 0; background: var(--circuit); background-size: 180px; opacity: .14; }
+    .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .thumb .shade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(18,10,4,.55)); }
+    .thumb .play { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,.92); color: var(--night); display: grid; place-items: center; box-shadow: 0 10px 30px rgba(0,0,0,.35); transition: transform .2s; }
+    .thumb .play svg { width: 24px; height: 24px; margin-left: 3px; }
+    a.thumb:hover .play { transform: translate(-50%,-50%) scale(1.07); }
+    .thumb .glyph { position: absolute; inset: 0; display: grid; place-items: center; }
+    .thumb .glyph img { position: static; width: 34%; height: auto; opacity: .9; object-fit: contain; }
+    .stats { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin: 20px 0 36px; }
+    .stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 18px 20px; display: flex; gap: 14px; align-items: center; }
+    .stat .ic { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: var(--choc-tint); color: var(--choc); flex: none; }
+    .stat .ic.gold { background: var(--gold-tint); color: var(--gold-deep); }
+    .stat .ic.green { background: var(--green-tint); color: var(--green); }
+    .stat .ic svg { width: 22px; height: 22px; }
+    .stat strong { display: block; font-family: var(--head); font-size: 1.45rem; font-weight: 600; line-height: 1.1; letter-spacing: -0.02em; }
+    .stat span { font-size: .85rem; color: var(--muted); }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+    .section-head h2 { font-size: 1.3rem; }
+    .course-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .ccard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow .2s, transform .2s; }
+    .ccard:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+    .ccard .thumb { border-radius: 0; }
+    .ccard .thumb .badge { position: absolute; left: 14px; top: 14px; z-index: 2; font-size: .76rem; font-weight: 600; color: #fff; background: rgba(18,10,4,.55); backdrop-filter: blur(6px); padding: .3rem .65rem; border-radius: 999px; }
+    .ccard .thumb .ring-wrap { position: absolute; right: 12px; bottom: -26px; z-index: 2; background: var(--surface); border-radius: 50%; padding: 4px; box-shadow: 0 6px 18px rgba(0,0,0,.15); }
+    .ccard-body { padding: 20px 20px 20px; display: flex; flex-direction: column; gap: .6rem; flex: 1; }
+    .ccard-body h3 { font-size: 1.18rem; padding-right: 64px; }
+    .ccard-body h3 a { color: inherit; text-decoration: none; }
+    .clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .ccard .spacer { flex: 1; }
+    .ccard .next { font-size: .84rem; color: var(--muted); border-top: 1px dashed var(--line); padding-top: .7rem; }
+    .ccard .next b { color: var(--ink-soft); font-weight: 600; }
+    .help { display: grid; gap: 16px; margin-top: 36px; }
+    @media (min-width: 760px) { .help { grid-template-columns: 1fr 1fr; } }
+    .help-tile { display: flex; gap: 16px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 20px; }
+    .help-tile .ic { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: var(--choc-tint); color: var(--choc); flex: none; }
+    .help-tile .ic svg { width: 22px; height: 22px; }
+    .help-tile h3 { font-size: 1.02rem; }
+    .help-tile p { color: var(--muted); font-size: .9rem; margin: .25rem 0 .8rem; }
+    .empty { background: var(--surface); border: 1px dashed var(--line-strong); border-radius: var(--r-xl); padding: 44px 24px; text-align: center; }
+    .empty img { width: 56px; margin: 0 auto 14px; opacity: .85; }
+    .empty h2 { font-size: 1.35rem; }
+    .empty p { color: var(--muted); margin: .5rem auto 1.3rem; max-width: 50ch; }
+
+    /* ---------- Course page ---------- */
+    .cbanner { position: relative; overflow: hidden; background: linear-gradient(120deg, var(--night) 0%, color-mix(in srgb, var(--c) 70%, var(--night)) 100%); color: #fff; border-radius: var(--r-xl); padding: 22px 24px; margin-bottom: 22px; }
+    .cbanner::after { content: ""; position: absolute; inset: 0; background: var(--circuit); background-size: 200px; opacity: .07; }
+    .cbanner > * { position: relative; z-index: 1; }
+    .back { display: inline-flex; align-items: center; gap: .35rem; font-weight: 600; font-size: .86rem; color: #cdbdae; text-decoration: none; }
+    .back:hover { color: #fff; }
+    .back svg { width: 16px; height: 16px; }
+    .back.dark { color: var(--muted); }
+    .back.dark:hover { color: var(--ink); }
+    .cbanner-row { display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: center; justify-content: space-between; margin-top: 12px; }
+    .cbanner h1 { font-size: clamp(1.45rem, 3vw, 2.05rem); max-width: 28ch; }
+    .cbanner .prog { display: flex; align-items: center; gap: 14px; }
+    .cbanner .prog b { display: block; font-family: var(--head); font-weight: 600; }
+    .cbanner .prog span { font-size: .84rem; color: #cdbdae; }
+    .course-layout { display: grid; gap: 20px; grid-template-areas: "main" "side" "talk"; }
+    @media (min-width: 1180px) {
+      .course-layout { grid-template-columns: minmax(0, 1fr) 360px; grid-template-areas: "main side" "talk side"; align-items: start; gap: 22px 26px; }
+      .outline { position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow: auto; }
+    }
+    .lesson-main { grid-area: main; } .talk { grid-area: talk; } .outline { grid-area: side; }
+    .player { position: relative; aspect-ratio: 16 / 9; background: #120b06; border-radius: var(--r-xl); overflow: hidden; box-shadow: 0 20px 40px -24px rgba(28,18,11,.6); }
+    .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .player-msg { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: #e9e2da; padding: 24px; }
+    .player-msg::before { content: ""; position: absolute; inset: 0; background: var(--circuit); background-size: 200px; opacity: .06; }
+    .player-msg > div { position: relative; }
+    .player-msg .lk { width: 60px; height: 60px; border-radius: 18px; background: rgba(226,162,59,.14); color: var(--gold); display: grid; place-items: center; margin: 0 auto 14px; }
+    .player-msg .lk svg { width: 28px; height: 28px; }
+    .player-msg h3 { font-size: 1.3rem; color: #fff; }
+    .player-msg p { color: #b8a898; margin-top: .3rem; }
+    .lesson-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 18px 20px; margin-top: 16px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; }
+    .lesson-kicker { color: var(--gold-deep); font-weight: 600; font-size: .84rem; }
+    .lesson-card h2 { font-size: clamp(1.15rem, 2.2vw, 1.45rem); margin-top: .2rem; max-width: 42ch; }
+    .lesson-actions { display: flex; gap: 8px; align-items: center; }
+    .outline { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); }
+    .outline-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 8px; position: sticky; top: 0; background: var(--surface); z-index: 1; border-radius: var(--r-xl) var(--r-xl) 0 0; }
+    .outline-head h2 { font-size: 1.02rem; }
+    .wk { border-bottom: 1px solid var(--line); }
+    .wk:last-child { border-bottom: 0; }
+    .wk summary { list-style: none; cursor: pointer; padding: 14px 20px; display: flex; gap: 12px; justify-content: space-between; align-items: flex-start; }
+    .wk summary::-webkit-details-marker { display: none; }
+    .wk summary:hover { background: #fbf9f7; }
+    .wk-num { font-size: .76rem; font-weight: 700; color: var(--gold-deep); }
+    .wk-title { display: block; font-weight: 600; line-height: 1.3; margin-top: .1rem; font-size: .95rem; }
+    .wk-sub { display: flex; align-items: center; gap: 8px; font-size: .78rem; color: var(--muted); margin-top: .4rem; }
+    .wk-sub .pbar { width: 70px; height: 5px; }
+    .wk-sub.is-locked { color: #93600f; }
+    .chev { width: 18px; height: 18px; flex: none; margin-top: .2rem; color: var(--muted); transition: transform .2s; }
+    .wk[open] .chev { transform: rotate(180deg); }
+    .sess-list { list-style: none; margin: 0; padding: 0 10px 10px; }
+    .sess { display: flex; gap: 11px; align-items: flex-start; padding: 9px 10px; border-radius: 12px; text-decoration: none; color: var(--ink); font-size: .9rem; line-height: 1.35; }
+    .sess:hover { background: var(--choc-tint); }
+    .sess.is-current { background: var(--night); color: #fff; }
+    .sess.is-locked { color: var(--muted); }
+    .sess.is-current.is-locked { color: #e2d6ca; }
+    .mark { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; font-size: .7rem; font-weight: 700; border: 1.5px solid var(--line-strong); flex: none; color: var(--muted); background: var(--surface); }
+    .mark svg { width: 13px; height: 13px; }
+    .sess.is-done .mark { background: var(--green); border-color: var(--green); color: #fff; }
+    .sess.is-current .mark { border-color: var(--gold); background: var(--gold); color: var(--night); }
+    .sess-t { padding-top: .12rem; }
+    .wk-assess { display: flex; align-items: center; gap: .55rem; margin: 0 20px 16px; padding: .7rem .9rem; border-radius: 12px; background: var(--gold-tint); color: #7a4a06; font-weight: 600; font-size: .88rem; text-decoration: none; }
+    .wk-assess:hover { background: #f7e4c2; }
+    .wk-assess.is-locked { background: #f2efec; color: var(--muted); pointer-events: none; }
+    .wk-assess svg { width: 17px; height: 17px; }
+    .talk { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); padding: 22px; }
+    .talk h3 { font-size: 1.1rem; }
+    .comment-list { display: grid; gap: 14px; margin: 18px 0; }
+    .comment { display: flex; gap: 12px; }
+    .comment-body { flex: 1; min-width: 0; background: #faf8f6; border: 1px solid #f0ebe6; border-radius: 4px 16px 16px 16px; padding: 10px 14px; }
+    .comment.is-me .comment-body { background: var(--choc-tint); border-color: #eadfd4; }
+    .comment-meta { display: flex; gap: .6rem; align-items: baseline; flex-wrap: wrap; font-size: .78rem; color: var(--muted); }
+    .comment-meta strong { color: var(--ink); font-size: .87rem; }
+    .comment-text { white-space: pre-wrap; word-wrap: break-word; margin-top: .2rem; font-size: .93rem; }
+    .comment-del { margin-left: auto; font-size: .78rem; color: var(--muted); background: none; border: 0; cursor: pointer; padding: 0; }
+    .comment-del:hover { color: var(--danger); }
+    .comment-form { display: grid; gap: 10px; }
+
+    /* ---------- Admin ---------- */
+    .page-head { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; }
+    .page-head h1 { font-size: clamp(1.75rem, 3.4vw, 2.3rem); }
+    .page-head p { color: var(--muted); margin-top: .3rem; }
+    .banner { position: relative; overflow: hidden; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; background: var(--night); color: #efe5da; border-radius: var(--r-lg); padding: 18px 22px; margin-bottom: 14px; }
+    .banner::after { content: ""; position: absolute; inset: 0; background: var(--circuit); background-size: 180px; opacity: .06; }
+    .banner > * { position: relative; z-index: 1; }
+    .banner h3 { font-size: 1.02rem; color: #fff; }
+    .banner p { color: #bfae9e; font-size: .9rem; margin-top: .25rem; max-width: 68ch; }
+    .admin-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); margin-top: 24px; }
+    .acard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); overflow: hidden; display: flex; flex-direction: column; }
+    .acard .thumb { border-radius: 0; aspect-ratio: 16/7; }
+    .acard .thumb .chip { position: absolute; left: 14px; top: 14px; z-index: 2; }
+    .acard-body { padding: 18px 20px 20px; display: grid; gap: 14px; flex: 1; align-content: start; }
+    .acard h3 { font-size: 1.12rem; }
+    .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .kpi { background: var(--bg); border-radius: 12px; padding: 10px 12px; }
+    .kpi b { display: block; font-family: var(--head); font-weight: 600; font-size: 1.1rem; }
+    .kpi span { font-size: .74rem; color: var(--muted); }
+    .acard .acts { display: flex; gap: 8px; margin-top: auto; }
+    .acard .acts .btn { flex: 1; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+    .toolbar .input { flex: 1 1 260px; }
+    .toolbar select { flex: 0 1 300px; }
+    .table-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 740px; }
+    th { text-align: left; font-size: .78rem; font-weight: 600; color: var(--muted); padding: 13px 18px; border-bottom: 1px solid var(--line); background: #fbfaf8; }
+    td { padding: 13px 18px; border-bottom: 1px solid var(--line); vertical-align: middle; font-size: .92rem; }
+    tr:last-child td { border-bottom: 0; }
+    tbody tr:hover td { background: #fcfbfa; }
+    .who-cell { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .who-cell strong { display: block; }
+    .who-cell span { font-size: .84rem; color: var(--muted); word-break: break-all; }
+    .prog-cell { display: flex; align-items: center; gap: 10px; min-width: 190px; }
+    .prog-cell .pbar { flex: 1; }
+    .prog-cell button { background: none; border: 0; padding: 0; font-weight: 600; font-size: .84rem; cursor: pointer; color: var(--choc); white-space: nowrap; }
+    .detail-row td { background: #fbfaf8 !important; }
+    .detail-row ul { margin: .4rem 0 0; padding-left: 1.2rem; columns: 2 260px; font-size: .88rem; }
+    .editor { display: grid; gap: 18px; padding-bottom: 110px; }
+    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); padding: 22px; display: grid; gap: 16px; }
+    .panel h2 { font-size: 1.05rem; }
+    .grid-2 { display: grid; gap: 16px; }
+    @media (min-width: 760px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    .swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+    .swatches label { position: relative; cursor: pointer; }
+    .swatches input { position: absolute; opacity: 0; }
+    .swatches span { display: block; width: 38px; height: 38px; border-radius: 12px; background: var(--c); border: 3px solid var(--surface); box-shadow: 0 0 0 1px var(--line-strong); }
+    .swatches input:checked + span { box-shadow: 0 0 0 2px var(--ink); }
+    .swatches input:focus-visible + span { outline: 3px solid var(--gold); outline-offset: 3px; }
+    .wk-edit { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); overflow: hidden; }
+    .wk-edit-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 16px; background: #fbf9f7; border-bottom: 1px solid var(--line); }
+    .wk-edit-head strong { font-family: var(--head); font-weight: 600; }
+    .wk-edit-body { padding: 16px; display: grid; gap: 14px; }
+    .wk-fields { display: grid; gap: 12px; }
+    @media (min-width: 900px) { .wk-fields { grid-template-columns: 2fr 1fr 2fr; } }
+    .s-rows { display: grid; gap: 8px; }
+    .s-row { display: grid; grid-template-columns: 30px minmax(0,1fr); gap: 8px 10px; align-items: start; padding: 10px; border: 1px solid var(--line); border-radius: 14px; }
+    @media (min-width: 900px) { .s-row { grid-template-columns: 30px minmax(0,1.3fr) minmax(0,1fr) auto; align-items: center; } }
+    .s-num { font-weight: 700; color: var(--muted); font-size: .84rem; text-align: center; padding-top: .7rem; }
+    @media (min-width: 900px) { .s-num { padding-top: 0; } }
+    .s-row .input { min-height: 42px; }
+    .s-video { display: grid; gap: 3px; grid-column: 2; }
+    @media (min-width: 900px) { .s-video { grid-column: auto; } }
+    .s-video small { font-size: .74rem; color: var(--muted); }
+    .s-video small.bad { color: var(--danger); }
+    .s-acts { display: flex; gap: 4px; grid-column: 2; }
+    @media (min-width: 900px) { .s-acts { grid-column: auto; } }
+    .s-acts .icon-btn { width: 36px; height: 36px; border-radius: 10px; }
+    .savebar { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,.95); backdrop-filter: blur(8px); border-top: 1px solid var(--line); z-index: 40; }
+    @media (min-width: 1024px) { .savebar { left: var(--side-w); } }
+    .savebar-inner { max-width: 1240px; margin: 0 auto; padding: 0 16px; display: flex; gap: 10px; align-items: center; justify-content: space-between; height: 70px; }
+    @media (min-width: 720px) { .savebar-inner { padding: 0 36px; } }
+    .savebar .status { font-size: .86rem; color: var(--muted); }
+
+    /* ---------- Modal ---------- */
+    .modal-back { position: fixed; inset: 0; background: rgba(20,12,6,.6); backdrop-filter: blur(3px); display: grid; place-items: center; padding: 16px; z-index: 100; }
+    .modal { background: var(--surface); border-radius: var(--r-xl); width: 100%; max-width: 540px; max-height: calc(100vh - 32px); display: flex; flex-direction: column; box-shadow: 0 30px 60px -20px rgba(0,0,0,.45); }
+    .modal.wide { max-width: 920px; background: var(--night); }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 20px 22px 0; }
+    .modal-head h2 { font-size: 1.25rem; }
+    .modal.wide .modal-head h2 { color: #fff; }
+    .modal.wide .modal-head .icon-btn { background: transparent; border-color: rgba(255,255,255,.18); color: #eee; }
+    .modal-body { padding: 16px 22px; overflow: auto; display: grid; gap: 14px; }
+    .modal.wide .modal-body { padding: 16px; }
+    .modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 0 22px 22px; flex-wrap: wrap; }
+    .result-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; font-size: .88rem; }
+    .result-list li { padding: 9px 12px; border-radius: 10px; background: #f6f4f1; }
+    .result-list li.ok { background: var(--green-tint); }
+    .result-list li.err { background: var(--danger-tint); }
+
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
   </style>
 </head>
-<body class="bg-brand-offwhite text-brand-brown">
+<body>
+  <div id="boot" class="boot" aria-label="Loading"><img src="IMG/fth-mark-light.png" alt=""></div>
 
-  <div id="loading-spinner" class="fixed inset-0 bg-white bg-opacity-80 flex justify-center items-center z-50">
-    <div class="loader"></div>
-  </div>
+  <div id="auth-root"></div>
 
-  <!-- AUTH -->
-  <div id="auth-container" class="hidden min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
-      <div>
-  <img src="IMG/firsttechhublogo.png" alt="Logo" class="mx-auto h-16 w-auto" />
-
-  <!-- Added Branding Text -->
-  <div class="mt-4 text-center">
-    <h1 class="text-2xl font-bold text-brand-brown">First Tech Hub Solutions LMS</h1>
-    <p class="text-sm text-gray-600">Your learning journey starts here</p>
-  </div>
-
-  <!-- Existing Sign In Title -->
-  <h2 id="auth-title" class="mt-6 text-center text-xl font-semibold text-gray-900">
-    Sign in to your account
-  </h2>
-</div>
-      <form id="auth-form" class="mt-8 space-y-6">
-        <div id="name-container" class="hidden">
-          <input id="full-name" name="fullname" type="text" autocomplete="name" class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none sm:text-sm" placeholder="Full name">
-        </div>
-        <div class="rounded-md shadow-sm -space-y-px">
-          <div><input id="email" name="email" type="email" autocomplete="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none sm:text-sm" placeholder="Email address"></div>
-          <div id="password-container"><input id="password" name="password" type="password" autocomplete="current-password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none sm:text-sm" placeholder="Password"></div>
-        </div>
-        <div id="forgot-password-wrapper" class="flex items-center justify-end">
-          <div class="text-sm"><a href="#" id="forgot-password-link" class="font-medium text-brand-brown hover:text-brand-brown-dark">Forgot your password?</a></div>
-        </div>
-        <p id="auth-error" class="text-red-500 text-sm mt-2"></p>
-        <div><button type="submit" id="auth-submit-btn" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-brand-brown hover:bg-brand-brown-dark">Sign In</button></div>
-      </form>
-      <div class="text-sm text-center"><a href="#" id="auth-toggle-link" class="font-medium text-brand-brown hover:text-brand-brown-dark">Don't have an account? Register</a></div>
+  <div id="shell" class="shell" hidden>
+    <aside id="side" class="side" aria-label="Main navigation">
+      <a href="#/" class="side-brand"><img src="IMG/fth-logo-light.png" alt="First Tech Hub Solutions"></a>
+      <nav id="side-nav" class="side-nav"></nav>
+      <div id="side-courses"></div>
+      <div class="side-spacer"></div>
+      <div class="side-user">
+        <span id="side-avatar" class="avatar"></span>
+        <div class="who"><strong id="side-name"></strong><span id="side-email"></span></div>
+        <button class="icon-btn" data-action="edit-profile" title="Edit profile" aria-label="Edit profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16z"/></svg></button>
+        <button class="icon-btn" data-action="sign-out" title="Sign out" aria-label="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 012 2v12a2 2 0 01-2 2h-3M10 16l-4-4 4-4M6 12h10"/></svg></button>
+      </div>
+    </aside>
+    <div id="scrim" class="scrim" hidden></div>
+    <div class="main">
+      <header class="mbar">
+        <button id="menu-btn" class="icon-btn" aria-label="Open menu" aria-expanded="false" aria-controls="side"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
+        <a href="#/"><img src="IMG/fth-logo-light.png" alt="First Tech Hub Solutions"></a>
+        <span class="spacer"></span>
+        <span id="m-avatar" class="avatar sm"></span>
+      </header>
+      <main id="app"></main>
     </div>
   </div>
 
-  <!-- STUDENT LMS -->
-  <div id="lms-container" class="hidden">
-    <header class="bg-white shadow-md sticky top-0 z-40">
-      <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-        <a href="#" class="flex items-center space-x-2">
-          <img src="IMG/firsttechhublogo.png" alt="First Tech Hub Solutions Logo" class="h-8 w-auto object-contain" />
-          <span class="text-xl font-bold text-brand-brown">First Tech Hub Solutions LMS</span>
-        </a>
+  <div id="modal-root"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-        <div class="md:hidden">
-          <button id="mobile-menu-button" class="text-brand-brown focus:outline-none" aria-label="Open menu">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-          </button>
-        </div>
-
-        <div id="menu-items" class="hidden md:flex md:items-center md:space-x-4 absolute md:static top-16 right-6 bg-white md:bg-transparent shadow-lg md:shadow-none rounded-lg md:rounded-none p-4 md:p-0 z-50">
-          <a href="https://chat.whatsapp.com/room/JcGe1zQahip8E3xfTQY3NC?mode=gi_t" target="_blank" class="block md:inline-block font-semibold text-brand-brown hover:text-brand-brown-dark bg-gray-100 px-3 py-2 md:py-1 rounded-md mb-2 md:mb-0">Alumni Community</a>
-          <a href="https://drive.google.com/drive/folders/1-NzLRy49N8Ufw0ePapkKjPZWkZuoAaDG?usp=sharing" id="resources-link" class="block md:inline-block font-semibold text-brand-brown hover:text-brand-brown-dark bg-gray-100 px-3 py-2 md:py-1 rounded-md mb-2 md:mb-0">Resources</a>
-
-          <div class="flex items-center space-x-3 my-2 md:my-0 border-t md:border-none pt-2 md:pt-0">
-            <div id="user-avatar-wrapper" class="h-10 w-10 rounded-full bg-gray-100 border-2 border-brand-brown overflow-hidden flex items-center justify-center">
-              <div id="user-initials" class="avatar-initials"></div>
-            </div>
-            <div class="text-sm">
-              <p id="user-name" class="font-semibold text-gray-800"></p>
-              <p id="user-email" class="text-gray-500"></p>
-            </div>
-          </div>
-
-          <a href="#" id="edit-profile-link" class="block md:inline-block font-semibold text-brand-brown hover:text-brand-brown-dark px-3 py-2 rounded-md">Edit Profile</a>
-
-          <button id="sign-out-btn" class="w-full text-left md:w-auto font-semibold text-brand-brown hover:text-brand-brown-dark mt-2 md:mt-0 px-3 py-2 md:p-0 rounded-md hover:bg-gray-100 md:hover:bg-transparent">Sign Out</button>
-        </div>
-      </nav>
-    </header>
-
-    <section class="bg-white">
-      <div class="container mx-auto px-6 py-12">
-        <h1 class="text-3xl md:text-4xl font-bold text-brand-brown mb-3 text-center">Master Google Workspace</h1>
-        <div class="max-w-2xl mx-auto mt-4">
-          <div class="w-full bg-gray-200 rounded-full h-2.5">
-            <div id="progress-bar" class="bg-green-600 h-2.5 rounded-full" style="width:0%"></div>
-          </div>
-          <p id="progress-text" class="text-sm mt-2 text-gray-600 text-center">0% Complete</p>
-        </div>
-        <div class="max-w-4xl mx-auto mt-8">
-          <input type="text" id="student-search-input" placeholder="Search curriculum..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown">
-        </div>
-      </div>
-    </section>
-
-    <section id="curriculum" class="py-16">
-      <div class="container mx-auto px-6 max-w-4xl">
-        <h2 class="text-3xl font-bold text-center mb-10">4-Week Curriculum</h2>
-        <div id="curriculum-container" class="space-y-4"></div>
-      </div>
-    </section>
-    <footer class="bg-brand-brown text-white py-8 mt-16">
-      <div class="container mx-auto px-6 text-center"><p>&copy; <script>document.write(new Date().getFullYear())</script> First Tech Hub Solutions. All Rights Reserved.</p></div>
-    </footer>
-  </div>
-
-  <!-- ADMIN -->
-  <div id="admin-container" class="hidden">
-    <header class="bg-white shadow-md sticky top-0 z-40">
-      <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-        <a href="#" class="flex items-center space-x-2">
-          <img src="IMG/firsttechhublogo.png" alt="First Tech Hub Solutions Logo" class="h-8 w-auto object-contain" />
-          <span class="text-xl font-bold text-brand-brown">Admin Panel</span>
-        </a>
-        <div class="md:hidden">
-          <button id="admin-mobile-menu-button" class="text-brand-brown focus:outline-none" aria-label="Open admin menu">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-          </button>
-        </div>
-
-        <div id="admin-menu-items" class="hidden md:flex md:items-center md:space-x-4 absolute md:static top-16 right-6 bg-white md:bg-transparent shadow-lg md:shadow-none rounded-lg md:rounded-none p-4 md:p-0 z-50">
-          <div class="flex items-center gap-3">
-            <div id="admin-avatar-wrapper" class="h-8 w-8 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center border">
-              <div id="admin-avatar-initials" class="avatar-initials"></div>
-            </div>
-            <span id="admin-email" class="text-sm text-gray-600 block mb-2 md:mb-0"></span>
-          </div>
-
-          <a href="#" id="edit-profile-link-admin" class="hidden md:inline-block font-semibold text-brand-brown hover:text-brand-brown-dark px-3 py-2 rounded-md">Edit Profile</a>
-
-          <button id="admin-sign-out-btn" class="w-full text-left md:w-auto font-semibold text-brand-brown hover:text-brand-brown-dark px-3 py-2 md:p-0 rounded-md hover:bg-gray-100 md:hover:bg-transparent">Sign Out</button>
-        </div>
-      </nav>
-    </header>
-
-    <main class="container mx-auto px-6 py-12">
-      <!-- Course Settings Card -->
-      <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h2 class="text-2xl font-bold text-brand-brown mb-4">Course Weekly Unlock Dates</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <div>
-            <label for="admin-week-1-date" class="block text-sm font-medium text-gray-700 mb-1">Week 1 Opens</label>
-            <input type="date" id="admin-week-1-date" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown">
-          </div>
-          <div>
-            <label for="admin-week-2-date" class="block text-sm font-medium text-gray-700 mb-1">Week 2 Opens</label>
-            <input type="date" id="admin-week-2-date" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown">
-          </div>
-          <div>
-            <label for="admin-week-3-date" class="block text-sm font-medium text-gray-700 mb-1">Week 3 Opens</label>
-            <input type="date" id="admin-week-3-date" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown">
-          </div>
-          <div>
-            <label for="admin-week-4-date" class="block text-sm font-medium text-gray-700 mb-1">Week 4 Opens</label>
-            <input type="date" id="admin-week-4-date" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown">
-          </div>
-        </div>
-
-        <h3 class="text-xl font-bold text-brand-brown mb-4">Course Weekly Assessment Links</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <div>
-            <label for="admin-week-1-link" class="block text-sm font-medium text-gray-700 mb-1">Week 1 Assessment Link</label>
-            <input type="url" id="admin-week-1-link" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown" placeholder="https://...">
-          </div>
-          <div>
-            <label for="admin-week-2-link" class="block text-sm font-medium text-gray-700 mb-1">Week 2 Assessment Link</label>
-            <input type="url" id="admin-week-2-link" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown" placeholder="https://...">
-          </div>
-          <div>
-            <label for="admin-week-3-link" class="block text-sm font-medium text-gray-700 mb-1">Week 3 Assessment Link</label>
-            <input type="url" id="admin-week-3-link" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown" placeholder="https://...">
-          </div>
-          <div>
-            <label for="admin-week-4-link" class="block text-sm font-medium text-gray-700 mb-1">Week 4 Assessment Link</label>
-            <input type="url" id="admin-week-4-link" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown" placeholder="https://...">
-          </div>
-        </div>
-        <div class="flex justify-end">
-          <button id="admin-save-course-date-btn" class="bg-brand-brown text-white font-bold py-2 px-6 rounded-lg hover:bg-brand-brown-dark transition duration-300">
-            Save Dates
-          </button>
-        </div>
-        <p id="admin-course-date-msg" class="text-sm mt-2 hidden text-right"></p>
-      </div>
-
-      <h1 class="text-3xl md:text-4xl font-bold text-brand-brown mb-8">Students Progress</h1>
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
-          <div class="relative w-full md:w-1/2">
-            <input type="text" id="admin-search-input" placeholder="Search by student email or name..." class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-brown">
-            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
-          </div>
-          <button id="export-csv-btn" class="w-full md:w-auto bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition duration-300 flex items-center justify-center space-x-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-            <span>Export CSV</span>
-          </button>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="min-w-full bg-white">
-            <thead class="bg-gray-100">
-              <tr>
-                <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
-                <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed Sessions</th>
-              </tr>
-            </thead>
-            <tbody id="student-list-body" class="divide-y divide-gray-200"></tbody>
-          </table>
-        </div>
-      </div>
-    </main>
-
-    <footer class="bg-brand-brown text-white py-8 mt-16">
-      <div class="container mx-auto px-6 text-center"><p>&copy; <script>document.write(new Date().getFullYear())</script> First Tech Hub Solutions. All Rights Reserved.</p></div>
-    </footer>
-  </div>
-
-  <!-- Video modal -->
-  <div id="videoModal" class="modal">
-    <div class="modal-content">
-      <span id="closeVideoModal" class="text-white text-3xl font-bold absolute -top-8 right-0 cursor-pointer">&times;</span>
-      <div id="videoPlayer" class="video-responsive bg-black"></div>
-    </div>
-  </div>
-
-  <!-- Comments modal -->
-  <div id="commentsModal" class="modal">
-    <div class="comment-modal-content">
-      <div class="flex justify-between items-center mb-4">
-        <h3 id="comment-modal-title" class="text-xl font-bold text-brand-brown">Comments</h3>
-        <button id="closeCommentsModal" class="text-gray-600 hover:text-gray-900 text-3xl font-bold">&times;</button>
-      </div>
-      <div id="comments-container" class="comments-container mb-4 space-y-4 pr-2"></div>
-      <div class="mt-auto">
-        <form id="comment-form">
-          <textarea id="comment-input" class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-brand-brown" rows="3" placeholder="Add your comment..." required></textarea>
-          <button type="submit" class="mt-2 w-full bg-brand-brown text-white font-bold py-2 px-4 rounded-lg hover:bg-brand-brown-dark transition duration-300">Post Comment</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- STUDENT Edit Profile modal (separate) -->
-  <div id="editProfileModalStudent" class="modal" aria-hidden="true">
-    <div class="modal-content bg-white rounded-lg max-w-lg mx-auto">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-brand-brown">Edit Profile</h3>
-        <button id="closeEditProfileModalStudent" class="text-gray-600 hover:text-gray-900 text-2xl">&times;</button>
-      </div>
-      <div>
-        <div class="flex items-center gap-4 mb-4">
-          <div id="student-modal-photo-wrapper" class="h-16 w-16 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center border">
-            <div id="student-modal-photo-initials" class="avatar-initials"></div>
-          </div>
-          <div>
-            <div id="student-modal-displayname" class="font-semibold text-lg"></div>
-            <div id="student-modal-email" class="text-sm text-gray-500"></div>
-          </div>
-        </div>
-
-        <form id="student-edit-profile-form" class="space-y-3">
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Display name</label>
-            <input id="student-edit-displayname" type="text" class="mt-1 block w-full border rounded px-3 py-2" placeholder="Your display name">
-          </div>
-
-          <div class="flex justify-end gap-2">
-            <button type="button" id="student-cancel-edit-profile" class="px-4 py-2 bg-gray-200 rounded">Cancel</button>
-            <button type="submit" id="student-save-edit-profile" class="px-4 py-2 bg-brand-brown text-white rounded">Save</button>
-          </div>
-          <p id="student-edit-profile-msg" class="text-sm mt-2"></p>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- ADMIN Edit Profile modal (separate) -->
-  <div id="editProfileModalAdmin" class="modal" aria-hidden="true">
-    <div class="modal-content bg-white rounded-lg max-w-lg mx-auto">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-brand-brown">Admin Profile</h3>
-        <button id="closeEditProfileModalAdmin" class="text-gray-600 hover:text-gray-900 text-2xl">&times;</button>
-      </div>
-      <div>
-        <div class="flex items-center gap-4 mb-4">
-          <div id="admin-modal-photo-wrapper" class="h-16 w-16 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center border">
-            <div id="admin-modal-photo-initials" class="avatar-initials"></div>
-          </div>
-          <div>
-            <div id="admin-modal-displayname" class="font-semibold text-lg"></div>
-            <div id="admin-modal-email" class="text-sm text-gray-500"></div>
-          </div>
-        </div>
-
-        <form id="admin-edit-profile-form" class="space-y-3">
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Display name</label>
-            <input id="admin-edit-displayname" type="text" class="mt-1 block w-full border rounded px-3 py-2" placeholder="Your display name">
-          </div>
-
-          <div class="flex justify-end gap-2">
-            <button type="button" id="admin-cancel-edit-profile" class="px-4 py-2 bg-gray-200 rounded">Cancel</button>
-            <button type="submit" id="admin-save-edit-profile" class="px-4 py-2 bg-brand-brown text-white rounded">Save</button>
-          </div>
-          <p id="admin-edit-profile-msg" class="text-sm mt-2"></p>
-        </form>
-      </div>
-    </div>
-  </div>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, query, onSnapshot, serverTimestamp, arrayUnion, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, updateProfile, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-  // --- Config & Data ---
-  let firebaseConfig;
-  try {
-    const response = await fetch('/api/config');
-    firebaseConfig = await response.json();
-  } catch (error) {
-    console.error("Failed to fetch Firebase config:", error);
-    DOM.authError.textContent = 'Could not load application configuration.';
-    DOM.loadingSpinner.classList.add('hidden');
-    DOM.authContainer.classList.remove('hidden');
-  }
+  // ================= SETTINGS =================
+  // Keep this list in sync with isAdmin() in firestore.rules
+  const ADMIN_EMAILS = ['firsttechhub1@gmail.com'];
+  const SUPPORT_EMAIL = 'firsttechhub1@gmail.com';
+  const COMMUNITY_LINK = 'https://chat.whatsapp.com/room/JcGe1zQahip8E3xfTQY3NC?mode=gi_t';
+  const ASSIGNMENT_TUTORIAL_VIDEO = 'a6bXJb9A0Ts';
+  const APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+  const ACCENTS = ['#5c3214', '#1f6b4f', '#2f3f7a', '#6b2f4f', '#8a5a12', '#0f5261'];
 
-  const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-  let weekUnlockDates = {
-    1: new Date('2026-04-13T00:00:00Z'),
-    2: new Date('2026-04-20T00:00:00Z'),
-    3: new Date('2026-04-27T00:00:00Z'),
-    4: new Date('2026-05-04T00:00:00Z')
-  }; // Fallback dates
-
-  let weekAssessmentLinks = {
-    1: 'https://classroom.google.com/c/ODM1MzE3MDk0OTIz/a/ODM3OTQ0Nzg2NzQ4/details',
-    2: 'https://classroom.google.com/c/ODM1MzE3MDk0OTIz/a/ODM3OTQ2MzE2Njgw/details',
-    3: 'https://classroom.google.com/c/ODQ1MDY4MjExNzUx/a/ODUwMTExOTQ4MTQx/details',
-    4: 'https://classroom.google.com/c/ODQ1MDY4MjExNzUx/a/ODUwMTEyMDA2Nzg2/details'
-  }; // Fallback links, I will remove later
-
-  // const ADMIN_EMAILS = ['firsttechhub1@gmail.com', 'lukeprecious@gmail.com'];
-
-    const ADMIN_EMAILS = ['firsttechhub1@gmail.com'];
-
-  const courseData = [
-  { 
-    week: 1, 
-    title: 'Week 1: Building your Google Workspace Foundation', 
-    sessions: [
-      {session: 1, title:'Introduction to Google Workspace', youtubeId:'DNH-4Z7MbRE'},
-      {session: 2, title:'Google Drive (Part 1) - Introduction & Interface Overview', youtubeId:'M_mK2yqKkFM'},
-      {session: 3, title:'Google Drive (Part 2) - Creating,  Uploading & Managing Files', youtubeId:'y4elFFH-2-4'},
-      {session: 4, title:'Google Drive (Part 3) - Sharing, Permissions & Collaboration', videoId:'https://player.vimeo.com/video/1124684163'},
-      {session: 5, title:'Google Chat (Part 1) - Introduction & Interface Overview', youtubeId:'DGUcmKgRRZM'},
-      {session: 6, title:'Google Chat (Part 2) - Using Chat Spaces & Direct Messages', youtubeId:'LpgKg6OmVjM'},
-      {session: 7, title:'Google Chat (Part 3) - Tips, Integrations & Best Practices', youtubeId:'ENug_4Ivams'},
-      {session: 8, title:'Google Docs (Part 1) - Getting Started & Understanding the Interface', youtubeId:'sX6nCht-ajE'},
-      {session: 9, title:'Google Docs (Part 2) - Formatting, Editing & Collaboration Features', youtubeId:'SdxOIx_uKq8'},
-      {session: 10, title:'Google Docs (Part 3) - Advanced Tools, Sharing & Real-world Uses', youtubeId:'PwmG0lUpk4M'}
-    ],
-    assessmentLink:'https://classroom.google.com/c/ODM1MzE3MDk0OTIz/a/ODM3OTQ0Nzg2NzQ4/details'
-  },
-    
-  { week:2, title:'Week 2: Designing Presentations & Collecting Insights', 
-   sessions:[ 
-     {session: 11, title:'Google Slides (Part 1) - Getting Started & Understanding the Interface', youtubeId:'eeyDnLJdtDc'}, 
-     {session: 12, title:'Google Slides (Part 2) - Designing, Formatting & Adding Media', youtubeId:'U0e45PPcYxU'},
-     {session: 13, title:'Google Slides (Part 3) - Presenting, Sharing & Collaboration Tips', youtubeId:'Jy0uE2qtUq8'},
-     {session: 14, title:'Google Forms (Part 1) - Getting Started & Understanding the Interface', youtubeId:'qL5mtjeaQ9E'},
-     {session: 15, title:'Google Forms (Part 2) - Creating Forms, Question Types, Customizing, Sharing & Viewing Responses', youtubeId:'Ow6iDPzWRXA'},
-     {session: 16, title:'Google Sites (Part 1) - Getting Started & Exploring the Interface', youtubeId:'fJwnM1ewkP8'},
-     {session: 17, title:'Google Sites (Part 2) - Designing, Customizing & Publishing Your Website', youtubeId:'UNOqwxSY7nI'}
-   ], 
-    assessmentLink:'https://classroom.google.com/c/ODM1MzE3MDk0OTIz/a/ODM3OTQ2MzE2Njgw/details'  
-  },
-    
-  { week:3, title:'Week 3: Week 3: Mastering Communication & Task Management with Google Tools', 
-   sessions:[ 
-     {session: 18, title:'Step-by-Step Guide to Creating a Professional Portfolio with Canva', youtubeId:'W-Pl-3vpycY'}, 
-     {session: 19, title:'Google Meet, Keep & Tasks: Communicate, Organize & Stay Productive', youtubeId:'PCo57Wqom20'}, 
-     {session: 20, title:'Gmail (Part 1): Getting Started & Understanding the Interface', youtubeId:'BYsDjvB77wk'},
-     {session: 21, title:'Gmail (Part 2): Managing Emails, Labels & Filters', youtubeId:'qpfxVCM7Ng8'}
-   ],
-   assessmentLink:'https://classroom.google.com/c/ODQ1MDY4MjExNzUx/a/ODUwMTExOTQ4MTQx/details' 
-  },
-    
-  { week:4, title:'Week 4: Plan Smarter, Work Better with Google Calendar, Sheets & Vids', 
-   sessions:[
-     {session:22, title:'Google Calendar (Part 1): Getting Started with Google Calendar', youtubeId:'gwMBfZq4jLw'}, 
-     {session:23, title:'Google Calendar (Part 2): Creating and Managing Events in Google Calendar', youtubeId:'hf7oVPkGBqI'},
-     {session:24, title:'Google Calendar (Part 3): Creating Tasks & Managing Settings in Google Calendar', youtubeId:'3q60Z3yrP3c'},
-     {session:25, title:'Google Calendar (Part 4): Managing Appointments in Google Calendar', youtubeId:'jIK7kcxApFA'},
-     {session:26, title:'Google Sheets (Part 1): Getting Started with Google Sheets', youtubeId:'0CVNW04ET1U'},
-     {session:27, title:'Google Sheets (Part 2): Learn the basics', youtubeId:'431FiTtg15A'},
-     {session:28, title:'Google Sheets (Part 3): Charts and Pivot Tables', videoId:'https://player.vimeo.com/video/1130864222'},
-     {session:29, title:'Google Sheets (Part 4): Conditional Formatting in Google Sheets', youtubeId:'jhIRP76bbDo'},
-     {session:30, title:'Google Sheets (Part 5): Data Filtering: How to Make Numbering Align after Applying Filter', youtubeId:'s4Eyc9j3Ims'},
-     {session:31, title:'Google Sheets (Part 6): Data Validation in Google Sheets', youtubeId:'UkoJE3aHX1w'},
-     {session:32, title:'Google Vids Explained: Creating, Editing & Sharing Videos with Ease', youtubeId:'ZAQ1eA84Cko'},
-     {session:33, title:'Google Vids Continued', youtubeId:'9FRTzOjpxBY'}
-   ], 
-   assessmentLink:'https://classroom.google.com/c/ODQ1MDY4MjExNzUx/a/ODUwMTEyMDA2Nzg2/details' }
-];
-
-
-  const totalSessions = courseData.reduce((acc,w) => acc + w.sessions.length, 0);
-  const sessionMap = new Map();
-  courseData.forEach(week => week.sessions.forEach(s => sessionMap.set(`w${week.week}s${s.session}`, s.title))); 
-
-  // DOM refs (same IDs used earlier)
-  const DOM = {
-    loadingSpinner: document.getElementById('loading-spinner'),
-    authContainer: document.getElementById('auth-container'),
-    authForm: document.getElementById('auth-form'),
-    authTitle: document.getElementById('auth-title'),
-    authSubmitBtn: document.getElementById('auth-submit-btn'),
-    authToggleLink: document.getElementById('auth-toggle-link'),
-    authError: document.getElementById('auth-error'),
-    nameContainer: document.getElementById('name-container'),
-    fullNameInput: document.getElementById('full-name'),
-    passwordContainer: document.getElementById('password-container'),
-    forgotPasswordLink: document.getElementById('forgot-password-link'),
-    forgotPasswordWrapper: document.getElementById('forgot-password-wrapper'),
-
-    lmsContainer: document.getElementById('lms-container'),
-    userName: document.getElementById('user-name'),
-    userEmail: document.getElementById('user-email'),
-    userInitials: document.getElementById('user-initials'),
-    menuItems: document.getElementById('menu-items'),
-    mobileMenuButton: document.getElementById('mobile-menu-button'),
-    editProfileLink: document.getElementById('edit-profile-link'),
-    studentSearchInput: document.getElementById('student-search-input'),
-    curriculumContainer: document.getElementById('curriculum-container'),
-    progressBar: document.getElementById('progress-bar'),
-    progressText: document.getElementById('progress-text'),
-
-    adminContainer: document.getElementById('admin-container'),
-    adminEmail: document.getElementById('admin-email'),
-    adminInitials: document.getElementById('admin-avatar-initials'),
-    adminMenuItems: document.getElementById('admin-menu-items'),
-    adminMobileMenuButton: document.getElementById('admin-mobile-menu-button'),
-    adminSearchInput: document.getElementById('admin-search-input'),
-    adminWeek1DateInput: document.getElementById('admin-week-1-date'),
-    adminWeek2DateInput: document.getElementById('admin-week-2-date'),
-    adminWeek3DateInput: document.getElementById('admin-week-3-date'),
-    adminWeek4DateInput: document.getElementById('admin-week-4-date'),
-    adminWeek1LinkInput: document.getElementById('admin-week-1-link'),
-    adminWeek2LinkInput: document.getElementById('admin-week-2-link'),
-    adminWeek3LinkInput: document.getElementById('admin-week-3-link'),
-    adminWeek4LinkInput: document.getElementById('admin-week-4-link'),
-    adminSaveCourseDateBtn: document.getElementById('admin-save-course-date-btn'),
-    adminCourseDateMsg: document.getElementById('admin-course-date-msg'),
-    studentListBody: document.getElementById('student-list-body'),
-    exportCsvBtn: document.getElementById('export-csv-btn'),
-    editProfileLinkAdmin: document.getElementById('edit-profile-link-admin'),
-
-    // modals
-    videoModal: document.getElementById('videoModal'),
-    videoPlayer: document.getElementById('videoPlayer'),
-    closeVideoModal: document.getElementById('closeVideoModal'),
-
-    commentsModal: document.getElementById('commentsModal'),
-    commentModalTitle: document.getElementById('comment-modal-title'),
-    commentsContainer: document.getElementById('comments-container'),
-    commentForm: document.getElementById('comment-form'),
-    commentInput: document.getElementById('comment-input'),
-    closeCommentsModal: document.getElementById('closeCommentsModal'),
-
-    // STUDENT modal
-    editProfileModalStudent: document.getElementById('editProfileModalStudent'),
-    closeEditProfileModalStudent: document.getElementById('closeEditProfileModalStudent'),
-    studentEditDisplayname: document.getElementById('student-edit-displayname'),
-    studentModalDisplayname: document.getElementById('student-modal-displayname'),
-    studentModalEmail: document.getElementById('student-modal-email'),
-    studentModalInitials: document.getElementById('student-modal-photo-initials'),
-    studentEditForm: document.getElementById('student-edit-profile-form'),
-    studentCancelEdit: document.getElementById('student-cancel-edit-profile'),
-    studentEditMsg: document.getElementById('student-edit-profile-msg'),
-
-    // ADMIN modal
-    editProfileModalAdmin: document.getElementById('editProfileModalAdmin'),
-    closeEditProfileModalAdmin: document.getElementById('closeEditProfileModalAdmin'),
-    adminEditDisplayname: document.getElementById('admin-edit-displayname'),
-    adminModalDisplayname: document.getElementById('admin-modal-displayname'),
-    adminModalEmail: document.getElementById('admin-modal-email'),
-    adminModalInitials: document.getElementById('admin-modal-photo-initials'),
-    adminEditForm: document.getElementById('admin-edit-profile-form'),
-    adminCancelEdit: document.getElementById('admin-cancel-edit-profile'),
-    adminEditMsg: document.getElementById('admin-edit-profile-msg'),
+  // Starter courses the admin can add with one click.
+  // Google Workspace keeps its old id and session ids so existing progress and comments carry over.
+  const LEGACY_ID = 'googleWorkspace';
+  const STARTERS = {
+    googleWorkspace: {
+      title: 'Master Google Workspace',
+      description: 'A 4-week, hands-on programme covering Drive, Docs, Slides, Forms, Sites, Gmail, Calendar, Sheets, Vids and more.',
+      accent: '#5c3214', order: 1, published: true,
+      resourcesLink: 'https://drive.google.com/drive/folders/1-NzLRy49N8Ufw0ePapkKjPZWkZuoAaDG?usp=sharing',
+      weeks: [
+        { id: 'w1', title: 'Building your Google Workspace foundation', unlockDate: '2026-04-13', assessmentLink: 'https://classroom.google.com/c/ODM1MzE3MDk0OTIz/a/ODM3OTQ0Nzg2NzQ4/details', sessions: [
+          ['w1s1','Introduction to Google Workspace','DNH-4Z7MbRE'],
+          ['w1s2','Google Drive (Part 1): Introduction & interface overview','M_mK2yqKkFM'],
+          ['w1s3','Google Drive (Part 2): Creating, uploading & managing files','y4elFFH-2-4'],
+          ['w1s4','Google Drive (Part 3): Sharing, permissions & collaboration','https://player.vimeo.com/video/1124684163'],
+          ['w1s5','Google Chat (Part 1): Introduction & interface overview','DGUcmKgRRZM'],
+          ['w1s6','Google Chat (Part 2): Using Chat spaces & direct messages','LpgKg6OmVjM'],
+          ['w1s7','Google Chat (Part 3): Tips, integrations & best practices','ENug_4Ivams'],
+          ['w1s8','Google Docs (Part 1): Getting started & understanding the interface','sX6nCht-ajE'],
+          ['w1s9','Google Docs (Part 2): Formatting, editing & collaboration features','SdxOIx_uKq8'],
+          ['w1s10','Google Docs (Part 3): Advanced tools, sharing & real-world uses','PwmG0lUpk4M'] ] },
+        { id: 'w2', title: 'Designing presentations & collecting insights', unlockDate: '2026-04-20', assessmentLink: 'https://classroom.google.com/c/ODM1MzE3MDk0OTIz/a/ODM3OTQ2MzE2Njgw/details', sessions: [
+          ['w2s11','Google Slides (Part 1): Getting started & understanding the interface','eeyDnLJdtDc'],
+          ['w2s12','Google Slides (Part 2): Designing, formatting & adding media','U0e45PPcYxU'],
+          ['w2s13','Google Slides (Part 3): Presenting, sharing & collaboration tips','Jy0uE2qtUq8'],
+          ['w2s14','Google Forms (Part 1): Getting started & understanding the interface','qL5mtjeaQ9E'],
+          ['w2s15','Google Forms (Part 2): Question types, customising, sharing & viewing responses','Ow6iDPzWRXA'],
+          ['w2s16','Google Sites (Part 1): Getting started & exploring the interface','fJwnM1ewkP8'],
+          ['w2s17','Google Sites (Part 2): Designing, customising & publishing your website','UNOqwxSY7nI'] ] },
+        { id: 'w3', title: 'Mastering communication & task management with Google tools', unlockDate: '2026-04-27', assessmentLink: 'https://classroom.google.com/c/ODQ1MDY4MjExNzUx/a/ODUwMTExOTQ4MTQx/details', sessions: [
+          ['w3s18','Creating a professional portfolio with Canva','W-Pl-3vpycY'],
+          ['w3s19','Google Meet, Keep & Tasks: Communicate, organise & stay productive','PCo57Wqom20'],
+          ['w3s20','Gmail (Part 1): Getting started & understanding the interface','BYsDjvB77wk'],
+          ['w3s21','Gmail (Part 2): Managing emails, labels & filters','qpfxVCM7Ng8'] ] },
+        { id: 'w4', title: 'Plan smarter, work better with Calendar, Sheets & Vids', unlockDate: '2026-05-04', assessmentLink: 'https://classroom.google.com/c/ODQ1MDY4MjExNzUx/a/ODUwMTEyMDA2Nzg2/details', sessions: [
+          ['w4s22','Google Calendar (Part 1): Getting started','gwMBfZq4jLw'],
+          ['w4s23','Google Calendar (Part 2): Creating and managing events','hf7oVPkGBqI'],
+          ['w4s24','Google Calendar (Part 3): Tasks & settings','3q60Z3yrP3c'],
+          ['w4s25','Google Calendar (Part 4): Managing appointments','jIK7kcxApFA'],
+          ['w4s26','Google Sheets (Part 1): Getting started','0CVNW04ET1U'],
+          ['w4s27','Google Sheets (Part 2): Learn the basics','431FiTtg15A'],
+          ['w4s28','Google Sheets (Part 3): Charts and pivot tables','https://player.vimeo.com/video/1130864222'],
+          ['w4s29','Google Sheets (Part 4): Conditional formatting','jhIRP76bbDo'],
+          ['w4s30','Google Sheets (Part 5): Keeping numbering aligned after filtering','s4Eyc9j3Ims'],
+          ['w4s31','Google Sheets (Part 6): Data validation','UkoJE3aHX1w'],
+          ['w4s32','Google Vids: Creating, editing & sharing videos','ZAQ1eA84Cko'],
+          ['w4s33','Google Vids continued','9FRTzOjpxBY'] ] }
+      ].map(w => ({ ...w, sessions: w.sessions.map(([id, title, video]) => ({ id, title, video })) }))
+    },
+    'upwork-launchpad': {
+      title: 'Upwork LaunchPad',
+      description: 'Build an Upwork profile that stands out, write proposals that get replies, and land your first clients.',
+      accent: '#1f6b4f', order: 2, published: false, resourcesLink: '',
+      weeks: [ { id: 'uw1', title: 'Getting started on Upwork', unlockDate: '', assessmentLink: '', sessions: [ { id: 'us1', title: 'Welcome to Upwork LaunchPad', video: '' } ] } ]
+    }
   };
 
-  // Firebase init
-  let auth, db;
-  let currentUser = null;
-  let userProgress = { completedSessions: [] };
-  let allStudentsData = [];
-  let unsubscribeComments = null;
-  let authMode = 'signIn';
-  const commentUserCache = {};
+  // ================= ICONS =================
+  const svg = (d, w = 2) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const I = {
+    home: svg('<path d="M4 11l8-7 8 7v8a1 1 0 01-1 1h-4v-6H9v6H5a1 1 0 01-1-1z"/>'),
+    book: svg('<path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 19V5M8 7h7"/>'),
+    people: svg('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0M16 4.5a3.5 3.5 0 010 7M18 14.2a6.5 6.5 0 013.5 5.8"/>'),
+    grid: svg('<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>'),
+    back: svg('<path d="M15 18l-6-6 6-6"/>'),
+    next: svg('<path d="M9 18l6-6-6-6"/>'),
+    check: svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>', 3),
+    lock: svg('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>'),
+    chev: '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+    ext: svg('<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/>'),
+    play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>',
+    playO: svg('<circle cx="12" cy="12" r="9"/><path d="M10 8.5l5.5 3.5-5.5 3.5z" fill="currentColor"/>'),
+    folder: svg('<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>'),
+    up: svg('<path d="M18 15l-6-6-6 6"/>'),
+    down: svg('<path d="M6 9l6 6 6-6"/>'),
+    trash: svg('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3"/>'),
+    close: svg('<path d="M6 6l12 12M18 6L6 18"/>'),
+    task: svg('<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>'),
+    trophy: svg('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0zM7 6H4v1a3 3 0 003 3M17 6h3v1a3 3 0 01-3 3"/>'),
+    calendar: svg('<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>'),
+    plus: svg('<path d="M12 5v14M5 12h14"/>'),
+  };
 
+  // ================= HELPERS =================
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const appEl = $('#app');
+  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const safeUrl = (u) => /^https?:\/\//i.test(String(u || '').trim()) ? String(u).trim() : '';
+  const initials = (name) => (String(name || '').trim().split(/\s+/).filter(Boolean).map(p => p[0].toUpperCase()).slice(0, 2).join('')) || '?';
+  const rid = () => Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-3);
+  const clone = (o) => JSON.parse(JSON.stringify(o));
+  const parseDay = (s) => { const [y, m, d] = String(s).split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); };
+  const fmtDay = (s) => parseDay(s).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+  const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+  const slugify = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'course';
+
+  function toast(msg, kind = 'ok') {
+    const t = $('#toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (kind === 'error' ? ' is-error' : '');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.className = 'toast', 3200);
+  }
+  const boot = (on) => $('#boot').hidden = !on;
+
+  function videoInfo(v) {
+    v = String(v || '').trim();
+    if (!v) return null;
+    const yt = (id) => ({ kind: 'YouTube', id, src: `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1`, thumb: `https://i.ytimg.com/vi/${id}/hqdefault.jpg` });
+    if (/^[\w-]{11}$/.test(v)) return yt(v);
+    let m = v.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/);
+    if (m) return yt(m[1]);
+    m = v.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    if (m) return { kind: 'Vimeo', src: `https://player.vimeo.com/video/${m[1]}` };
+    m = v.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([\w-]+)/);
+    if (m) return { kind: 'Google Drive', src: `https://drive.google.com/file/d/${m[1]}/preview` };
+    if (/^https:\/\//.test(v)) return { kind: 'Web link', src: v };
+    return null;
+  }
+
+  function sessionsOf(course) {
+    const out = []; let n = 0;
+    (course.weeks || []).forEach((week, wi) => (week.sessions || []).forEach((s, si) => out.push({ week, wi, s, si, n: ++n })));
+    return out;
+  }
+  const weekOpen = (w) => !w.unlockDate || Date.now() >= parseDay(w.unlockDate).getTime();
+  function courseStats(course, done) {
+    const all = sessionsOf(course);
+    const count = all.filter(x => done?.has(x.s.id)).length;
+    return { total: all.length, done: count, pct: all.length ? Math.round(count * 100 / all.length) : 0 };
+  }
+  function nextUp(course, done) {
+    const open = sessionsOf(course).filter(x => weekOpen(x.week));
+    return open.find(x => !done?.has(x.s.id)) || open[open.length - 1] || null;
+  }
+  const commentKey = (courseId, sid) => courseId === LEGACY_ID ? sid : `${courseId}__${sid}`;
+  const sortedCourses = () => [...S.courses.values()].sort((a, b) => (a.order ?? 99) - (b.order ?? 99) || String(a.title).localeCompare(String(b.title)));
+  const progressRef = (uid, cid) => doc(db, 'artifacts', APP_ID, 'users', uid, 'progress', cid);
+  const courseHref = (cid, sid) => `#/course/${encodeURIComponent(cid)}${sid ? '/' + encodeURIComponent(sid) : ''}`;
+
+  // Cover image: custom cover URL, else the first YouTube thumbnail, else the logo on the course colour
+  function coverOf(course, session) {
+    if (session) { const v = videoInfo(session.video); if (v?.thumb) return v.thumb; }
+    if (safeUrl(course.cover)) return safeUrl(course.cover);
+    for (const x of sessionsOf(course)) { const v = videoInfo(x.s.video); if (v?.thumb) return v.thumb; }
+    return '';
+  }
+  function thumbHTML(course, { session = null, href = '', play = false, extra = '' } = {}) {
+    const src = coverOf(course, session);
+    const inner = `${src ? `<img src="${esc(src)}" alt="" loading="lazy">` : `<span class="glyph"><img src="IMG/fth-mark-light.png" alt=""></span>`}<span class="shade"></span>${play ? `<span class="play">${I.play}</span>` : ''}${extra}`;
+    const style = `style="--c:${esc(course.accent || ACCENTS[0])}"`;
+    return href ? `<a class="thumb" href="${href}" ${style} aria-label="Play ${esc(session?.title || course.title)}">${inner}</a>` : `<div class="thumb" ${style}>${inner}</div>`;
+  }
+  function ring(pct, size = 56, stroke = 6, dark = false) {
+    const r = (size - stroke) / 2, c = 2 * Math.PI * r, off = c * (1 - pct / 100);
+    return `<svg class="ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${pct}% complete">
+      <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${dark ? 'rgba(255,255,255,.14)' : '#ece6df'}" stroke-width="${stroke}"/>
+      <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${dark ? '#e2a23b' : '#c98a22'}" stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+      <text x="50%" y="50%" dy=".35em" text-anchor="middle" font-size="${size * .26}" fill="${dark ? '#fff' : '#20150d'}">${pct}%</text></svg>`;
+  }
+
+  // ================= FIREBASE =================
+  let firebaseConfig = null;
   try {
-    const app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
+    const r = await fetch('/api/config');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    firebaseConfig = await r.json();
   } catch (err) {
-    console.error('Firebase init error', err);
-    DOM.loadingSpinner.classList.add('hidden');
-    DOM.authError.textContent = 'Could not initialize services. Refresh.';
-    DOM.authContainer.classList.remove('hidden');
+    console.error('Config load failed', err);
+    boot(false);
+    $('#auth-root').innerHTML = `<div class="page"><div class="empty"><img src="IMG/fth-mark.png" alt=""><h2>The LMS couldn’t start</h2><p>Its settings didn’t load. Refresh the page, and if this keeps happening email <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>.</p></div></div>`;
+    throw err;
   }
+  const fbApp = initializeApp(firebaseConfig);
+  const auth = getAuth(fbApp);
+  const db = getFirestore(fbApp);
+  let secondaryAuth = null; // used only by admin to create student logins without signing out
+  const getSecondaryAuth = () => secondaryAuth ||= getAuth(initializeApp(firebaseConfig, 'student-creator'));
 
-  // ---------- helpers ----------
-  function getInitials(name) {
-    if (!name) return '?';
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    return parts.map(p => p[0].toUpperCase()).slice(0,2).join('');
-  }
-  function setInitialsUI(displayName, initialsEl) {
-    if (!initialsEl) return;
-    initialsEl.textContent = getInitials(displayName || '');
-  }
+  // ================= STATE =================
+  const S = {
+    user: null, profile: null, isAdmin: false,
+    courses: new Map(), progress: new Map(), students: null,
+    draft: null, draftId: null, draftDirty: false,
+    unsubComments: null, studentFilter: '', studentCourse: null,
+  };
+  const nameCache = new Map();
+  const myName = () => S.profile?.displayName || S.profile?.fullName || S.user?.displayName || (S.user?.email || '').split('@')[0] || 'Student';
 
-  // auto-hide mobile menus
-  DOM.mobileMenuButton?.addEventListener('click', () => DOM.menuItems.classList.toggle('hidden'));
-  DOM.adminMobileMenuButton?.addEventListener('click', () => DOM.adminMenuItems.classList.toggle('hidden'));
-  function attachAutoHide(menuEl) {
-    if (!menuEl) return;
-    menuEl.querySelectorAll('a, button').forEach(el => el.addEventListener('click', () => menuEl.classList.add('hidden')));
-  }
-  attachAutoHide(DOM.menuItems);
-  attachAutoHide(DOM.adminMenuItems);
-
-  // ---------- AUTH state ----------
+  // ================= AUTH FLOW =================
   onAuthStateChanged(auth, async (user) => {
-    currentUser = user;
-    DOM.loadingSpinner.classList.add('hidden');
+    S.user = user; S.courses.clear(); S.progress.clear(); S.students = null; S.profile = null;
+    if (!user) { $('#shell').hidden = true; boot(false); route(); return; }
+    boot(true);
+    try { await loadSession(); }
+    catch (err) { console.error(err); toast('Some of your data didn’t load. Refresh to try again.', 'error'); }
+    $('#auth-root').innerHTML = '';
+    $('#shell').hidden = false;
+    boot(false);
+    route();
+  });
 
-    if (user) {
-      DOM.authContainer.classList.add('hidden');
+  async function loadSession() {
+    const u = S.user;
+    S.isAdmin = ADMIN_EMAILS.includes((u.email || '').toLowerCase());
+    const uref = doc(db, 'users', u.uid);
+    let snap = await getDoc(uref);
+    if (!snap.exists()) {
+      await setDoc(uref, { email: u.email || '', uid: u.uid, fullName: u.displayName || '', displayName: u.displayName || '', createdAt: serverTimestamp() });
+      snap = await getDoc(uref);
+    }
+    S.profile = snap.data() || {};
+    setDoc(doc(db, 'profiles', u.uid), { displayName: myName() }).catch(e => console.warn('profile sync', e));
 
-      // Fetch dynamic course week dates and assessment links from Firestore
-      try {
-        const settingsRef = doc(db, "settings", "course");
-        const settingsSnap = await getDoc(settingsRef);
-        if (settingsSnap.exists()) {
-          const data = settingsSnap.data();
-          if (data.weekDates) {
-            weekUnlockDates = {
-              1: new Date(data.weekDates[1] || '2026-02-17T00:00:00Z'),
-              2: new Date(data.weekDates[2] || '2026-02-24T00:00:00Z'),
-              3: new Date(data.weekDates[3] || '2026-03-03T00:00:00Z'),
-              4: new Date(data.weekDates[4] || '2026-03-10T00:00:00Z')
-            };
-          }
-          if (data.assessmentLinks) {
-            weekAssessmentLinks = {
-              1: data.assessmentLinks[1] || weekAssessmentLinks[1],
-              2: data.assessmentLinks[2] || weekAssessmentLinks[2],
-              3: data.assessmentLinks[3] || weekAssessmentLinks[3],
-              4: data.assessmentLinks[4] || weekAssessmentLinks[4]
-            };
-          }
-        } else {
-          // Initialize with fallback if not present
-          const initDates = { 
-            1: weekUnlockDates[1].toISOString(), 2: weekUnlockDates[2].toISOString(), 
-            3: weekUnlockDates[3].toISOString(), 4: weekUnlockDates[4].toISOString() 
-          };
-          const initLinks = {
-            1: weekAssessmentLinks[1], 2: weekAssessmentLinks[2],
-            3: weekAssessmentLinks[3], 4: weekAssessmentLinks[4]
-          };
-          await setDoc(settingsRef, { weekDates: initDates, assessmentLinks: initLinks }, { merge: true });
-        }
-        if (DOM.adminWeek1DateInput) {
-           DOM.adminWeek1DateInput.value = weekUnlockDates[1].toISOString().split('T')[0];
-           DOM.adminWeek2DateInput.value = weekUnlockDates[2].toISOString().split('T')[0];
-           DOM.adminWeek3DateInput.value = weekUnlockDates[3].toISOString().split('T')[0];
-           DOM.adminWeek4DateInput.value = weekUnlockDates[4].toISOString().split('T')[0];
-           
-           DOM.adminWeek1LinkInput.value = weekAssessmentLinks[1];
-           DOM.adminWeek2LinkInput.value = weekAssessmentLinks[2];
-           DOM.adminWeek3LinkInput.value = weekAssessmentLinks[3];
-           DOM.adminWeek4LinkInput.value = weekAssessmentLinks[4];
-        }
-      } catch (err) {
-        console.warn('Could not fetch course settings', err);
-      }
-
-      // Ensure users/{uid} exists for ALL users (admin included) to avoid "missing doc" issues
-      try {
-        const userDocRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userDocRef);
-        if (!userSnap.exists()) {
-          await setDoc(userDocRef, {
-            email: user.email || '',
-            uid: user.uid,
-            fullName: user.displayName || '',
-            displayName: user.displayName || '',
-            createdAt: serverTimestamp()
-          }, { merge: true });
-        }
-      } catch (err) {
-        console.warn('Could not ensure users doc', err);
-      }
-
-      // read current user's profile (only this doc — prevents blinking)
-      let publicProfile = null;
-      try {
-        const userDocRef2 = doc(db, "users", user.uid);
-        const userSnap2 = await getDoc(userDocRef2);
-        publicProfile = userSnap2.exists() ? userSnap2.data() : null;
-      } catch (err) {
-        console.warn('Could not read users doc', err);
-      }
-
-      if (ADMIN_EMAILS.includes(user.email)) {
-        // admin view
-        DOM.lmsContainer.classList.add('hidden');
-        DOM.adminContainer.classList.remove('hidden');
-        DOM.adminEmail.textContent = user.email;
-        setInitialsUI(publicProfile?.displayName || user.displayName || '', DOM.adminInitials);
-        if (DOM.editProfileLinkAdmin) DOM.editProfileLinkAdmin.classList.remove('hidden');
-        await loadAdminData();
-      } else {
-        // student view
-        await loadUserData(user.uid);
-
-        const displayName = publicProfile?.displayName || publicProfile?.fullName || user.displayName || 'Student';
-        DOM.userName.textContent = displayName;
-        DOM.userEmail.textContent = user.email || '';
-        setInitialsUI(displayName, DOM.userInitials);
-
-        DOM.lmsContainer.classList.remove('hidden');
-      }
+    if (S.isAdmin) {
+      const cs = await getDocs(collection(db, 'courses'));
+      cs.forEach(d => S.courses.set(d.id, { id: d.id, ...d.data() }));
     } else {
-      // logged out
-      userProgress = { completedSessions: [] };
-      DOM.lmsContainer.classList.add('hidden');
-      DOM.adminContainer.classList.add('hidden');
-      DOM.authContainer.classList.remove('hidden');
-      updateAuthView('signIn');
-    }
-  });
-
-  // ---------- USER PROGRESS ----------
-  async function loadUserData(uid) {
-    const progressDocRef = doc(db, `/artifacts/${appId}/users/${uid}/progress/googleWorkspace`);
-    try {
-      const snap = await getDoc(progressDocRef);
-      if (snap.exists() && snap.data().completedSessions) userProgress = snap.data();
-      else {
-        await setDoc(progressDocRef, { completedSessions: [] }, { merge: true });
-        userProgress = { completedSessions: [] };
-      }
-    } catch (err) {
-      console.error('Error loading user data', err);
-      userProgress = { completedSessions: [] };
-    }
-    renderCurriculum();
-  }
-
-  async function updateProgress(sessionId) {
-    if (!currentUser) return;
-    if (userProgress.completedSessions && userProgress.completedSessions.includes(sessionId)) return;
-    const progressDocRef = doc(db, `/artifacts/${appId}/users/${currentUser.uid}/progress/googleWorkspace`);
-    try {
-      await updateDoc(progressDocRef, { completedSessions: arrayUnion(sessionId) });
-      if (!userProgress.completedSessions) userProgress.completedSessions = [];
-      userProgress.completedSessions.push(sessionId);
-      renderCurriculum();
-    } catch (err) {
-      console.error('Error updating progress', err);
-    }
-  }
-
-  // ---------- RENDER curriculum ----------
-  function renderCurriculum() {
-    DOM.curriculumContainer.innerHTML = '';
-    const today = new Date();
-
-    const tutorialSection = document.createElement('div');
-  tutorialSection.className = 'tutorial-section mb-6 border-2 border-blue-500 rounded-lg bg-blue-50 p-6';
-  tutorialSection.innerHTML = `
-    <div class="flex items-start gap-4">
-      <svg class="w-8 h-8 text-blue-600 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/>
-      </svg>
-      <div class="flex-1">
-        <h3 class="text-xl font-bold text-blue-900 mb-2">📚 How to Submit Assignments on Google Classroom</h3>
-        <p class="text-gray-700 mb-4">Watch this quick tutorial to learn how to submit your weekly assignments properly.</p>
-        <button class="watch-tutorial-btn bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center gap-2">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/>
-          </svg>
-          Watch Tutorial
-        </button>
-      </div>
-    </div>
-    `;
-  DOM.curriculumContainer.appendChild(tutorialSection);
-
-  // Add click event for the tutorial button
-  tutorialSection.querySelector('.watch-tutorial-btn').addEventListener('click', () => {
-    openVideoModal('a6bXJb9A0Ts'); // Replace with your actual YouTube video ID
-  });
-
-
-    // --- MODIFICATION START ---
-    // weekUnlockDates is now populated from Firestore directly.
-    // Determine which week's accordion should be open by default (the latest unlocked week)
-    let currentWeek = 1; // Default to week 1
-    for (const week in weekUnlockDates) {
-        if (today >= weekUnlockDates[week]) {
-            currentWeek = parseInt(week, 10);
-        }
-    }
-    // --- MODIFICATION END ---
-
-    courseData.forEach(weekData => {
-      const isLocked = weekData.week > currentWeek;
-      const isOpen = weekData.week === currentWeek;
-      const weekEl = document.createElement('div');
-      weekEl.className = 'week-wrapper border border-gray-200 rounded-lg';
-
-      const sessionsHtml = weekData.sessions.map(session => {
-  const sessionId = `w${weekData.week}s${session.session}`;  // Changed from d${session.day}
-  const isCompleted = userProgress.completedSessions && userProgress.completedSessions.includes(sessionId);
-  return `
-    <div class="session-item flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border-t border-gray-200 ${isCompleted ? 'bg-green-50' : ''}" data-title="${session.title}">
-      <div class="flex items-center mb-2 sm:mb-0">
-        <svg class="w-5 h-5 ${isLocked ? 'text-gray-400' : (isCompleted ? 'text-green-500' : 'text-brand-brown')} mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">${isLocked ? '<path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a4 4 0 100 8 4 4 0 000-8z" clip-rule="evenodd"/>' : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'}</svg>
-        <span class="${isLocked ? 'text-gray-500' : 'text-brand-brown'}">Session ${session.session}: ${session.title}</span>
-      </div>
-      <div class="flex space-x-2 self-end sm:self-center mt-3 sm:mt-0">
-        <button class="comments-btn text-sm font-semibold py-2 px-3 rounded-md ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-gray-100 text-brand-brown hover:bg-gray-200 border border-brand-brown'}" data-session-id="${sessionId}" data-session-title="${session.title}" ${isLocked ? 'disabled' : ''}>Comments</button>
-        <button class="watch-btn text-sm font-semibold py-2 px-3 rounded-md ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-brand-brown text-white hover:bg-brand-brown-dark'}" data-videoid="${session.videoId || session.youtubeId}" ${isLocked ? 'disabled' : ''}>Watch</button>
-        <button class="mark-complete-btn text-sm font-semibold py-2 px-3 rounded-md ${isLocked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : (isCompleted ? 'bg-green-600 text-white cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600')}" data-session-id="${sessionId}" ${isLocked || isCompleted ? 'disabled' : ''}>
-          ${isCompleted ? 'Completed' : 'Mark as Complete'}
-        </button>
-      </div>
-    </div>
-  `;
-}).join('');
-
-      const assessmentHtml = `<div class="p-4 border-t border-gray-200 bg-gray-50"><a href="${isLocked ? '#' : (weekAssessmentLinks[weekData.week] || weekData.assessmentLink)}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center font-bold py-2 px-4 rounded-md ${isLocked ? 'bg-gray-300 text-gray-600' : 'bg-green-600 text-white hover:bg-green-700'}">Week ${weekData.week} Assessment</a></div>`;
-
-      weekEl.innerHTML = `<button class="accordion-header flex justify-between items-center w-full p-5 text-left font-semibold text-lg"><span>${weekData.title}</span><svg class="w-6 h-6 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button><div class="accordion-content" ${isOpen ? 'style="max-height:1000px;"' : ''}>${sessionsHtml}${assessmentHtml}</div>`;
-      DOM.curriculumContainer.appendChild(weekEl);
-    });
-
-    updateProgressBar();
-    addDynamicEventListeners();
-  }
-
-  function updateProgressBar() {
-    const completedCount = userProgress.completedSessions ? userProgress.completedSessions.length : 0;
-    const percentage = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
-    DOM.progressBar.style.width = `${percentage}%`;
-    DOM.progressText.textContent = `${percentage}% Complete (${completedCount} of ${totalSessions} sessions)`;
-  }
-
-  function addDynamicEventListeners() {
-    DOM.curriculumContainer.querySelectorAll('.accordion-header').forEach(b => b.addEventListener('click', () => {
-      const content = b.nextElementSibling, icon = b.querySelector('svg');
-      if (content.style.maxHeight) { content.style.maxHeight = null; icon.classList.remove('rotate-180'); }
-      else {
-        document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
-        document.querySelectorAll('.accordion-header svg').forEach(i => i.classList.remove('rotate-180'));
-        content.style.maxHeight = content.scrollHeight + 'px';
-        icon.classList.add('rotate-180');
-      }
-    }));
-
-    DOM.curriculumContainer.querySelectorAll('.watch-btn:not(:disabled)').forEach(b => b.addEventListener('click', e => openVideoModal(e.currentTarget.dataset.videoid)));
-    DOM.curriculumContainer.querySelectorAll('.comments-btn:not(:disabled)').forEach(b => b.addEventListener('click', e => openCommentsModal(e.currentTarget.dataset.sessionId, e.currentTarget.dataset.sessionTitle)));
-    DOM.curriculumContainer.querySelectorAll('.mark-complete-btn:not(:disabled)').forEach(b => b.addEventListener('click', e => updateProgress(e.currentTarget.dataset.sessionId)));
-  }
-
-  // ---------- SEARCH ----------
-  DOM.studentSearchInput?.addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase().trim();
-    document.querySelectorAll('#curriculum-container .week-wrapper').forEach(weekEl => {
-      let weekHasVisibleSession = false;
-      weekEl.querySelectorAll('.session-item').forEach(sessionEl => {
-        const title = sessionEl.dataset.title.toLowerCase();
-        if (title.includes(searchTerm)) { sessionEl.classList.remove('hidden'); weekHasVisibleSession = true; }
-        else sessionEl.classList.add('hidden');
-      });
-      if (weekHasVisibleSession) weekEl.classList.remove('hidden'); else weekEl.classList.add('hidden');
-    });
-  });
-
-  // ---------- ADMIN COURSE START DATE ----------
-  DOM.adminSaveCourseDateBtn?.addEventListener('click', async () => {
-    const d1 = DOM.adminWeek1DateInput.value;
-    const d2 = DOM.adminWeek2DateInput.value;
-    const d3 = DOM.adminWeek3DateInput.value;
-    const d4 = DOM.adminWeek4DateInput.value;
-    
-    const l1 = DOM.adminWeek1LinkInput.value.trim();
-    const l2 = DOM.adminWeek2LinkInput.value.trim();
-    const l3 = DOM.adminWeek3LinkInput.value.trim();
-    const l4 = DOM.adminWeek4LinkInput.value.trim();
-
-    if (!d1 || !d2 || !d3 || !d4 || !l1 || !l2 || !l3 || !l4) {
-      DOM.adminCourseDateMsg.classList.remove('hidden');
-      DOM.adminCourseDateMsg.className = 'text-sm mt-2 text-red-600 text-right';
-      DOM.adminCourseDateMsg.textContent = 'Please fill out all dates and assessment links.';
-      return;
-    }
-    
-    // Create Date from YYYY-MM-DD input
-    const newDates = {
-      1: new Date(`${d1}T00:00:00Z`),
-      2: new Date(`${d2}T00:00:00Z`),
-      3: new Date(`${d3}T00:00:00Z`),
-      4: new Date(`${d4}T00:00:00Z`)
-    };
-
-    const newLinks = {
-      1: l1, 2: l2, 3: l3, 4: l4
-    };
-    
-    DOM.adminCourseDateMsg.classList.remove('hidden');
-    DOM.adminCourseDateMsg.className = 'text-sm mt-2 text-gray-600 text-right';
-    DOM.adminCourseDateMsg.textContent = 'Saving...';
-    DOM.adminSaveCourseDateBtn.disabled = true;
-
-    try {
-      const settingsRef = doc(db, "settings", "course");
-      const datesToSave = { 
-        1: newDates[1].toISOString(), 2: newDates[2].toISOString(), 
-        3: newDates[3].toISOString(), 4: newDates[4].toISOString() 
-      };
-      const linksToSave = {
-        1: newLinks[1], 2: newLinks[2], 3: newLinks[3], 4: newLinks[4]
-      };
-      await setDoc(settingsRef, { weekDates: datesToSave, assessmentLinks: linksToSave }, { merge: true });
-      weekUnlockDates = newDates;
-      weekAssessmentLinks = newLinks;
-      
-      DOM.adminCourseDateMsg.className = 'text-sm mt-2 text-green-600 text-right';
-      DOM.adminCourseDateMsg.textContent = 'Course settings saved successfully!';
-      setTimeout(() => DOM.adminCourseDateMsg.classList.add('hidden'), 3000);
-      
-      // Re-render curriculum if admin is viewing it (though admin usually doesn't, it's good practice)
-      renderCurriculum();
-    } catch (err) {
-      console.error('Error saving course settings', err);
-      DOM.adminCourseDateMsg.className = 'text-sm mt-2 text-red-600 text-right';
-      DOM.adminCourseDateMsg.textContent = 'Error saving settings. Please try again.';
-    } finally {
-      DOM.adminSaveCourseDateBtn.disabled = false;
-    }
-  });
-
-  // ---------- ADMIN DATA & expandable table ----------
-  async function loadAdminData() {
-    DOM.studentListBody.innerHTML = '<tr><td colspan="3" class="text-center p-4">Loading student data...</td></tr>';
-    try {
-      const usersSnap = await getDocs(collection(db, "users"));
-      const users = usersSnap.docs.map(d => ({ uid: d.id, ...(d.data() || {}) }));
-      const promises = users.filter(u => u.email && !ADMIN_EMAILS.includes(u.email)).map(async (u) => {
-        const uid = u.uid || u.uid;
-        const progressDocRef = doc(db, `/artifacts/${appId}/users/${uid}/progress/googleWorkspace`);
-        let progressData = { completedSessions: [] };
+      // Students only ever load the courses listed on their own record
+      const ids = Array.isArray(S.profile.courses) ? S.profile.courses : [];
+      await Promise.all(ids.map(async (id) => {
         try {
-          const pSnap = await getDoc(progressDocRef);
-          if (pSnap.exists()) progressData = pSnap.data();
-        } catch (e) { console.warn('No progress for', uid, e); }
-        return {
-          uid,
-          email: u.email || '',
-          fullName: u.fullName || u.displayName || '',
-          displayName: u.displayName || u.fullName || '',
-          completedSessions: progressData.completedSessions || []
-        };
-      });
-
-      allStudentsData = await Promise.all(promises);
-      renderStudentList(allStudentsData);
-    } catch (err) {
-      console.error('Error loading admin data', err);
-      DOM.studentListBody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-red-500">Could not load data.</td></tr>';
+          const d = await getDoc(doc(db, 'courses', id));
+          if (d.exists() && d.data().published !== false) S.courses.set(id, { id, ...d.data() });
+        } catch (e) { console.warn('course load', id, e); }
+      }));
+      await Promise.all([...S.courses.keys()].map(loadProgress));
     }
   }
 
-  function renderStudentList(students) {
-    if (!students || students.length === 0) {
-      DOM.studentListBody.innerHTML = '<tr><td colspan="3" class="text-center p-4">No students found.</td></tr>';
-      return;
-    }
-
-    DOM.studentListBody.innerHTML = students.map(st => {
-      const completedCount = (st.completedSessions || []).length;
-      const percentage = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
-      const titles = (st.completedSessions || []).map(id => sessionMap.get(id) || id).join('\n');
-      const display = st.fullName || st.displayName || st.email || 'Student';
-      const initials = getInitials(display);
-      const avatarHtml = `<div class="avatar-initials">${initials}</div>`;
-      return `
-        <tr class="hover:bg-gray-50 student-row" data-uid="${st.uid}">
-          <td class="py-3 px-4 text-sm text-gray-700 break-all flex items-center gap-3">
-            ${avatarHtml}
-            <div class="min-w-0">
-              <div class="font-semibold text-gray-800 truncate">${display}</div>
-              <div class="text-xs text-gray-500 truncate">${st.email}</div>
-            </div>
-          </td>
-          <td class="py-3 px-4 text-sm text-gray-700">
-            <div class="flex items-center">
-              <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">
-                <div class="bg-blue-600 h-2.5 rounded-full" style="width:${percentage}%"></div>
-              </div>
-              <span class="text-xs font-semibold">${percentage}%</span>
-            </div>
-          </td>
-          <td class="py-3 px-4 text-sm text-gray-700 text-center view-sessions cursor-pointer">
-            <div class="tooltip">
-              ${completedCount} / ${totalSessions}
-              <span class="tooltiptext"><b>Completed:</b><br>${titles.replace(/\n/g,'<br>') || 'None'}</span>
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-    // expandable rows
-    document.querySelectorAll('#student-list-body .student-row').forEach(row => {
-      const uid = row.dataset.uid;
-      row.querySelector('.view-sessions').addEventListener('click', async () => {
-        const next = row.nextElementSibling;
-        if (next && next.classList.contains('expanded-row')) { next.remove(); return; }
-        document.querySelectorAll('#student-list-body .expanded-row').forEach(r => r.remove());
-        const progressDocRef = doc(db, `/artifacts/${appId}/users/${uid}/progress/googleWorkspace`);
-        let sessionsList = [];
-        try {
-          const snap = await getDoc(progressDocRef);
-          const completed = snap.exists() && snap.data().completedSessions ? snap.data().completedSessions : [];
-          sessionsList = completed.map(id => sessionMap.get(id) || id);
-        } catch (e) { console.warn('Could not fetch progress', uid, e); }
-        const expandedRow = document.createElement('tr');
-        expandedRow.classList.add('expanded-row');
-        expandedRow.innerHTML = `<td colspan="3" class="px-4 py-3"><strong class="block mb-2">Completed Sessions (${sessionsList.length}):</strong><ul class="list-disc ml-6">${sessionsList.length ? sessionsList.map(s => `<li>${s}</li>`).join('') : '<li>None</li>'}</ul></td>`;
-        row.after(expandedRow);
-      });
-    });
-  }
-
-  DOM.adminSearchInput?.addEventListener('input', (e) => {
-    const q = (e.target.value || '').toLowerCase().trim();
-    const filtered = allStudentsData.filter(s => (s.email || '').toLowerCase().includes(q) || (s.fullName || s.displayName || '').toLowerCase().includes(q));
-    renderStudentList(filtered);
-  });
-
-  DOM.exportCsvBtn?.addEventListener('click', () => {
-    let csv = "data:text/csv;charset=utf-8,Email,Name,Completed Sessions,Total Sessions,Progress (%)\r\n";
-    const shown = allStudentsData.filter(s => (s.email || '').toLowerCase().includes((DOM.adminSearchInput.value || '').toLowerCase().trim()) || (s.fullName || s.displayName || '').toLowerCase().includes((DOM.adminSearchInput.value || '').toLowerCase().trim()));
-    shown.forEach(s => {
-      const completedCount = (s.completedSessions || []).length;
-      const pct = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
-      const titles = (s.completedSessions || []).map(id => sessionMap.get(id) || id).join('; ');
-      csv += `"${s.email}","${(s.fullName || s.displayName || '').replace(/"/g,'""')}",${completedCount},${totalSessions},${pct},"${titles.replace(/"/g,'""')}"\r\n`;
-    });
-    const link = document.createElement('a');
-    link.setAttribute('href', encodeURI(csv));
-    link.setAttribute('download', 'student_progress.csv');
-    document.body.appendChild(link); link.click(); document.body.removeChild(link);
-  });
-
-  // ---------- AUTH UI controls (register includes full name) ----------
-  function updateAuthView(newMode) {
-    authMode = newMode;
-    DOM.authError.textContent = '';
-    DOM.authForm.email.parentElement.classList.remove('rounded-b-md');
-    if (authMode === 'signIn') {
-      DOM.authTitle.textContent = 'Sign in to your account';
-      DOM.passwordContainer.style.display = 'block';
-      DOM.authSubmitBtn.textContent = 'Sign In';
-      DOM.authToggleLink.textContent = "Don't have an account? Register";
-      DOM.forgotPasswordWrapper.style.display = 'flex';
-      DOM.nameContainer.classList.add('hidden');
-    } else if (authMode === 'register') {
-      DOM.authTitle.textContent = 'Create an account';
-      DOM.passwordContainer.style.display = 'block';
-      DOM.authSubmitBtn.textContent = 'Register';
-      DOM.authToggleLink.textContent = 'Already have an account? Sign in';
-      DOM.forgotPasswordWrapper.style.display = 'none';
-      DOM.nameContainer.classList.remove('hidden');
-    } else if (authMode === 'reset') {
-      DOM.authTitle.textContent = 'Reset your password';
-      DOM.passwordContainer.style.display = 'none';
-      DOM.authSubmitBtn.textContent = 'Send Reset Link';
-      DOM.authToggleLink.textContent = 'Back to Sign In';
-      DOM.forgotPasswordWrapper.style.display = 'none';
-      DOM.nameContainer.classList.add('hidden');
-    }
-  }
-
-  DOM.authToggleLink.addEventListener('click', e => { e.preventDefault(); const newMode = (authMode === 'signIn' || authMode === 'reset') ? 'register' : 'signIn'; updateAuthView(newMode); });
-  DOM.forgotPasswordLink.addEventListener('click', e => { e.preventDefault(); updateAuthView('reset'); });
-
-  DOM.authForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    DOM.authError.textContent = '';
-    const email = DOM.authForm.email.value;
-    const password = DOM.authForm.password.value;
-    const fullName = (DOM.fullNameInput && DOM.fullNameInput.value) ? DOM.fullNameInput.value.trim() : '';
+  async function loadProgress(cid) {
     try {
-      if (authMode === 'register') {
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
-        const uid = cred.user.uid;
-        await setDoc(doc(db, "users", uid), {
-          email,
-          uid,
-          fullName: fullName || '',
-          displayName: fullName || '',
-          createdAt: serverTimestamp()
-        }, { merge: true });
-      } else if (authMode === 'signIn') {
-        await signInWithEmailAndPassword(auth, email, password);
-      } else if (authMode === 'reset') {
-        await sendPasswordResetEmail(auth, email);
-        DOM.authError.classList.remove('text-red-500'); DOM.authError.classList.add('text-green-600');
-        DOM.authError.textContent = 'Success! If an account exists for this email, a reset link has been sent.';
-      }
-    } catch (err) {
-      console.error('Auth error', err);
-      DOM.authError.classList.add('text-red-500');
-      DOM.authError.textContent = err.message.replace('Firebase: ', '');
-    }
+      const p = await getDoc(progressRef(S.user.uid, cid));
+      S.progress.set(cid, new Set(p.exists() ? (p.data().completedSessions || []) : []));
+    } catch (e) { console.warn('progress load', cid, e); S.progress.set(cid, new Set()); }
+    return S.progress.get(cid);
+  }
+
+  // ================= SIDEBAR =================
+  function paintSide() {
+    const name = myName();
+    $('#side-avatar').textContent = initials(name);
+    $('#m-avatar').textContent = initials(name);
+    $('#side-name').textContent = name;
+    $('#side-email').textContent = S.user.email || '';
+    const h = location.hash || '#/';
+    const links = S.isAdmin
+      ? [['#/admin', 'Courses', I.grid, h === '#/' || h === '#/admin' || h.startsWith('#/admin/course') || h.startsWith('#/course')], ['#/admin/students', 'Students', I.people, h.startsWith('#/admin/students')]]
+      : [['#/', 'Dashboard', I.home, h === '#/' || h === '' || h === '#'], [COMMUNITY_LINK, 'Alumni community', I.people, false, true]];
+    $('#side-nav').innerHTML = links.map(([href, label, icon, active, ext]) =>
+      `<a href="${esc(href)}" ${ext ? 'target="_blank" rel="noopener"' : ''} ${active ? 'aria-current="page"' : ''}>${icon}<span>${esc(label)}</span>${ext ? `<span style="margin-left:auto;opacity:.5;display:flex">${I.ext}</span>` : ''}</a>`).join('');
+    const courses = sortedCourses();
+    $('#side-courses').innerHTML = courses.length ? `<div class="side-label">${S.isAdmin ? 'All courses' : 'My courses'}</div>` + courses.map(c => {
+      const target = S.isAdmin ? `#/admin/course/${encodeURIComponent(c.id)}` : courseHref(c.id);
+      const cur = h.includes(`/${encodeURIComponent(c.id)}`) ? 'aria-current="page"' : '';
+      const right = S.isAdmin ? (c.published === false ? 'Hidden' : '') : courseStats(c, S.progress.get(c.id)).pct + '%';
+      return `<a class="side-course" href="${target}" ${cur} style="--c:${esc(c.accent || ACCENTS[0])}"><span class="dot"></span><span class="t">${esc(c.title)}</span><span class="p">${right}</span></a>`;
+    }).join('') : '';
+  }
+  const side = $('#side'), scrim = $('#scrim'), menuBtn = $('#menu-btn');
+  function setMenu(open) { side.classList.toggle('open', open); scrim.hidden = !open; menuBtn.setAttribute('aria-expanded', String(open)); }
+  menuBtn.addEventListener('click', () => setMenu(!side.classList.contains('open')));
+  scrim.addEventListener('click', () => setMenu(false));
+  side.addEventListener('click', (e) => {
+    const a = e.target.closest('[data-action], a'); if (!a) return;
+    setMenu(false);
+    if (a.dataset.action === 'sign-out') signOut(auth);
+    if (a.dataset.action === 'edit-profile') openProfileModal();
   });
 
-  // sign out
-  document.getElementById('sign-out-btn').addEventListener('click', () => signOut(auth));
-  document.getElementById('admin-sign-out-btn').addEventListener('click', () => signOut(auth));
-
-  // video modal
-  function openVideoModal(videoId) {
-  if (!videoId) return;
-  
-  const videoSrc = videoId.includes('http') 
-    ? videoId 
-    : `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-  
-  DOM.videoPlayer.innerHTML = `<iframe src="${videoSrc}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-  DOM.videoModal.style.display = 'flex';
-}
-
-  function closeVideoModal() { DOM.videoModal.style.display = 'none'; DOM.videoPlayer.innerHTML = ''; }
-  DOM.closeVideoModal.addEventListener('click', closeVideoModal);
-
-  // ---------- COMMENTS ----------
-  function openCommentsModal(sessionId, sessionTitle) {
-    if (!db || !currentUser) return;
-    DOM.commentModalTitle.textContent = `Comments for: ${sessionTitle}`;
-    DOM.commentForm.dataset.sessionId = sessionId;
-    DOM.commentsContainer.innerHTML = '<p class="text-gray-500 text-center">Loading comments...</p>';
-    DOM.commentsModal.style.display = 'flex';
-    if (unsubscribeComments) unsubscribeComments();
-    const commentsColRef = collection(db, `/artifacts/${appId}/public/data/comments/${sessionId}/messages`);
-    const q = query(commentsColRef);
-    unsubscribeComments = onSnapshot(q, snapshot => {
-      const arr = [];
-      snapshot.forEach(d => arr.push({ id: d.id, ...(d.data() || {}) }));
-      arr.sort((a,b) => (a.timestamp?.toDate?.() || 0) - (b.timestamp?.toDate?.() || 0));
-      renderComments(arr);
-    }, err => {
-      console.error('Comments fetch error', err);
-      DOM.commentsContainer.innerHTML = '<p class="text-red-500 text-center">Could not load comments.</p>';
-    });
-  }
-
-  function closeCommentsModal() {
-    if (unsubscribeComments) unsubscribeComments();
-    unsubscribeComments = null;
-    DOM.commentsModal.style.display = 'none';
-    DOM.commentForm.reset();
-  }
-  DOM.closeCommentsModal.addEventListener('click', closeCommentsModal);
-
-  async function renderComments(comments) {
-    if (!comments || comments.length === 0) {
-      DOM.commentsContainer.innerHTML = '<p class="text-gray-500 text-center">No comments yet.</p>';
-      return;
+  // ================= ROUTER =================
+  let lastHash = location.hash;
+  window.addEventListener('hashchange', () => {
+    if (S.draftDirty && lastHash.startsWith('#/admin/course/') && location.hash !== lastHash) {
+      if (!confirm('You have unsaved changes to this course. Leave without saving?')) { history.replaceState(null, '', lastHash); return; }
+      S.draftDirty = false;
     }
-    // fetch missing users
-    const missing = [];
-    for (const c of comments) if (c.userId && !commentUserCache[c.userId]) missing.push(c.userId);
-    const uniqueMissing = [...new Set(missing)];
-    await Promise.all(uniqueMissing.map(async uid => {
-      try {
-        const uSnap = await getDoc(doc(db, "users", uid));
-        if (uSnap.exists()) commentUserCache[uid] = { displayName: uSnap.data().displayName || uSnap.data().fullName || uSnap.data().email || `User-${uid.slice(-6)}` };
-        else commentUserCache[uid] = { displayName: `User-${uid.slice(-6)}` };
-      } catch (err) {
-        console.warn('Could not load commenter profile', uid, err);
-        commentUserCache[uid] = { displayName: `User-${uid.slice(-6)}` };
-      }
-    }));
+    lastHash = location.hash;
+    route();
+  });
+  window.addEventListener('beforeunload', (e) => { if (S.draftDirty) { e.preventDefault(); e.returnValue = ''; } });
 
-    const html = comments.map(c => {
-      const isMe = c.userId === currentUser.uid;
-      const profile = commentUserCache[c.userId] || { displayName: isMe ? 'You' : `User-${(c.userId||'').slice(-6)}` };
-      const initials = getInitials(profile.displayName || '');
-      const date = c.timestamp ? (c.timestamp.toDate ? c.timestamp.toDate().toLocaleString() : c.timestamp.toString()) : 'Just now';
-      return `<div class="p-3 rounded-lg ${isMe ? 'bg-brand-brown text-white' : 'bg-gray-100'}">
-        <div class="flex items-center gap-3 mb-2">
-          <div class="avatar-initials">${initials}</div>
-          <div class="flex-1">
-            <div class="flex justify-between items-center">
-              <div class="text-xs font-bold truncate">${isMe ? 'You' : profile.displayName}</div>
-              <div class="${isMe ? 'text-gray-200 text-xs' : 'text-gray-500 text-xs'}">${date}</div>
-            </div>
+  function route() {
+    setMenu(false);
+    if (S.unsubComments) { S.unsubComments(); S.unsubComments = null; }
+    window.scrollTo(0, 0);
+    if (!S.user) return renderLogin();
+    paintSide();
+    const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
+    if (parts[0] === 'course' && parts[1]) return renderCourse(parts[1], parts[2]);
+    if (S.isAdmin) {
+      if (parts[0] === 'admin' && parts[1] === 'students') return renderStudents();
+      if (parts[0] === 'admin' && parts[1] === 'course' && parts[2]) return renderEditor(parts[2]);
+      return renderAdminCourses();
+    }
+    return renderDashboard();
+  }
+
+  // ================= LOGIN =================
+  const AUTH_ERRORS = {
+    'auth/invalid-credential': 'That email and password don’t match. Check them, or reset your password.',
+    'auth/wrong-password': 'That email and password don’t match. Check them, or reset your password.',
+    'auth/user-not-found': 'That email and password don’t match. Check them, or reset your password.',
+    'auth/invalid-email': 'Enter a valid email address.',
+    'auth/user-disabled': `This account has been turned off. Email ${SUPPORT_EMAIL} for help.`,
+    'auth/too-many-requests': 'Too many attempts. Wait a few minutes, or reset your password.',
+    'auth/network-request-failed': 'You appear to be offline. Check your connection and try again.',
+  };
+
+  function renderLogin(mode = 'signIn') {
+    const reset = mode === 'reset';
+    $('#auth-root').innerHTML = `
+      <section class="auth">
+        <div class="auth-panel">
+          <img class="logo" src="IMG/fth-logo-light.png" alt="First Tech Hub Solutions">
+          <div>
+            <h1 class="auth-hero">Empower. Learn. <em>Grow.</em></h1>
+            <p class="lede">Your First Tech Hub courses in one place: video lessons, weekly assessments and a community that keeps you going.</p>
+          </div>
+          <div class="auth-stats">
+            <div class="auth-stat"><strong>Learn at your pace</strong><span>New sessions every week</span></div>
+            <div class="auth-stat"><strong>Track progress</strong><span>Across every course</span></div>
+            <div class="auth-stat"><strong>Ask questions</strong><span>Under each session</span></div>
           </div>
         </div>
-        <p class="text-sm break-words">${(c.text||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>
+        <div class="auth-form-wrap">
+          <form id="auth-form" class="auth-form" novalidate>
+            <img class="m-logo" src="IMG/fth-logo.png" alt="First Tech Hub Solutions">
+            <div>
+              <h2>${reset ? 'Reset your password' : 'Welcome back'}</h2>
+              <p class="muted" style="margin-top:.4rem">${reset ? 'We’ll email you a link to set a new password.' : 'Sign in with the email you enrolled with.'}</p>
+            </div>
+            <label class="field"><span>Email address</span><input type="email" name="email" autocomplete="email" placeholder="you@example.com" required></label>
+            ${reset ? '' : `
+            <label class="field"><span>Password</span>
+              <div class="pw-wrap"><input type="password" name="password" autocomplete="current-password" required>
+              <button type="button" class="pw-toggle" aria-pressed="false">Show</button></div>
+            </label>`}
+            <div class="row between">
+              ${reset ? '<button type="button" class="linkish" data-mode="signIn">Back to sign in</button>' : '<span></span><button type="button" class="linkish" data-mode="reset">Forgot password?</button>'}
+            </div>
+            <p id="auth-msg" class="form-msg" role="alert"></p>
+            <button class="btn btn-primary btn-block" type="submit" style="min-height:50px">${reset ? 'Send reset link' : 'Sign in'}</button>
+            <p class="auth-note">Access is for enrolled students only. Registered for a programme but can’t get in? Email <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>.</p>
+          </form>
+        </div>
+      </section>`;
+    const form = $('#auth-form'), msg = $('#auth-msg');
+    $$('[data-mode]', form).forEach(b => b.addEventListener('click', () => renderLogin(b.dataset.mode)));
+    $('.pw-toggle', form)?.addEventListener('click', (e) => {
+      const inp = form.password, show = inp.type === 'password';
+      inp.type = show ? 'text' : 'password';
+      e.currentTarget.textContent = show ? 'Hide' : 'Show';
+      e.currentTarget.setAttribute('aria-pressed', String(show));
+    });
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.className = 'form-msg'; msg.textContent = '';
+      const email = form.email.value.trim();
+      if (!email) { msg.className = 'form-msg is-error'; msg.textContent = 'Enter your email address.'; return; }
+      const btn = form.querySelector('[type=submit]'); btn.disabled = true;
+      try {
+        if (reset) {
+          await sendPasswordResetEmail(auth, email);
+          msg.className = 'form-msg is-ok';
+          msg.textContent = 'If that email is enrolled, a reset link is on its way. Check your spam folder too.';
+        } else {
+          await signInWithEmailAndPassword(auth, email, form.password.value);
+        }
+      } catch (err) {
+        msg.className = 'form-msg is-error';
+        msg.textContent = reset && err.code === 'auth/user-not-found'
+          ? 'If that email is enrolled, a reset link is on its way.'
+          : (AUTH_ERRORS[err.code] || 'Something went wrong. Try again in a moment.');
+      } finally { btn.disabled = false; }
+    });
+    form.email.focus();
+  }
+
+  // ================= STUDENT DASHBOARD =================
+  function courseCard(c) {
+    const done = S.progress.get(c.id) || new Set();
+    const st = courseStats(c, done);
+    const nx = nextUp(c, done);
+    const cta = st.done === 0 ? 'Start course' : st.done === st.total ? 'Review course' : 'Continue';
+    const target = courseHref(c.id, nx?.s.id);
+    return `
+      <article class="ccard">
+        ${thumbHTML(c, { href: target, extra: `<span class="badge">${plural((c.weeks || []).length, 'week')}, ${plural(st.total, 'session')}</span><span class="ring-wrap">${ring(st.pct, 58, 6)}</span>` })}
+        <div class="ccard-body">
+          <h3><a href="${target}">${esc(c.title)}</a></h3>
+          ${c.description ? `<p class="muted clamp small">${esc(c.description)}</p>` : ''}
+          <div class="spacer"></div>
+          ${nx && st.done < st.total ? `<p class="next">Up next: <b>Session ${nx.n}, ${esc(nx.s.title)}</b></p>` : ''}
+          <div class="row between">
+            <span class="small muted">${st.done} of ${st.total} complete</span>
+            <a class="btn btn-primary btn-sm" href="${target}">${cta}</a>
+          </div>
+        </div>
+      </article>`;
+  }
+
+  function renderDashboard() {
+    const courses = sortedCourses();
+    const first = myName().split(' ')[0];
+    const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    // Resume the course with the most recent unfinished progress, else the first course
+    let resume = null;
+    for (const c of courses) {
+      const done = S.progress.get(c.id) || new Set(), st = courseStats(c, done), nx = nextUp(c, done);
+      if (nx && st.done < st.total) { resume = { c, nx, st }; if (st.done > 0) break; }
+    }
+    const totalDone = courses.reduce((a, c) => a + courseStats(c, S.progress.get(c.id)).done, 0);
+    let nextUnlock = null;
+    courses.forEach(c => (c.weeks || []).forEach((w, wi) => { if (!weekOpen(w) && (!nextUnlock || parseDay(w.unlockDate) < parseDay(nextUnlock.w.unlockDate))) nextUnlock = { c, w, wi }; }));
+    const assessments = courses.reduce((a, c) => a + (c.weeks || []).filter(w => weekOpen(w) && safeUrl(w.assessmentLink)).length, 0);
+
+    appEl.innerHTML = `
+      <div class="page">
+        <header class="hello">
+          <div><p class="date">${esc(today)}</p><h1>Welcome back, ${esc(first)}</h1></div>
+        </header>
+        ${!courses.length ? `
+          <div class="empty">
+            <img src="IMG/fth-mark.png" alt="">
+            <h2>You’re not enrolled in a course yet</h2>
+            <p>Courses you’ve registered for with First Tech Hub will appear here. If you’ve paid and don’t see yours, get in touch and we’ll add it.</p>
+            <a class="btn btn-primary" href="mailto:${SUPPORT_EMAIL}">Email First Tech Hub</a>
+          </div>` : `
+          ${resume ? `
+          <section class="resume">
+            <div>
+              <span class="kicker">${resume.st.done ? 'Continue learning' : 'Ready to start'}</span>
+              <p class="course-name">${esc(resume.c.title)}</p>
+              <h2>${esc(resume.nx.s.title)}</h2>
+              <div class="meta"><span>Week ${resume.nx.wi + 1}, session ${resume.nx.n}</span><div class="pbar on-dark"><span style="width:${resume.st.pct}%"></span></div><span>${resume.st.pct}%</span></div>
+              <div class="acts">
+                <a class="btn btn-gold" href="${courseHref(resume.c.id, resume.nx.s.id)}">${I.play} ${resume.st.done ? 'Resume session' : 'Start first session'}</a>
+                <a class="btn btn-ghost-light" href="${courseHref(resume.c.id)}">Course outline</a>
+              </div>
+            </div>
+            ${thumbHTML(resume.c, { session: resume.nx.s, href: courseHref(resume.c.id, resume.nx.s.id), play: true })}
+          </section>` : ''}
+          <section class="stats">
+            <div class="stat"><span class="ic">${I.book}</span><div><strong>${courses.length}</strong><span>${courses.length === 1 ? 'Course enrolled' : 'Courses enrolled'}</span></div></div>
+            <div class="stat"><span class="ic green">${I.trophy}</span><div><strong>${totalDone}</strong><span>Sessions completed</span></div></div>
+            <div class="stat"><span class="ic gold">${nextUnlock ? I.calendar : I.task}</span><div>${nextUnlock
+              ? `<strong>${esc(fmtDay(nextUnlock.w.unlockDate))}</strong><span>Week ${nextUnlock.wi + 1} unlocks</span>`
+              : `<strong>${assessments}</strong><span>Assessments open</span>`}</div></div>
+          </section>
+          <div class="section-head"><h2>My courses</h2><span class="small muted">${plural(courses.length, 'course')}</span></div>
+          <section class="course-grid">${courses.map(courseCard).join('')}</section>`}
+        <section class="help">
+          <div class="help-tile">
+            <span class="ic">${I.task}</span>
+            <div><h3>Submitting assignments</h3><p>A short walkthrough of handing in your weekly assessment on Google Classroom.</p>
+            <button class="btn btn-outline btn-sm" id="tutorial-btn">${I.playO} Watch the walkthrough</button></div>
+          </div>
+          <div class="help-tile">
+            <span class="ic">${I.people}</span>
+            <div><h3>Alumni community</h3><p>Ask questions, share wins and meet other First Tech Hub learners on WhatsApp.</p>
+            <a class="btn btn-outline btn-sm" href="${COMMUNITY_LINK}" target="_blank" rel="noopener">Join the community ${I.ext}</a></div>
+          </div>
+        </section>
       </div>`;
+    $('#tutorial-btn').addEventListener('click', () => openVideoModal('Submitting assignments on Google Classroom', ASSIGNMENT_TUTORIAL_VIDEO));
+  }
+
+  // ================= COURSE PLAYER =================
+  async function renderCourse(courseId, sessionId) {
+    const course = S.courses.get(courseId);
+    if (!course) {
+      appEl.innerHTML = `<div class="page"><div class="empty"><img src="IMG/fth-mark.png" alt=""><h2>This course isn’t on your account</h2><p>You can only open courses you’ve registered for. If you think this is a mistake, email us.</p><a class="btn btn-primary" href="#/">Back to dashboard</a></div></div>`;
+      return;
+    }
+    if (!S.progress.has(courseId)) { appEl.innerHTML = '<div class="spinner"></div>'; await loadProgress(courseId); }
+    const all = sessionsOf(course);
+    if (!all.length) {
+      appEl.innerHTML = `<div class="page"><div class="empty"><img src="IMG/fth-mark.png" alt=""><h2>No sessions yet</h2><p>This course doesn’t have any sessions yet.</p><a class="btn btn-primary" href="${S.isAdmin ? `#/admin/course/${encodeURIComponent(courseId)}` : '#/'}">${S.isAdmin ? 'Add sessions' : 'Back to dashboard'}</a></div></div>`;
+      return;
+    }
+    const done = S.progress.get(courseId);
+    const cur = all.find(x => x.s.id === sessionId) || nextUp(course, done) || all[0];
+    const unlocked = weekOpen(cur.week);
+    const vid = videoInfo(cur.s.video);
+
+    appEl.innerHTML = `
+      <div class="page">
+        <section class="cbanner" style="--c:${esc(course.accent || ACCENTS[0])}">
+          <a class="back" href="${S.isAdmin ? '#/admin' : '#/'}">${I.back} ${S.isAdmin ? 'Back to courses' : 'Dashboard'}</a>
+          <div class="cbanner-row">
+            <h1>${esc(course.title)}</h1>
+            <div class="row wrap" style="gap:14px">
+              <div class="prog"><span id="hp-ring"></span><div><b id="hp-count"></b><span>sessions complete</span></div></div>
+              ${safeUrl(course.resourcesLink) ? `<a class="btn btn-ghost-light btn-sm" href="${esc(safeUrl(course.resourcesLink))}" target="_blank" rel="noopener">${I.folder} Resources</a>` : ''}
+            </div>
+          </div>
+        </section>
+        <div class="course-layout">
+          <section class="lesson-main" aria-label="Current session">
+            <div class="player">
+              ${!unlocked ? `<div class="player-msg"><div><span class="lk">${I.lock}</span><h3>Week ${cur.wi + 1} opens ${esc(fmtDay(cur.week.unlockDate))}</h3><p>This session will be ready to watch then.</p></div></div>`
+                : vid ? `<iframe src="${esc(vid.src)}" title="${esc(cur.s.title)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`
+                : `<div class="player-msg"><div><span class="lk">${I.playO}</span><h3>Video coming soon</h3><p>This session’s video hasn’t been added yet.</p></div></div>`}
+            </div>
+            <div class="lesson-card">
+              <div>
+                <p class="lesson-kicker">Week ${cur.wi + 1}, session ${cur.n} of ${all.length}</p>
+                <h2>${esc(cur.s.title)}</h2>
+              </div>
+              <div class="lesson-actions" id="lesson-actions"></div>
+            </div>
+          </section>
+          <aside class="outline" id="outline" aria-label="Course outline"></aside>
+          <section class="talk" id="talk" aria-label="Discussion"></section>
+        </div>
+      </div>`;
+
+    const idx = all.indexOf(cur);
+    const prev = all[idx - 1], next = all[idx + 1];
+    const href = (x) => courseHref(courseId, x.s.id);
+
+    const paint = () => {
+      const st = courseStats(course, done);
+      $('#hp-ring').innerHTML = ring(st.pct, 54, 5, true);
+      $('#hp-count').textContent = `${st.done} of ${st.total}`;
+      const isDone = done.has(cur.s.id);
+      const nextOpen = next && weekOpen(next.week);
+      $('#lesson-actions').innerHTML = `
+        <a class="icon-btn" ${prev ? `href="${href(prev)}"` : 'aria-disabled="true"'} title="Previous session" aria-label="Previous session">${I.back}</a>
+        ${!unlocked ? '' : isDone
+          ? `<button class="btn btn-outline" data-act="undo" title="Mark as not complete">${I.check} Completed</button>`
+          : `<button class="btn btn-green" data-act="complete">${nextOpen ? 'Complete and continue' : 'Mark as complete'}</button>`}
+        <a class="icon-btn" ${next ? `href="${href(next)}"` : 'aria-disabled="true"'} title="Next session" aria-label="Next session">${I.next}</a>`;
+      $('#outline').innerHTML = outlineHTML(course, done, cur, courseId);
+      if (!S.isAdmin) paintSide();
+    };
+    paint();
+
+    $('#lesson-actions').addEventListener('click', async (e) => {
+      const b = e.target.closest('button[data-act]'); if (!b) return;
+      b.disabled = true;
+      const completing = b.dataset.act === 'complete';
+      try {
+        await setDoc(progressRef(S.user.uid, courseId), {
+          completedSessions: completing ? arrayUnion(cur.s.id) : arrayRemove(cur.s.id),
+          lastSession: cur.s.id, updatedAt: serverTimestamp()
+        }, { merge: true });
+        completing ? done.add(cur.s.id) : done.delete(cur.s.id);
+        if (completing && next && weekOpen(next.week)) { toast('Session complete'); location.hash = href(next); return; }
+        if (completing) toast(next ? 'Session complete. The next week unlocks soon.' : 'Session complete. You’ve finished the course!');
+        paint();
+      } catch (err) {
+        console.error(err); b.disabled = false;
+        toast('Your progress didn’t save. Check your connection and try again.', 'error');
+      }
+    });
+
+    renderTalk(courseId, cur, unlocked);
+  }
+
+  function outlineHTML(course, done, cur, courseId) {
+    let n = 0;
+    const weeks = (course.weeks || []).map((w, wi) => {
+      const open = weekOpen(w);
+      const ids = (w.sessions || []).map(s => s.id);
+      const wDone = ids.filter(id => done.has(id)).length;
+      const items = (w.sessions || []).map(s => {
+        n++;
+        const cls = ['sess', done.has(s.id) && 'is-done', s.id === cur.s.id && 'is-current', !open && 'is-locked'].filter(Boolean).join(' ');
+        const mark = done.has(s.id) ? I.check : !open ? I.lock : n;
+        return `<li><a class="${cls}" href="${courseHref(courseId, s.id)}" ${s.id === cur.s.id ? 'aria-current="true"' : ''}><span class="mark">${mark}</span><span class="sess-t">${esc(s.title)}</span></a></li>`;
+      }).join('');
+      const assess = safeUrl(w.assessmentLink);
+      const pct = ids.length ? Math.round(wDone * 100 / ids.length) : 0;
+      return `
+        <details class="wk" ${wi === cur.wi ? 'open' : ''}>
+          <summary>
+            <div>
+              <span class="wk-num">Week ${wi + 1}</span>
+              <span class="wk-title">${esc(w.title || 'Untitled week')}</span>
+              <span class="wk-sub ${open ? '' : 'is-locked'}">${open ? `<span class="pbar"><span style="width:${pct}%"></span></span>${wDone} of ${ids.length} done` : `${I.lock.replace('<svg', '<svg width="13" height="13"')} Opens ${esc(fmtDay(w.unlockDate))}`}</span>
+            </div>${I.chev}
+          </summary>
+          <ol class="sess-list">${items}</ol>
+          ${assess ? `<a class="wk-assess ${open ? '' : 'is-locked'}" href="${open ? esc(assess) : '#'}" target="_blank" rel="noopener" ${open ? '' : 'aria-disabled="true" tabindex="-1"'}>${open ? I.task : I.lock} Week ${wi + 1} assessment${open ? `<span style="margin-left:auto;display:flex">${I.ext}</span>` : ''}</a>` : ''}
+        </details>`;
     }).join('');
-    DOM.commentsContainer.innerHTML = html;
-    DOM.commentsContainer.scrollTop = DOM.commentsContainer.scrollHeight;
+    return `<div class="outline-head"><h2>Course outline</h2><span class="small muted">${plural(sessionsOf(course).length, 'session')}</span></div>${weeks}`;
   }
 
-  DOM.commentForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!db || !currentUser) return;
-    const sessionId = e.target.dataset.sessionId;
-    const text = (DOM.commentInput.value || '').trim();
-    if (!text) return;
-    try {
-      await addDoc(collection(db, `/artifacts/${appId}/public/data/comments/${sessionId}/messages`), { text, userId: currentUser.uid, timestamp: serverTimestamp() });
-      DOM.commentForm.reset();
-    } catch (err) {
-      console.error('Error adding comment', err);
-    }
-  });
-
-  // ---------- EDIT PROFILE (STUDENT) ----------
-  function openEditProfileModalStudent() {
-    if (!currentUser) return;
-    DOM.studentEditMsg.textContent = '';
-    DOM.editProfileModalStudent.style.display = 'flex';
-    (async () => {
+  // ---------- Discussion ----------
+  function renderTalk(courseId, cur, unlocked) {
+    const talk = $('#talk');
+    if (!unlocked) { talk.innerHTML = `<h3>Discussion</h3><p class="muted" style="margin-top:.4rem">Comments open when this week unlocks.</p>`; return; }
+    talk.innerHTML = `
+      <div class="row between"><h3>Discussion</h3><span class="small muted" id="c-count"></span></div>
+      <div class="comment-list" id="comment-list"><p class="muted">Loading comments…</p></div>
+      <form class="comment-form" id="comment-form">
+        <label class="field"><span class="visually-hidden">Your comment</span>
+          <textarea name="text" maxlength="2000" placeholder="Ask a question or share a tip about this session" required></textarea></label>
+        <div class="row between"><span class="small muted">Posting as ${esc(myName())}</span><button class="btn btn-primary btn-sm" type="submit">Post comment</button></div>
+      </form>`;
+    const key = commentKey(courseId, cur.s.id);
+    const col = collection(db, 'artifacts', APP_ID, 'public', 'data', 'comments', key, 'messages');
+    S.unsubComments = onSnapshot(col, async (snap) => {
+      const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      list.sort((a, b) => (a.timestamp?.toMillis?.() ?? Date.now()) - (b.timestamp?.toMillis?.() ?? Date.now()));
+      await resolveNames(list);
+      paintComments(list, col);
+    }, (err) => {
+      console.error(err);
+      const el = $('#comment-list'); if (el) el.innerHTML = '<p class="muted">Comments couldn’t load right now.</p>';
+    });
+    $('#comment-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.currentTarget, text = f.text.value.trim();
+      if (!text) return;
+      const btn = f.querySelector('button'); btn.disabled = true;
       try {
-        const uSnap = await getDoc(doc(db, "users", currentUser.uid));
-        const data = uSnap.exists() ? uSnap.data() : {};
-        const display = data.displayName || data.fullName || currentUser.displayName || '';
-        DOM.studentEditDisplayname.value = display;
-        DOM.studentModalDisplayname.textContent = display || 'Student';
-        DOM.studentModalEmail.textContent = currentUser.email || '';
-        DOM.studentModalInitials.textContent = getInitials(display || currentUser.email || '');
-      } catch (err) {
-        console.warn('Could not load profile into modal', err);
-      }
-    })();
+        await addDoc(col, { text, userId: S.user.uid, userName: myName(), timestamp: serverTimestamp() });
+        f.reset();
+      } catch (err) { console.error(err); toast('Your comment didn’t post. Try again.', 'error'); }
+      finally { btn.disabled = false; }
+    });
   }
 
-  DOM.editProfileLink?.addEventListener('click', (e) => { e.preventDefault(); openEditProfileModalStudent(); DOM.menuItems.classList.add('hidden'); });
-  DOM.closeEditProfileModalStudent?.addEventListener('click', () => { DOM.editProfileModalStudent.style.display = 'none'; });
-  DOM.studentCancelEdit?.addEventListener('click', () => { DOM.editProfileModalStudent.style.display = 'none'; });
+  async function resolveNames(list) {
+    const missing = [...new Set(list.filter(c => !c.userName && c.userId && !nameCache.has(c.userId)).map(c => c.userId))];
+    await Promise.all(missing.map(async (uid) => {
+      try { const p = await getDoc(doc(db, 'profiles', uid)); nameCache.set(uid, p.exists() ? p.data().displayName : ''); }
+      catch { nameCache.set(uid, ''); }
+    }));
+  }
 
-  DOM.studentEditForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!currentUser) return;
-    DOM.studentEditMsg.textContent = '';
-    const uid = currentUser.uid;
-    const newDisplay = (DOM.studentEditDisplayname.value || '').trim();
-    try {
-      const uDocRef = doc(db, "users", uid);
-      const updateObj = {};
-      if (newDisplay) updateObj.displayName = newDisplay;
-      if (Object.keys(updateObj).length) await updateDoc(uDocRef, updateObj);
-      // also update Auth profile so firebase.auth().currentUser.displayName matches
-      try { await updateProfile(currentUser, { displayName: newDisplay }); } catch(_) {}
-      const updatedSnap = await getDoc(uDocRef);
-      const updated = updatedSnap.exists() ? updatedSnap.data() : {};
-      const displayToShow = updated.displayName || newDisplay || currentUser.displayName || '';
-      setInitialsUI(displayToShow, DOM.userInitials);
-      DOM.userName.textContent = displayToShow;
-      DOM.studentModalDisplayname.textContent = displayToShow;
-      DOM.studentModalInitials.textContent = getInitials(displayToShow || currentUser.email || '');
-      DOM.studentEditMsg.textContent = 'Saved.';
-      setTimeout(() => { DOM.editProfileModalStudent.style.display = 'none'; DOM.studentEditMsg.textContent = ''; }, 700);
-    } catch (err) {
-      console.error('Error saving displayName (student)', err);
-      DOM.studentEditMsg.textContent = 'Could not save profile.';
-    }
-  });
+  function paintComments(list, col) {
+    const el = $('#comment-list'); if (!el) return;
+    const cc = $('#c-count'); if (cc) cc.textContent = list.length ? plural(list.length, 'comment') : '';
+    if (!list.length) { el.innerHTML = '<p class="muted">No comments yet. Questions about this session? Start the conversation.</p>'; return; }
+    el.innerHTML = list.map(c => {
+      const me = c.userId === S.user.uid;
+      const name = me ? 'You' : (c.userName || nameCache.get(c.userId) || 'Student');
+      const when = c.timestamp?.toDate ? c.timestamp.toDate().toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Just now';
+      return `<div class="comment ${me ? 'is-me' : ''}">
+        <span class="avatar sm ${me ? '' : 'plain'}">${esc(initials(me ? myName() : name))}</span>
+        <div class="comment-body">
+          <div class="comment-meta"><strong>${esc(name)}</strong><span>${esc(when)}</span>
+            ${me || S.isAdmin ? `<button class="comment-del" data-del="${esc(c.id)}">Delete</button>` : ''}</div>
+          <p class="comment-text">${esc(c.text)}</p>
+        </div></div>`;
+    }).join('');
+    $$('[data-del]', el).forEach(b => b.addEventListener('click', async () => {
+      if (!confirm('Delete this comment?')) return;
+      try { await deleteDoc(doc(col, b.dataset.del)); } catch (e) { console.error(e); toast('That comment couldn’t be deleted.', 'error'); }
+    }));
+  }
 
-  // ---------- EDIT PROFILE (ADMIN) ----------
-  function openEditProfileModalAdmin() {
-    if (!currentUser) return;
-    DOM.adminEditMsg.textContent = '';
-    DOM.editProfileModalAdmin.style.display = 'flex';
-    (async () => {
+  // ================= MODALS =================
+  function openModal({ title, body, foot = '', wide = false, onClose }) {
+    const root = $('#modal-root');
+    const prevFocus = document.activeElement;
+    root.innerHTML = `
+      <div class="modal-back">
+        <div class="modal ${wide ? 'wide' : ''}" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+          <div class="modal-head"><h2 id="modal-title">${esc(title)}</h2><button class="icon-btn" data-close aria-label="Close">${I.close}</button></div>
+          <div class="modal-body">${body}</div>
+          ${foot ? `<div class="modal-foot">${foot}</div>` : ''}
+        </div>
+      </div>`;
+    const back = $('.modal-back', root);
+    const close = () => { root.innerHTML = ''; document.removeEventListener('keydown', onKey); onClose?.(); prevFocus?.focus?.(); };
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    document.addEventListener('keydown', onKey);
+    back.addEventListener('mousedown', (e) => { if (e.target === back) close(); });
+    $$('[data-close]', root).forEach(b => b.addEventListener('click', close));
+    setTimeout(() => ($('input:not([type=hidden]):not([type=checkbox]), textarea, select', root) || $('[data-close]', root))?.focus(), 30);
+    return { el: $('.modal', root), close };
+  }
+
+  function openVideoModal(title, video) {
+    const v = videoInfo(video);
+    openModal({ title, wide: true, body: `<div class="player">${v ? `<iframe src="${esc(v.src)}${v.kind === 'YouTube' ? '&autoplay=1' : ''}" title="${esc(title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>` : ''}</div>` });
+  }
+
+  function openProfileModal() {
+    const { el, close } = openModal({
+      title: 'Edit profile',
+      body: `
+        <div class="row"><span class="avatar lg" id="pm-av">${esc(initials(myName()))}</span><div><strong>${esc(myName())}</strong><div class="small muted">${esc(S.user.email)}</div></div></div>
+        <form id="pm-form" class="field" style="gap:.8rem">
+          <label class="field"><span>Display name</span><input name="name" value="${esc(myName())}" maxlength="80" required></label>
+          <p class="small muted">This is the name other students see on your comments.</p>
+          <p class="form-msg" id="pm-msg"></p>
+        </form>`,
+      foot: `<button class="btn btn-quiet" data-close>Cancel</button><button class="btn btn-primary" form="pm-form" type="submit">Save changes</button>`
+    });
+    $('input', el).addEventListener('input', (e) => $('#pm-av').textContent = initials(e.target.value));
+    $('#pm-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = e.currentTarget.name.value.trim();
+      const msg = $('#pm-msg');
+      if (!name) { msg.className = 'form-msg is-error'; msg.textContent = 'Enter a display name.'; return; }
       try {
-        const uSnap = await getDoc(doc(db, "users", currentUser.uid));
-        const data = uSnap.exists() ? uSnap.data() : {};
-        const display = data.displayName || data.fullName || currentUser.displayName || '';
-        DOM.adminEditDisplayname.value = display;
-        DOM.adminModalDisplayname.textContent = display || 'Admin';
-        DOM.adminModalEmail.textContent = currentUser.email || '';
-        DOM.adminModalInitials.textContent = getInitials(display || currentUser.email || '');
-      } catch (err) {
-        console.warn('Could not load admin profile into modal', err);
-      }
-    })();
+        await updateDoc(doc(db, 'users', S.user.uid), { displayName: name });
+        await setDoc(doc(db, 'profiles', S.user.uid), { displayName: name });
+        updateProfile(S.user, { displayName: name }).catch(() => {});
+        S.profile.displayName = name;
+        close(); toast('Profile saved');
+        route();
+      } catch (err) { console.error(err); msg.className = 'form-msg is-error'; msg.textContent = 'Your profile didn’t save. Try again.'; }
+    });
   }
 
-  DOM.editProfileLinkAdmin?.addEventListener('click', (e) => { e.preventDefault(); openEditProfileModalAdmin(); DOM.adminMenuItems.classList.add('hidden'); });
-  DOM.closeEditProfileModalAdmin?.addEventListener('click', () => { DOM.editProfileModalAdmin.style.display = 'none'; });
-  DOM.adminCancelEdit?.addEventListener('click', () => { DOM.editProfileModalAdmin.style.display = 'none'; });
+  // ================= ADMIN: DATA =================
+  async function ensureStudents(force = false) {
+    if (S.students && !force) return S.students;
+    const snap = await getDocs(collection(db, 'users'));
+    const list = snap.docs.map(d => ({ uid: d.id, ...d.data() }))
+      .filter(u => u.email && !ADMIN_EMAILS.includes(String(u.email).toLowerCase()))
+      .map(u => ({ ...u, courses: Array.isArray(u.courses) ? u.courses : [], progress: new Map() }));
+    await Promise.all(list.map(u => Promise.all(u.courses.filter(cid => S.courses.has(cid)).map(async (cid) => {
+      try { const p = await getDoc(progressRef(u.uid, cid)); u.progress.set(cid, new Set(p.exists() ? (p.data().completedSessions || []) : [])); }
+      catch { u.progress.set(cid, new Set()); }
+    }))));
+    list.sort((a, b) => studentName(a).localeCompare(studentName(b)));
+    S.students = list;
+    return list;
+  }
+  const studentName = (s) => s.displayName || s.fullName || s.email.split('@')[0];
+  const adminLoading = () => appEl.innerHTML = '<div class="spinner"></div>';
 
-  DOM.adminEditForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!currentUser) return;
-    DOM.adminEditMsg.textContent = '';
-    const uid = currentUser.uid;
-    const newDisplay = (DOM.adminEditDisplayname.value || '').trim();
+  // ================= ADMIN: COURSES =================
+  async function renderAdminCourses() {
+    adminLoading();
+    try { await ensureStudents(); } catch (e) { console.error(e); toast('Student data didn’t load. Check your Firestore rules.', 'error'); S.students = S.students || []; }
+    const courses = sortedCourses();
+    const missing = Object.keys(STARTERS).filter(id => !S.courses.has(id));
+    appEl.innerHTML = `
+      <div class="page">
+        <div class="page-head">
+          <div><h1>Courses</h1><p>${plural(courses.length, 'course')}, ${plural(S.students.length, 'student')}. Students only see the courses you give them access to.</p></div>
+          <a class="btn btn-primary" href="#/admin/course/new">${I.plus} New course</a>
+        </div>
+        ${missing.map(id => id === LEGACY_ID ? `
+          <div class="banner">
+            <div><h3>Bring over your Google Workspace course</h3>
+            <p>Imports the original 4-week course with its sessions, unlock dates and assessment links. Students keep their progress and comments.</p></div>
+            <button class="btn btn-gold" data-starter="${id}">Import course</button>
+          </div>` : `
+          <div class="banner">
+            <div><h3>Add ${esc(STARTERS[id].title)}</h3>
+            <p>Creates the course, hidden from students, so you can add its weeks, sessions and videos before anyone is enrolled.</p></div>
+            <button class="btn btn-gold" data-starter="${id}">Add course</button>
+          </div>`).join('')}
+        ${courses.length ? `<div class="admin-grid">${courses.map(c => {
+          const enrolled = S.students.filter(s => s.courses.includes(c.id));
+          const avg = enrolled.length ? Math.round(enrolled.reduce((a, s) => a + courseStats(c, s.progress.get(c.id)).pct, 0) / enrolled.length) : 0;
+          return `
+            <article class="acard">
+              ${thumbHTML(c, { extra: c.published === false ? '<span class="chip draft">Hidden from students</span>' : '<span class="chip live">Live</span>' })}
+              <div class="acard-body">
+                <div><h3>${esc(c.title)}</h3><p class="small muted">${plural((c.weeks || []).length, 'week')}, ${plural(sessionsOf(c).length, 'session')}</p></div>
+                <div class="kpis">
+                  <div class="kpi"><b>${enrolled.length}</b><span>Enrolled</span></div>
+                  <div class="kpi"><b>${enrolled.length ? avg + '%' : '–'}</b><span>Avg. progress</span></div>
+                  <div class="kpi"><b>${enrolled.filter(s => courseStats(c, s.progress.get(c.id)).pct === 100).length}</b><span>Finished</span></div>
+                </div>
+                <div class="acts">
+                  <a class="btn btn-outline btn-sm" href="${courseHref(c.id)}">Preview</a>
+                  <a class="btn btn-primary btn-sm" href="#/admin/course/${encodeURIComponent(c.id)}">Edit</a>
+                </div>
+              </div>
+            </article>`;
+        }).join('')}</div>` : ''}
+      </div>`;
+    $$('[data-starter]').forEach(b => b.addEventListener('click', () => b.dataset.starter === LEGACY_ID ? openImportModal() : addStarter(b.dataset.starter, b)));
+  }
+
+  async function addStarter(id, btn) {
+    btn.disabled = true;
     try {
-      const uDocRef = doc(db, "users", uid);
-      const updateObj = {};
-      if (newDisplay) updateObj.displayName = newDisplay;
-      if (Object.keys(updateObj).length) await updateDoc(uDocRef, updateObj);
-      try { await updateProfile(currentUser, { displayName: newDisplay }); } catch(_) {}
-      const updatedSnap = await getDoc(uDocRef);
-      const updated = updatedSnap.exists() ? updatedSnap.data() : {};
-      const displayToShow = updated.displayName || newDisplay || currentUser.displayName || '';
-      setInitialsUI(displayToShow, DOM.adminInitials);
-      DOM.adminModalDisplayname.textContent = displayToShow;
-      DOM.adminModalInitials.textContent = getInitials(displayToShow || currentUser.email || '');
-      DOM.adminEditMsg.textContent = 'Saved.';
-      setTimeout(() => { DOM.editProfileModalAdmin.style.display = 'none'; DOM.adminEditMsg.textContent = ''; }, 700);
-    } catch (err) {
-      console.error('Error saving displayName (admin)', err);
-      DOM.adminEditMsg.textContent = 'Could not save profile.';
+      const course = clone(STARTERS[id]);
+      await setDoc(doc(db, 'courses', id), { ...course, updatedAt: serverTimestamp() });
+      S.courses.set(id, { id, ...course });
+      toast(`${course.title} added`);
+      location.hash = `#/admin/course/${encodeURIComponent(id)}`;
+    } catch (err) { console.error(err); btn.disabled = false; toast('The course couldn’t be added. Check your Firestore rules.', 'error'); }
+  }
+
+  function openImportModal() {
+    const { el, close } = openModal({
+      title: 'Import Google Workspace course',
+      body: `<p>This creates the course with all 33 sessions. Unlock dates and assessment links you saved in the old admin panel are carried over.</p>
+        <label class="check"><input type="checkbox" id="grant-all" checked><span>Give all ${plural(S.students.length, 'existing student')} access to this course</span></label>
+        <p class="form-msg" id="imp-msg"></p>`,
+      foot: `<button class="btn btn-quiet" data-close>Cancel</button><button class="btn btn-primary" id="imp-go">Import course</button>`
+    });
+    $('#imp-go', el).addEventListener('click', async (e) => {
+      const btn = e.currentTarget; btn.disabled = true;
+      $('#imp-msg').textContent = 'Importing…';
+      try {
+        let dates = {}, links = {};
+        try { const s = await getDoc(doc(db, 'settings', 'course')); if (s.exists()) { dates = s.data().weekDates || {}; links = s.data().assessmentLinks || {}; } } catch {}
+        const course = clone(STARTERS[LEGACY_ID]);
+        course.weeks.forEach((w, i) => { const n = i + 1; if (dates[n]) w.unlockDate = String(dates[n]).slice(0, 10); if (links[n]) w.assessmentLink = links[n]; });
+        await setDoc(doc(db, 'courses', LEGACY_ID), { ...course, updatedAt: serverTimestamp() });
+        S.courses.set(LEGACY_ID, { id: LEGACY_ID, ...course });
+        if ($('#grant-all').checked) await Promise.all(S.students.map(s => updateDoc(doc(db, 'users', s.uid), { courses: arrayUnion(LEGACY_ID) })));
+        await ensureStudents(true);
+        close(); toast('Course imported'); route();
+      } catch (err) {
+        console.error(err);
+        $('#imp-msg').className = 'form-msg is-error';
+        $('#imp-msg').textContent = 'Import didn’t finish. Make sure the new Firestore rules are published, then try again.';
+        btn.disabled = false;
+      }
+    });
+  }
+
+  // ================= ADMIN: COURSE EDITOR =================
+  const newSession = () => ({ id: 's' + rid(), title: '', video: '' });
+  const newWeek = () => ({ id: 'w' + rid(), title: '', unlockDate: '', assessmentLink: '', sessions: [newSession()] });
+
+  function renderEditor(id) {
+    const isNew = id === 'new';
+    if (!isNew && !S.courses.has(id)) { location.hash = '#/admin'; return; }
+    if (S.draftId !== id || !S.draft) {
+      S.draft = isNew
+        ? { title: '', description: '', accent: ACCENTS[S.courses.size % ACCENTS.length], cover: '', resourcesLink: '', published: false, order: S.courses.size + 1, weeks: [newWeek()] }
+        : clone(S.courses.get(id));
+      delete S.draft.id; delete S.draft.updatedAt;
+      S.draftId = id; S.draftDirty = false;
     }
-  });
+    paintEditor(isNew);
+  }
 
-  // close modals by clicking outside
-  window.addEventListener('click', (e) => {
-    if (e.target === DOM.videoModal) closeVideoModal();
-    if (e.target === DOM.commentsModal) closeCommentsModal();
-    if (e.target === DOM.editProfileModalStudent) DOM.editProfileModalStudent.style.display = 'none';
-    if (e.target === DOM.editProfileModalAdmin) DOM.editProfileModalAdmin.style.display = 'none';
-  });
+  function paintEditor(isNew) {
+    const d = S.draft;
+    let n = 0;
+    appEl.innerHTML = `
+      <div class="page">
+        <a class="back dark" href="#/admin">${I.back} Courses</a>
+        <div class="page-head" style="margin-top:.6rem">
+          <div><h1>${isNew ? 'New course' : esc(d.title || 'Untitled course')}</h1><p>${isNew ? 'Set up the basics, then add weeks and sessions.' : `Course ID: ${esc(S.draftId)}`}</p></div>
+        </div>
+        <div class="editor" id="editor">
+          <section class="panel">
+            <h2>Course details</h2>
+            <label class="field"><span>Title</span><input data-bind="title" value="${esc(d.title)}" placeholder="e.g. Upwork LaunchPad" maxlength="120"></label>
+            <label class="field"><span>Short description <span class="hint">Shown on the student’s course card</span></span><textarea data-bind="description" maxlength="400">${esc(d.description)}</textarea></label>
+            <div class="grid-2">
+              <label class="field"><span>Cover image link <span class="hint">Optional. Leave blank to use the first video’s thumbnail</span></span><input type="url" data-bind="cover" value="${esc(d.cover || '')}" placeholder="https://..."></label>
+              <label class="field"><span>Course resources link <span class="hint">Optional, e.g. a shared Drive folder</span></span><input type="url" data-bind="resourcesLink" value="${esc(d.resourcesLink)}" placeholder="https://drive.google.com/..."></label>
+            </div>
+            <div class="grid-2">
+              <div class="field"><span>Course colour</span>
+                <div class="swatches">${ACCENTS.map(c => `<label><input type="radio" name="accent" data-bind="accent" value="${c}" ${d.accent === c ? 'checked' : ''} aria-label="Colour ${c}"><span style="--c:${c}"></span></label>`).join('')}</div>
+              </div>
+              <label class="field"><span>Position in course list</span><input type="number" min="1" data-bind="order" value="${esc(d.order ?? 1)}"></label>
+            </div>
+            <label class="check"><input type="checkbox" data-bind="published" ${d.published !== false ? 'checked' : ''}><span><strong>Visible to enrolled students</strong><br><span class="small muted">Untick while you’re still building the course.</span></span></label>
+          </section>
 
-  // Initialize auth view
-  updateAuthView('signIn');
+          ${d.weeks.map((w, wi) => `
+            <section class="wk-edit">
+              <div class="wk-edit-head">
+                <strong>Week ${wi + 1}</strong>
+                <div class="row" style="gap:4px">
+                  <button class="icon-btn" data-act="mv-week" data-w="${wi}" data-dir="-1" ${wi === 0 ? 'disabled' : ''} aria-label="Move week up">${I.up}</button>
+                  <button class="icon-btn" data-act="mv-week" data-w="${wi}" data-dir="1" ${wi === d.weeks.length - 1 ? 'disabled' : ''} aria-label="Move week down">${I.down}</button>
+                  <button class="icon-btn" data-act="del-week" data-w="${wi}" aria-label="Remove week ${wi + 1}">${I.trash}</button>
+                </div>
+              </div>
+              <div class="wk-edit-body">
+                <div class="wk-fields">
+                  <label class="field"><span>Week title</span><input data-bind="weeks.${wi}.title" value="${esc(w.title)}" placeholder="e.g. Setting up your profile"></label>
+                  <label class="field"><span>Opens on <span class="hint">Blank = open now</span></span><input type="date" data-bind="weeks.${wi}.unlockDate" value="${esc(w.unlockDate)}"></label>
+                  <label class="field"><span>Assessment link</span><input type="url" data-bind="weeks.${wi}.assessmentLink" value="${esc(w.assessmentLink)}" placeholder="https://classroom.google.com/..."></label>
+                </div>
+                <div class="s-rows">
+                  ${w.sessions.map((s, si) => { n++; const vi = videoInfo(s.video); return `
+                    <div class="s-row">
+                      <span class="s-num">${n}</span>
+                      <input class="input" data-bind="weeks.${wi}.sessions.${si}.title" value="${esc(s.title)}" placeholder="Session title" aria-label="Session ${n} title">
+                      <div class="s-video">
+                        <input class="input" data-bind="weeks.${wi}.sessions.${si}.video" value="${esc(s.video)}" placeholder="YouTube, Vimeo or Drive link" aria-label="Session ${n} video">
+                        <small class="${s.video && !vi ? 'bad' : ''}">${s.video ? (vi ? vi.kind + ' video' : 'Not a recognised video link') : 'No video yet'}</small>
+                      </div>
+                      <div class="s-acts">
+                        <button class="icon-btn" data-act="mv-sess" data-w="${wi}" data-s="${si}" data-dir="-1" ${si === 0 ? 'disabled' : ''} aria-label="Move session up">${I.up}</button>
+                        <button class="icon-btn" data-act="mv-sess" data-w="${wi}" data-s="${si}" data-dir="1" ${si === w.sessions.length - 1 ? 'disabled' : ''} aria-label="Move session down">${I.down}</button>
+                        <button class="icon-btn" data-act="del-sess" data-w="${wi}" data-s="${si}" aria-label="Remove session">${I.trash}</button>
+                      </div>
+                    </div>`; }).join('')}
+                </div>
+                <div><button class="btn btn-outline btn-sm" data-act="add-sess" data-w="${wi}">${I.plus} Add session</button></div>
+              </div>
+            </section>`).join('')}
+          <div><button class="btn btn-outline" data-act="add-week">${I.plus} Add week</button></div>
+        </div>
+      </div>
+      <div class="savebar"><div class="savebar-inner">
+        <div class="row">
+          ${isNew ? '' : `<button class="btn btn-danger btn-sm" data-act="delete-course">Delete course</button>`}
+          <span class="status" id="save-status">${S.draftDirty ? 'Unsaved changes' : ''}</span>
+        </div>
+        <div class="row">
+          ${isNew ? '' : `<a class="btn btn-quiet btn-sm" href="${courseHref(S.draftId)}">Preview</a>`}
+          <button class="btn btn-primary" data-act="save">${isNew ? 'Create course' : 'Save changes'}</button>
+        </div>
+      </div></div>`;
 
+    const ed = $('#editor');
+    const markDirty = () => { S.draftDirty = true; $('#save-status').textContent = 'Unsaved changes'; };
+    const setPath = (path, val) => { const keys = path.split('.'); let o = S.draft; keys.slice(0, -1).forEach(k => o = o[k]); o[keys.at(-1)] = val; };
+    const onField = (e) => {
+      const b = e.target.dataset.bind; if (!b) return;
+      const val = e.target.type === 'checkbox' ? e.target.checked : e.target.type === 'number' ? Number(e.target.value) : e.target.value;
+      setPath(b, val); markDirty();
+      if (b.endsWith('.video')) {
+        const small = e.target.nextElementSibling, vi = videoInfo(val);
+        small.textContent = val ? (vi ? vi.kind + ' video' : 'Not a recognised video link') : 'No video yet';
+        small.className = val && !vi ? 'bad' : '';
+      }
+    };
+    ed.addEventListener('input', onField);
+    ed.addEventListener('change', onField);
+
+    const structural = (fn) => { fn(); S.draftDirty = true; const y = window.scrollY; paintEditor(isNew); window.scrollTo(0, y); };
+    const onAct = async (e) => {
+      const b = e.target.closest('[data-act]'); if (!b) return;
+      const act = b.dataset.act, wi = +b.dataset.w, si = +b.dataset.s, dir = +b.dataset.dir;
+      const W = S.draft.weeks;
+      if (act === 'add-week') structural(() => W.push(newWeek()));
+      if (act === 'add-sess') structural(() => W[wi].sessions.push(newSession()));
+      if (act === 'mv-week') structural(() => W.splice(wi + dir, 0, W.splice(wi, 1)[0]));
+      if (act === 'mv-sess') structural(() => { const L = W[wi].sessions; L.splice(si + dir, 0, L.splice(si, 1)[0]); });
+      if (act === 'del-sess') {
+        const s = W[wi].sessions[si];
+        if ((s.title || s.video) && !confirm(`Remove “${s.title || 'this session'}”? Students’ completion of it will no longer count.`)) return;
+        structural(() => W[wi].sessions.splice(si, 1));
+      }
+      if (act === 'del-week') {
+        if (W[wi].sessions.length && !confirm(`Remove week ${wi + 1} and its ${plural(W[wi].sessions.length, 'session')}?`)) return;
+        structural(() => W.splice(wi, 1));
+      }
+      if (act === 'save') await saveDraft(isNew, b);
+      if (act === 'delete-course') confirmDeleteCourse();
+    };
+    ed.addEventListener('click', onAct);
+    $('.savebar').addEventListener('click', onAct);
+  }
+
+  async function saveDraft(isNew, btn) {
+    const d = S.draft;
+    d.title = (d.title || '').trim();
+    if (!d.title) { toast('Give the course a title before saving.', 'error'); $('[data-bind="title"]')?.focus(); return; }
+    const untitled = d.weeks.flatMap(w => w.sessions).filter(s => !s.title.trim()).length;
+    if (untitled) { toast(`${plural(untitled, 'session')} still need${untitled === 1 ? 's' : ''} a title.`, 'error'); return; }
+    btn.disabled = true; $('#save-status').textContent = 'Saving…';
+    try {
+      let id = S.draftId;
+      if (isNew) { const base = slugify(d.title); id = base; let i = 2; while (S.courses.has(id)) id = `${base}-${i++}`; }
+      const data = clone(d);
+      await setDoc(doc(db, 'courses', id), { ...data, updatedAt: serverTimestamp() });
+      S.courses.set(id, { id, ...data });
+      S.draftDirty = false;
+      toast(isNew ? 'Course created' : 'Changes saved');
+      paintSide();
+      if (isNew) { S.draftId = id; location.hash = `#/admin/course/${encodeURIComponent(id)}`; }
+      else { $('#save-status').textContent = 'All changes saved'; btn.disabled = false; }
+    } catch (err) {
+      console.error(err); btn.disabled = false;
+      $('#save-status').textContent = 'Not saved';
+      toast('The course didn’t save. Check your connection and try again.', 'error');
+    }
+  }
+
+  function confirmDeleteCourse() {
+    const id = S.draftId, c = S.courses.get(id);
+    const { el, close } = openModal({
+      title: 'Delete this course?',
+      body: `<p>“${esc(c.title)}” will be removed for every student. Their progress records stay in the database, so re-creating a course with the ID <strong>${esc(id)}</strong> would restore them.</p>
+        <label class="field"><span>Type DELETE to confirm</span><input id="del-confirm" autocomplete="off"></label>`,
+      foot: `<button class="btn btn-quiet" data-close>Cancel</button><button class="btn btn-danger" id="del-go" disabled>Delete course</button>`
+    });
+    const inp = $('#del-confirm', el), go = $('#del-go', el);
+    inp.addEventListener('input', () => go.disabled = inp.value.trim() !== 'DELETE');
+    go.addEventListener('click', async () => {
+      go.disabled = true;
+      try {
+        await deleteDoc(doc(db, 'courses', id));
+        const students = await ensureStudents();
+        await Promise.all(students.filter(s => s.courses.includes(id)).map(s => updateDoc(doc(db, 'users', s.uid), { courses: arrayRemove(id) }).then(() => { s.courses = s.courses.filter(x => x !== id); })));
+        S.courses.delete(id); S.draft = null; S.draftId = null; S.draftDirty = false;
+        close(); toast('Course deleted'); location.hash = '#/admin';
+      } catch (err) { console.error(err); toast('The course couldn’t be deleted.', 'error'); go.disabled = false; }
+    });
+  }
+
+  // ================= ADMIN: STUDENTS =================
+  async function renderStudents() {
+    adminLoading();
+    try { await ensureStudents(); } catch (e) { console.error(e); appEl.innerHTML = `<div class="page"><div class="empty"><h2>Students didn’t load</h2><p>Check that the new Firestore rules are published, then refresh.</p></div></div>`; return; }
+    const courses = sortedCourses();
+    if (!S.studentCourse || !S.courses.has(S.studentCourse)) S.studentCourse = courses[0]?.id || null;
+    appEl.innerHTML = `
+      <div class="page">
+        <div class="page-head">
+          <div><h1>Students</h1><p id="st-sub">${plural(S.students.length, 'student')}. Each student only sees the courses ticked for them.</p></div>
+          <div class="row wrap">
+            <button class="btn btn-outline" id="export-btn" ${S.studentCourse ? '' : 'disabled'}>Export CSV</button>
+            <button class="btn btn-primary" id="add-btn" ${courses.length ? '' : 'disabled'}>${I.plus} Add students</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <input class="input" type="search" id="st-search" placeholder="Search by name or email" value="${esc(S.studentFilter)}" aria-label="Search students">
+          <select class="input" id="st-course" aria-label="Show progress for course">
+            ${courses.map(c => `<option value="${esc(c.id)}" ${c.id === S.studentCourse ? 'selected' : ''}>Progress in ${esc(c.title)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Student</th><th>Registered courses</th><th>Progress</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
+          <tbody id="st-body"></tbody>
+        </table></div>
+      </div>`;
+    paintStudentRows();
+    $('#st-search').addEventListener('input', (e) => { S.studentFilter = e.target.value; paintStudentRows(); });
+    $('#st-course').addEventListener('change', (e) => { S.studentCourse = e.target.value; paintStudentRows(); });
+    $('#add-btn').addEventListener('click', openAddStudents);
+    $('#export-btn').addEventListener('click', exportCsv);
+  }
+
+  function filteredStudents() {
+    const q = S.studentFilter.toLowerCase().trim();
+    return S.students.filter(s => !q || s.email.toLowerCase().includes(q) || studentName(s).toLowerCase().includes(q));
+  }
+
+  function paintStudentRows() {
+    const body = $('#st-body'); if (!body) return;
+    const rows = filteredStudents();
+    const course = S.courses.get(S.studentCourse);
+    if (!rows.length) { body.innerHTML = `<tr><td colspan="4" class="muted" style="text-align:center;padding:36px">${S.students.length ? 'No students match that search.' : 'No students yet. Use “Add students” to invite your first learners.'}</td></tr>`; return; }
+    body.innerHTML = rows.map(s => {
+      const chips = s.courses.filter(id => S.courses.has(id)).map(id => `<span class="chip">${esc(S.courses.get(id).title)}</span>`).join('') || '<span class="small muted">None yet</span>';
+      let prog = '<span class="small muted">Not registered</span>';
+      if (course && s.courses.includes(course.id)) {
+        const st = courseStats(course, s.progress.get(course.id));
+        prog = `<div class="prog-cell"><div class="pbar"><span style="width:${st.pct}%"></span></div><button data-detail="${esc(s.uid)}" aria-expanded="false">${st.done}/${st.total}</button></div>`;
+      }
+      return `<tr data-uid="${esc(s.uid)}">
+        <td><div class="who-cell"><span class="avatar sm plain">${esc(initials(studentName(s)))}</span><div style="min-width:0"><strong>${esc(studentName(s))}</strong><span>${esc(s.email)}</span></div></div></td>
+        <td><div class="chips">${chips}</div></td>
+        <td>${prog}</td>
+        <td style="text-align:right"><button class="btn btn-outline btn-sm" data-manage="${esc(s.uid)}">Manage</button></td>
+      </tr>`;
+    }).join('');
+    $$('[data-manage]', body).forEach(b => b.addEventListener('click', () => openManageStudent(S.students.find(s => s.uid === b.dataset.manage))));
+    $$('[data-detail]', body).forEach(b => b.addEventListener('click', () => {
+      const tr = b.closest('tr'), nx = tr.nextElementSibling;
+      if (nx?.classList.contains('detail-row')) { nx.remove(); b.setAttribute('aria-expanded', 'false'); return; }
+      $$('.detail-row', body).forEach(r => r.remove());
+      const s = S.students.find(x => x.uid === b.dataset.detail), done = s.progress.get(course.id) || new Set();
+      const titles = sessionsOf(course).filter(x => done.has(x.s.id)).map(x => `<li>Session ${x.n}: ${esc(x.s.title)}</li>`);
+      const row = document.createElement('tr'); row.className = 'detail-row';
+      row.innerHTML = `<td colspan="4"><strong>Completed in ${esc(course.title)}</strong>${titles.length ? `<ul>${titles.join('')}</ul>` : '<p class="small muted" style="margin-top:.3rem">Nothing completed yet.</p>'}</td>`;
+      tr.after(row); b.setAttribute('aria-expanded', 'true');
+    }));
+  }
+
+  function courseChecks(selected = []) {
+    return `<div class="field"><span>Registered for</span>${sortedCourses().map(c => `
+      <label class="check"><input type="checkbox" name="course" value="${esc(c.id)}" ${selected.includes(c.id) ? 'checked' : ''}><span>${esc(c.title)}${c.published === false ? ' <span class="chip draft">Hidden</span>' : ''}</span></label>`).join('')}</div>`;
+  }
+
+  function openManageStudent(s) {
+    const { el, close } = openModal({
+      title: studentName(s),
+      body: `<p class="small muted" style="margin-top:-.4rem">${esc(s.email)}</p>
+        ${courseChecks(s.courses)}
+        <div class="panel" style="padding:14px;gap:8px;background:#fbfaf8;border-radius:14px">
+          <strong>Can’t sign in?</strong>
+          <p class="small muted">Send a fresh link so they can set a new password.</p>
+          <div><button class="btn btn-outline btn-sm" id="ms-reset">Send password link</button></div>
+        </div>
+        <p class="form-msg" id="ms-msg"></p>`,
+      foot: `<button class="btn btn-quiet" data-close>Cancel</button><button class="btn btn-primary" id="ms-save">Save courses</button>`
+    });
+    $('#ms-reset', el).addEventListener('click', async (e) => {
+      const btn = e.currentTarget; btn.disabled = true;
+      try { await sendPasswordResetEmail(auth, s.email); $('#ms-msg').className = 'form-msg is-ok'; $('#ms-msg').textContent = `Password link sent to ${s.email}.`; }
+      catch (err) { console.error(err); $('#ms-msg').className = 'form-msg is-error'; $('#ms-msg').textContent = 'The email didn’t send. Try again.'; btn.disabled = false; }
+    });
+    $('#ms-save', el).addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      const chosen = $$('input[name=course]:checked', el).map(i => i.value);
+      const keep = s.courses.filter(id => !S.courses.has(id));
+      const next = [...new Set([...keep, ...chosen])];
+      btn.disabled = true;
+      try {
+        await updateDoc(doc(db, 'users', s.uid), { courses: next });
+        s.courses = next;
+        await Promise.all(next.filter(cid => S.courses.has(cid) && !s.progress.has(cid)).map(async cid => {
+          try { const p = await getDoc(progressRef(s.uid, cid)); s.progress.set(cid, new Set(p.exists() ? (p.data().completedSessions || []) : [])); } catch { s.progress.set(cid, new Set()); }
+        }));
+        close(); toast('Courses updated'); paintStudentRows();
+      } catch (err) { console.error(err); btn.disabled = false; $('#ms-msg').className = 'form-msg is-error'; $('#ms-msg').textContent = 'Changes didn’t save. Try again.'; }
+    });
+  }
+
+  function openAddStudents() {
+    const { el } = openModal({
+      title: 'Add students',
+      body: `
+        <p class="small muted" style="margin-top:-.4rem">New students get an email with a link to set their password. Anyone who already has an account just gets the extra course.</p>
+        <label class="field"><span>Students <span class="hint">One per line: full name, email address</span></span>
+          <textarea id="as-lines" rows="6" placeholder="Ada Okafor, ada@example.com&#10;Tunde Bello, tunde@example.com"></textarea></label>
+        ${courseChecks(S.studentCourse ? [S.studentCourse] : [])}
+        <ul class="result-list" id="as-results"></ul>`,
+      foot: `<button class="btn btn-quiet" data-close>Close</button><button class="btn btn-primary" id="as-go">Add and send invites</button>`
+    });
+    $('#as-go', el).addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      const courses = $$('input[name=course]:checked', el).map(i => i.value);
+      const lines = $('#as-lines', el).value.split('\n').map(l => l.trim()).filter(Boolean);
+      const out = $('#as-results', el);
+      if (!lines.length) { out.innerHTML = '<li class="err">Add at least one student.</li>'; return; }
+      if (!courses.length) { out.innerHTML = '<li class="err">Choose the course they registered for.</li>'; return; }
+      btn.disabled = true; out.innerHTML = '';
+      for (const line of lines) {
+        const m = line.match(/^(.*?)[,;\t]\s*([^\s,;]+@[^\s,;]+)\s*$/) || line.match(/^()\s*([^\s,;]+@[^\s,;]+)\s*$/);
+        const li = document.createElement('li'); out.appendChild(li);
+        if (!m) { li.className = 'err'; li.textContent = `“${line}”: couldn’t find an email address on this line.`; continue; }
+        const name = m[1].trim(), email = m[2].toLowerCase();
+        li.textContent = `${email}: working…`;
+        try { const res = await addStudent(name, email, courses); li.className = 'ok'; li.textContent = `${email}: ${res}`; }
+        catch (err) { console.error(err); li.className = 'err'; li.textContent = `${email}: ${err.friendly || AUTH_ERRORS[err.code] || 'couldn’t be added.'}`; }
+      }
+      btn.disabled = false; btn.textContent = 'Add more';
+      $('#as-lines', el).value = '';
+      paintStudentRows();
+      const h = $('#st-sub'); if (h) h.textContent = `${plural(S.students.length, 'student')}. Each student only sees the courses ticked for them.`;
+    });
+  }
+
+  async function addStudent(name, email, courses) {
+    const existing = S.students.find(s => s.email.toLowerCase() === email);
+    if (existing) {
+      await updateDoc(doc(db, 'users', existing.uid), { courses: arrayUnion(...courses) });
+      existing.courses = [...new Set([...existing.courses, ...courses])];
+      courses.forEach(c => existing.progress.has(c) || existing.progress.set(c, new Set()));
+      return 'already had an account, course added.';
+    }
+    const sec = getSecondaryAuth();
+    const pw = Array.from(crypto.getRandomValues(new Uint8Array(24)), b => (b % 36).toString(36)).join('') + 'A1!';
+    let cred;
+    try { cred = await createUserWithEmailAndPassword(sec, email, pw); }
+    catch (err) {
+      if (err.code === 'auth/email-already-in-use') { const e = new Error(); e.friendly = 'has a login but no student record. Ask them to sign in once (or use “Forgot password”), then add their course from the list.'; throw e; }
+      if (err.code === 'auth/operation-not-allowed' || err.code === 'auth/admin-restricted-operation') { const e = new Error(); e.friendly = 'new sign-ups are switched off in Firebase Authentication. See the setup notes.'; throw e; }
+      throw err;
+    }
+    const uid = cred.user.uid;
+    await signOut(sec).catch(() => {});
+    const displayName = name || email.split('@')[0];
+    await setDoc(doc(db, 'users', uid), { email, uid, fullName: name, displayName, courses, createdAt: serverTimestamp(), invitedAt: serverTimestamp() });
+    await setDoc(doc(db, 'profiles', uid), { displayName }).catch(() => {});
+    await sendPasswordResetEmail(auth, email);
+    S.students.push({ uid, email, fullName: name, displayName, courses, progress: new Map(courses.map(c => [c, new Set()])) });
+    S.students.sort((a, b) => studentName(a).localeCompare(studentName(b)));
+    return 'account created, password setup email sent.';
+  }
+
+  function exportCsv() {
+    const course = S.courses.get(S.studentCourse); if (!course) return;
+    const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const all = sessionsOf(course);
+    const rows = [['Name', 'Email', 'Registered', 'Completed sessions', 'Total sessions', 'Progress (%)', 'Completed session titles']];
+    filteredStudents().forEach(s => {
+      const enrolled = s.courses.includes(course.id);
+      const done = s.progress.get(course.id) || new Set();
+      const st = courseStats(course, done);
+      rows.push([studentName(s), s.email, enrolled ? 'Yes' : 'No', st.done, st.total, st.pct, all.filter(x => done.has(x.s.id)).map(x => x.s.title).join('; ')]);
+    });
+    const blob = new Blob(['﻿' + rows.map(r => r.map(cell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${slugify(course.title)}-progress.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
