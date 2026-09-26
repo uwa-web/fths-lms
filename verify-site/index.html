@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#1c120b" />
+  <title>Verify a Certificate | First Tech Hub Solutions</title>
+  <meta name="description" content="Check that a First Tech Hub Solutions certificate is genuine by entering its certificate ID.">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --choc: #5c3214; --choc-dark: #45240d; --night: #1c120b; --gold: #e2a23b; --gold-deep: #b87412;
+      --green: #1f7a55; --green-tint: #e2f3eb; --danger: #b3261e; --danger-tint: #fdecea;
+      --ink: #20150d; --ink-soft: #4d4037; --muted: #74685f; --line: #e8e3dd; --line-strong: #d6cec5; --bg: #f4f2ef;
+      --head: 'Sora', system-ui, sans-serif; --body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --circuit: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' fill='none' stroke='%23fff' stroke-width='2'%3E%3Cpath d='M20 0v46M20 60v40l30 26h60M124 126h40M180 0v30l-24 22H96M82 52H40M0 170h60l24-22v-8M150 220v-40l24-20h46M110 220v-26'/%3E%3Ccircle cx='20' cy='53' r='7'/%3E%3Ccircle cx='117' cy='126' r='7'/%3E%3Ccircle cx='89' cy='52' r='7'/%3E%3Ccircle cx='110' cy='187' r='7'/%3E%3C/svg%3E");
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; min-height: 100vh; font-family: var(--body); color: var(--ink); background: var(--night); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+    a { color: var(--choc); }
+    :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 8px; }
+    .top { position: relative; overflow: hidden; background: radial-gradient(120% 90% at 50% 0%, #3d2614 0%, var(--night) 65%); color: #efe5da; padding: 28px 16px 120px; text-align: center; }
+    .top::after { content: ""; position: absolute; inset: 0; background: var(--circuit); background-size: 240px; opacity: .06; pointer-events: none; }
+    .top > * { position: relative; z-index: 1; }
+    .logo { width: 210px; margin: 0 auto 36px; display: block; }
+    h1 { font-family: var(--head); font-weight: 600; font-size: clamp(1.9rem, 5vw, 2.8rem); line-height: 1.1; letter-spacing: -0.03em; margin: 0 auto; color: #fff; max-width: 18ch; }
+    .top p { color: #c9b9aa; max-width: 46ch; margin: 14px auto 0; font-size: 1.02rem; }
+    main { position: relative; max-width: 640px; margin: -84px auto 0; padding: 0 16px 64px; }
+    .card { background: #fff; border-radius: 24px; padding: 24px; box-shadow: 0 30px 60px -30px rgba(0,0,0,.5); }
+    form { display: grid; gap: 10px; }
+    label { font-weight: 600; font-size: .9rem; color: var(--ink-soft); }
+    .row { display: flex; gap: 10px; }
+    input { flex: 1; min-width: 0; min-height: 54px; padding: 0 16px; border: 1px solid var(--line-strong); border-radius: 14px; font: 600 1.05rem/1 var(--head); letter-spacing: .03em; text-transform: uppercase; color: var(--ink); outline: none; }
+    input::placeholder { text-transform: none; letter-spacing: 0; font: 400 1rem var(--body); color: #9a8f86; }
+    input:focus { border-color: var(--choc); box-shadow: 0 0 0 4px rgba(92,50,20,.12); }
+    button { min-height: 54px; padding: 0 22px; border: 0; border-radius: 14px; background: var(--choc); color: #fff; font: 700 1rem var(--body); cursor: pointer; white-space: nowrap; }
+    button:hover { background: var(--choc-dark); }
+    button:disabled { opacity: .6; cursor: wait; }
+    .hint { font-size: .84rem; color: var(--muted); }
+    @media (max-width: 480px) { .row { flex-direction: column; } }
+    .result { margin-top: 20px; border-radius: 18px; padding: 22px; border: 1px solid var(--line); }
+    .result.ok { border-color: #b9dfcc; background: linear-gradient(180deg, #f3faf6, #fff 60%); }
+    .result.bad { border-color: #f1c7c2; background: #fff8f7; }
+    .badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: .9rem; padding: .35rem .8rem; border-radius: 999px; }
+    .ok .badge { background: var(--green-tint); color: var(--green); }
+    .bad .badge { background: var(--danger-tint); color: var(--danger); }
+    .badge svg { width: 18px; height: 18px; }
+    .result h2 { font-family: var(--head); font-weight: 600; font-size: clamp(1.5rem, 4vw, 2rem); letter-spacing: -0.02em; margin: 14px 0 4px; line-height: 1.15; }
+    .result .lede { color: var(--ink-soft); margin: 0; }
+    dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin: 18px 0 0; }
+    dl div { background: var(--bg); border-radius: 12px; padding: 10px 14px; }
+    dt { font-size: .76rem; font-weight: 600; color: var(--muted); }
+    dd { margin: 2px 0 0; font-weight: 700; font-family: var(--head); word-break: break-word; }
+    .foot { text-align: center; color: #a8978a; font-size: .84rem; margin-top: 28px; }
+    .foot a { color: #e9d9c7; }
+    .spinner { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--choc); animation: spin .9s linear infinite; margin: 8px auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <img class="logo" src="fth-logo-light.png" alt="First Tech Hub Solutions">
+    <h1>Verify a certificate</h1>
+    <p>Enter the certificate ID printed on a First Tech Hub Solutions certificate to confirm it’s genuine.</p>
+  </header>
+  <main>
+    <div class="card">
+      <form id="form" novalidate>
+        <label for="cert-id">Certificate ID</label>
+        <div class="row">
+          <input id="cert-id" name="id" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. FTHGW250012 or FTHS-2609-KFNQG4" required>
+          <button type="submit" id="go">Verify</button>
+        </div>
+        <span class="hint">Capital letters, spaces and dashes don’t matter.</span>
+      </form>
+      <div id="result" aria-live="polite"></div>
+    </div>
+    <p class="foot">Questions about a certificate? Email <a href="mailto:firsttechhub1@gmail.com">firsttechhub1@gmail.com</a>.<br>© <span id="yr"></span> First Tech Hub Solutions. Empower. Learn. Grow.</p>
+  </main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+  // Reads the same Firebase settings the LMS uses, so there's nothing to configure here.
+  const CONFIG_URL = 'https://lms.firsttechhubsolutions.com/api/config';
+  const SUPPORT_EMAIL = 'firsttechhub1@gmail.com';
+
+  const $ = (s) => document.querySelector(s);
+  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const keyOf = (id) => String(id || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  const CROSS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  const fmtDay = (iso) => { const [y, m, d] = String(iso || '').split('-').map(Number); if (!y) return ''; return new Date(y, m - 1, d || 1).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }); };
+  $('#yr').textContent = new Date().getFullYear();
+
+  const result = $('#result'), input = $('#cert-id'), go = $('#go');
+  let db = null;
+  async function getDb() {
+    if (db) return db;
+    const r = await fetch(CONFIG_URL);
+    if (!r.ok) throw new Error('config ' + r.status);
+    db = getFirestore(initializeApp(await r.json()));
+    return db;
+  }
+
+  async function verify(raw) {
+    const key = keyOf(raw);
+    if (!key) { result.innerHTML = ''; input.focus(); return; }
+    history.replaceState(null, '', `?id=${encodeURIComponent(raw.trim())}`);
+    go.disabled = true;
+    result.innerHTML = '<div class="result"><div class="spinner"></div></div>';
+    try {
+      const snap = await getDoc(doc(await getDb(), 'certificates', key));
+      if (!snap.exists()) {
+        result.innerHTML = `<div class="result bad"><span class="badge">${CROSS} Not found</span>
+          <h2>No certificate with this ID</h2>
+          <p class="lede">We couldn’t find a First Tech Hub Solutions certificate with the ID <strong>${esc(raw.trim())}</strong>. Check it against the certificate, including every digit. If it still doesn’t match, email <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>.</p></div>`;
+        return;
+      }
+      const c = snap.data(), revoked = c.status === 'revoked';
+      const when = c.completedDate ? `Completed ${fmtDay(c.completedDate)}` : c.monthYear ? `Completed ${esc(c.monthYear)}` : '';
+      result.innerHTML = `<div class="result ${revoked ? 'bad' : 'ok'}">
+        <span class="badge">${revoked ? CROSS + ' Revoked' : CHECK + ' Valid certificate'}</span>
+        <h2>${esc(c.name)}</h2>
+        <p class="lede">${revoked ? 'This certificate was issued for' : 'has completed'} <strong>${esc(c.course)}</strong>, organized by First Tech Hub Solutions.${revoked ? ' It has been revoked and is no longer valid.' : ''}</p>
+        <dl>
+          <div><dt>Certificate ID</dt><dd>${esc(c.id || raw.trim())}</dd></div>
+          ${when ? `<div><dt>${revoked ? 'Course' : 'Completion'}</dt><dd>${esc(when.replace(/^Completed /, ''))}</dd></div>` : ''}
+          ${c.issuedDate ? `<div><dt>Date issued</dt><dd>${esc(fmtDay(c.issuedDate))}</dd></div>` : ''}
+        </dl></div>`;
+    } catch (e) {
+      console.error(e);
+      result.innerHTML = `<div class="result bad"><span class="badge">${CROSS} Couldn’t check</span><h2>Something went wrong</h2><p class="lede">The verification service didn’t respond. Check your connection and try again in a moment.</p></div>`;
+    } finally { go.disabled = false; }
+  }
+
+  $('#form').addEventListener('submit', (e) => { e.preventDefault(); verify(input.value); });
+  const fromLink = new URLSearchParams(location.search).get('id');
+  if (fromLink) { input.value = fromLink; verify(fromLink); } else input.focus();
+</script>
+</body>
+</html>
