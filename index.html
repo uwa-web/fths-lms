@@ -181,7 +181,7 @@
     .pw-wrap { position: relative; }
     .pw-wrap input { padding-right: 4.6rem !important; }
     .pw-toggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: 0; background: none; font-size: .84rem; font-weight: 600; color: var(--choc); padding: .45rem .6rem; cursor: pointer; border-radius: 8px; }
-    .linkish { background: none; border: 0; padding: 0; color: var(--choc); font-weight: 600; cursor: pointer; font-size: .88rem; }
+    .linkish { background: none; border: 0; padding: 0; color: var(--choc); font-weight: 600; cursor: pointer; font-size: .88rem; text-align: left; }
     .linkish:hover { text-decoration: underline; text-underline-offset: 3px; }
     .auth-note { font-size: .86rem; color: var(--muted); background: var(--bg); border-radius: 14px; padding: 14px 16px; }
 
@@ -768,7 +768,7 @@
   // ================= AUTH FLOW =================
   onAuthStateChanged(auth, async (user) => {
     S.user = user; S.courses.clear(); S.progress.clear(); S.students = null; S.profile = null; S.assess.clear(); S.subs.clear(); S.adminSubs.clear(); S.certs.clear();
-    if (!user) { $('#shell').hidden = true; boot(false); route(); return; }
+    if (!user) { $('#shell').hidden = true; $('#toast').className = 'toast'; $('#modal-root').innerHTML = ''; boot(false); route(); return; }
     boot(true);
     try { await loadSession(); }
     catch (err) { console.error(err); toast('Some of your data didn’t load. Refresh to try again.', 'error'); }
@@ -888,7 +888,10 @@
     window.scrollTo(0, 0);
     const vm = location.hash.match(/^#\/verify\/(.+)$/);
     if (vm) { $('#shell').hidden = true; boot(false); return renderVerify(decodeURIComponent(vm[1])); }
-    if (!S.user) return renderLogin();
+    if (!S.user) {
+      const sm = location.hash.match(/^#\/setup(?:\?email=(.*))?$/);
+      return sm ? renderLogin('setup', decodeURIComponent(sm[1] || '')) : renderLogin();
+    }
     $('#auth-root').innerHTML = ''; $('#shell').hidden = false;
     paintSide();
     const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
@@ -921,8 +924,18 @@
     'auth/network-request-failed': 'You appear to be offline. Check your connection and try again.',
   };
 
-  function renderLogin(mode = 'signIn') {
-    const reset = mode === 'reset';
+  // Sends Firebase's password link. After setting the password the student gets a
+  // "Continue" button back to the LMS. The link itself only works for 1 hour (Firebase's limit).
+  async function sendPasswordLink(email) {
+    try { await sendPasswordResetEmail(auth, email, { url: location.origin + location.pathname, handleCodeInApp: false }); }
+    catch (err) {
+      if (/continue-uri|unauthorized-domain/.test(err.code || '')) return sendPasswordResetEmail(auth, email);
+      throw err;
+    }
+  }
+
+  function renderLogin(mode = 'signIn', prefill = '') {
+    const setup = mode === 'setup', reset = mode === 'reset' || setup;
     $('#auth-root').innerHTML = `
       <section class="auth">
         <div class="auth-panel">
@@ -941,26 +954,26 @@
           <form id="auth-form" class="auth-form" novalidate>
             <img class="m-logo" src="IMG/fth-logo.png" alt="First Tech Hub Solutions">
             <div>
-              <h2>${reset ? 'Reset your password' : 'Welcome back'}</h2>
-              <p class="muted" style="margin-top:.4rem">${reset ? 'We’ll email you a link to set a new password.' : 'Sign in with the email you enrolled with.'}</p>
+              <h2>${setup ? 'Set up your password' : reset ? 'Reset your password' : 'Welcome back'}</h2>
+              <p class="muted" style="margin-top:.4rem">${setup ? 'Enter the email you were enrolled with. We’ll send you a link to choose your password.' : reset ? 'We’ll email you a link to set a new password.' : 'Sign in with the email you enrolled with.'}</p>
             </div>
-            <label class="field"><span>Email address</span><input type="email" name="email" autocomplete="email" placeholder="you@example.com" required></label>
+            <label class="field"><span>Email address</span><input type="email" name="email" autocomplete="email" placeholder="you@example.com" value="${esc(prefill)}" required></label>
             ${reset ? '' : `
             <label class="field"><span>Password</span>
               <div class="pw-wrap"><input type="password" name="password" autocomplete="current-password" required>
               <button type="button" class="pw-toggle" aria-pressed="false">Show</button></div>
             </label>`}
-            <div class="row between">
-              ${reset ? '<button type="button" class="linkish" data-mode="signIn">Back to sign in</button>' : '<span></span><button type="button" class="linkish" data-mode="reset">Forgot password?</button>'}
+            <div class="row between wrap" style="gap:8px 16px">
+              ${reset ? '<button type="button" class="linkish" data-mode="signIn">Back to sign in</button>' : '<button type="button" class="linkish" data-mode="setup">First time? Set up your password</button><button type="button" class="linkish" data-mode="reset">Forgot password?</button>'}
             </div>
             <p id="auth-msg" class="form-msg" role="alert"></p>
-            <button class="btn btn-primary btn-block" type="submit" style="min-height:50px">${reset ? 'Send reset link' : 'Sign in'}</button>
+            <button class="btn btn-primary btn-block" type="submit" style="min-height:50px">${setup ? 'Email me a setup link' : reset ? 'Send reset link' : 'Sign in'}</button>
             <p class="auth-note">Access is for enrolled students only. Registered for a programme but can’t get in? Email <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>.</p>
           </form>
         </div>
       </section>`;
     const form = $('#auth-form'), msg = $('#auth-msg');
-    $$('[data-mode]', form).forEach(b => b.addEventListener('click', () => renderLogin(b.dataset.mode)));
+    $$('[data-mode]', form).forEach(b => b.addEventListener('click', () => { if (location.hash.startsWith('#/setup')) history.replaceState(null, '', '#/'); renderLogin(b.dataset.mode, form.email.value.trim()); }));
     $('.pw-toggle', form)?.addEventListener('click', (e) => {
       const inp = form.password, show = inp.type === 'password';
       inp.type = show ? 'text' : 'password';
@@ -975,20 +988,20 @@
       const btn = form.querySelector('[type=submit]'); btn.disabled = true;
       try {
         if (reset) {
-          await sendPasswordResetEmail(auth, email);
+          await sendPasswordLink(email);
           msg.className = 'form-msg is-ok';
-          msg.textContent = 'If that email is enrolled, a reset link is on its way. Check your spam folder too.';
+          msg.textContent = 'If that email is enrolled, a link is on its way. Open it within 1 hour (check spam too). If it expires, just request a new one here.';
         } else {
           await signInWithEmailAndPassword(auth, email, form.password.value);
         }
       } catch (err) {
         msg.className = 'form-msg is-error';
         msg.textContent = reset && err.code === 'auth/user-not-found'
-          ? 'If that email is enrolled, a reset link is on its way.'
+          ? 'If that email is enrolled, a link is on its way. Open it within 1 hour.'
           : (AUTH_ERRORS[err.code] || 'Something went wrong. Try again in a moment.');
       } finally { btn.disabled = false; }
     });
-    form.email.focus();
+    (prefill && form.password ? form.password : form.email).focus();
   }
 
   // ================= STUDENT DASHBOARD =================
@@ -1697,16 +1710,23 @@
         ${courseChecks(s.courses)}
         <div class="panel" style="padding:14px;gap:8px;background:#fbfaf8;border-radius:14px">
           <strong>Can’t sign in?</strong>
-          <p class="small muted">Send a fresh link so they can set a new password.</p>
-          <div><button class="btn btn-outline btn-sm" id="ms-reset">Send password link</button></div>
+          <p class="small muted">The welcome email links to the password setup page, and never expires. A password link works for 1 hour only.</p>
+          <div class="row wrap" style="gap:8px"><button class="btn btn-outline btn-sm" id="ms-welcome">Resend welcome email</button><button class="btn btn-quiet btn-sm" id="ms-reset">Send password link</button></div>
         </div>
         <p class="form-msg" id="ms-msg"></p>`,
       foot: `<button class="btn btn-quiet" data-close>Cancel</button><button class="btn btn-primary" id="ms-save">Save courses</button>`
     });
     $('#ms-reset', el).addEventListener('click', async (e) => {
       const btn = e.currentTarget; btn.disabled = true;
-      try { await sendPasswordResetEmail(auth, s.email); $('#ms-msg').className = 'form-msg is-ok'; $('#ms-msg').textContent = `Password link sent to ${s.email}.`; }
+      try { await sendPasswordLink(s.email); $('#ms-msg').className = 'form-msg is-ok'; $('#ms-msg').textContent = `Password link sent to ${s.email}. It works for 1 hour.`; }
       catch (err) { console.error(err); $('#ms-msg').className = 'form-msg is-error'; $('#ms-msg').textContent = 'The email didn’t send. Try again.'; btn.disabled = false; }
+    });
+    $('#ms-welcome', el).addEventListener('click', async (e) => {
+      const btn = e.currentTarget; btn.disabled = true;
+      const r = await sendWelcome(s, s.courses);
+      $('#ms-msg').className = 'form-msg ' + (r.ok ? 'is-ok' : 'is-error');
+      $('#ms-msg').textContent = r.ok ? `Welcome email sent to ${s.email}.` : `The email didn’t send: ${r.error}`;
+      btn.disabled = false;
     });
     $('#ms-save', el).addEventListener('click', async (e) => {
       const btn = e.currentTarget;
@@ -1729,7 +1749,7 @@
     const { el } = openModal({
       title: 'Add students',
       body: `
-        <p class="small muted" style="margin-top:-.4rem">New students get an email with a link to set their password. Anyone who already has an account just gets the extra course.</p>
+        <p class="small muted" style="margin-top:-.4rem">Each student gets a welcome email from First Tech Hub with a link to set up their password. The link doesn’t expire. Students who already have an account get an email about their new course.</p>
         <label class="field"><span>Students <span class="hint">One per line: full name, email address</span></span>
           <textarea id="as-lines" rows="6" placeholder="Ada Okafor, ada@example.com&#10;Tunde Bello, tunde@example.com"></textarea></label>
         ${courseChecks(S.studentCourse ? [S.studentCourse] : [])}
@@ -1760,13 +1780,23 @@
     });
   }
 
+  // Branded welcome email. Its link opens the LMS "Set up your password" page, so it never expires.
+  function sendWelcome(s, courseIds, existing = false) {
+    const titles = courseIds.map(id => S.courses.get(id)?.title).filter(Boolean);
+    return notifyStudent({ type: 'welcome', to: s.email, studentName: s.fullName || s.displayName || '', courses: titles, existing,
+      setupUrl: `${location.origin}${location.pathname}#/setup?email=${encodeURIComponent(s.email)}` });
+  }
+
   async function addStudent(name, email, courses) {
     const existing = S.students.find(s => s.email.toLowerCase() === email);
     if (existing) {
+      const added = courses.filter(c => !existing.courses.includes(c));
       await updateDoc(doc(db, 'users', existing.uid), { courses: arrayUnion(...courses) });
       existing.courses = [...new Set([...existing.courses, ...courses])];
       courses.forEach(c => existing.progress.has(c) || existing.progress.set(c, new Set()));
-      return 'already had an account, course added.';
+      if (!added.length) return 'already had an account and this course. Nothing changed.';
+      const r = await sendWelcome(existing, added, true);
+      return r.ok ? 'already had an account. Course added and email sent.' : `already had an account. Course added, but the email didn’t send (${r.error})`;
     }
     const sec = getSecondaryAuth();
     const pw = Array.from(crypto.getRandomValues(new Uint8Array(24)), b => (b % 36).toString(36)).join('') + 'A1!';
@@ -1782,10 +1812,14 @@
     const displayName = name || email.split('@')[0];
     await setDoc(doc(db, 'users', uid), { email, uid, fullName: name, displayName, courses, createdAt: serverTimestamp(), invitedAt: serverTimestamp() });
     await setDoc(doc(db, 'profiles', uid), { displayName }).catch(() => {});
-    await sendPasswordResetEmail(auth, email);
-    S.students.push({ uid, email, fullName: name, displayName, courses, progress: new Map(courses.map(c => [c, new Set()])) });
+    const student = { uid, email, fullName: name, displayName, courses, progress: new Map(courses.map(c => [c, new Set()])), progressAt: new Map() };
+    S.students.push(student);
     S.students.sort((a, b) => studentName(a).localeCompare(studentName(b)));
-    return 'account created, password setup email sent.';
+    const r = await sendWelcome(student, courses);
+    if (r.ok) return 'account created, welcome email sent.';
+    // Mailer not reachable: fall back to Firebase's own (1-hour) password email
+    await sendPasswordLink(email).catch(() => {});
+    return `account created. The welcome email didn’t send (${r.error}), so Firebase’s password email was sent instead. It expires after 1 hour.`;
   }
 
   function exportCsv() {
