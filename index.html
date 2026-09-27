@@ -555,7 +555,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, updateProfile, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, updateProfile, createUserWithEmailAndPassword, verifyPasswordResetCode, confirmPasswordReset, applyActionCode } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, getDocs, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
   // ================= SETTINGS =================
@@ -886,6 +886,9 @@
     S.unsubs.forEach(u => { try { u(); } catch {} }); S.unsubs = [];
     if (S.privUnsub) { S.privUnsub(); S.privUnsub = null; }
     window.scrollTo(0, 0);
+    // Links from Firebase emails (password setup/reset) arrive as ?mode=...&oobCode=...
+    const qp = new URLSearchParams(location.search);
+    if (qp.get('mode') && qp.get('oobCode')) { $('#shell').hidden = true; boot(false); return renderAction(qp.get('mode'), qp.get('oobCode')); }
     const vm = location.hash.match(/^#\/verify\/(.+)$/);
     if (vm) { $('#shell').hidden = true; boot(false); return renderVerify(decodeURIComponent(vm[1])); }
     if (!S.user) {
@@ -932,6 +935,18 @@
       if (/continue-uri|unauthorized-domain/.test(err.code || '')) return sendPasswordResetEmail(auth, email);
       throw err;
     }
+  }
+
+  // Stops students requesting several links in a row (each new link cancels the last)
+  function cooldown(btn, secs) {
+    const label = btn.dataset.label || btn.textContent; btn.dataset.label = label;
+    btn.disabled = true;
+    const tick = () => {
+      if (!btn.isConnected) return;
+      if (secs <= 0) { btn.disabled = false; btn.textContent = 'Send another link'; return; }
+      btn.textContent = `Send another link in ${secs--}s`; setTimeout(tick, 1000);
+    };
+    tick();
   }
 
   function renderLogin(mode = 'signIn', prefill = '') {
@@ -990,7 +1005,9 @@
         if (reset) {
           await sendPasswordLink(email);
           msg.className = 'form-msg is-ok';
-          msg.textContent = 'If that email is enrolled, a link is on its way. Open it within 1 hour (check spam too). If it expires, just request a new one here.';
+          msg.textContent = 'Check your inbox (and spam) for an email from First Tech Hub Solutions. Open the NEWEST one within 1 hour: sending another link cancels the earlier ones.';
+          cooldown(btn, 60);
+          return;
         } else {
           await signInWithEmailAndPassword(auth, email, form.password.value);
         }
@@ -999,9 +1016,100 @@
         msg.textContent = reset && err.code === 'auth/user-not-found'
           ? 'If that email is enrolled, a link is on its way. Open it within 1 hour.'
           : (AUTH_ERRORS[err.code] || 'Something went wrong. Try again in a moment.');
-      } finally { btn.disabled = false; }
+      }
+      btn.disabled = false;
     });
     (prefill && form.password ? form.password : form.email).focus();
+  }
+
+
+  // ================= PASSWORD SETUP / RESET PAGE (from the Firebase email link) =================
+  function actionShell(inner) {
+    $('#auth-root').innerHTML = `
+      <section class="auth">
+        <div class="auth-panel">
+          <img class="logo" src="IMG/fth-logo-light.png" alt="First Tech Hub Solutions">
+          <div><h1 class="auth-hero">Empower. Learn. <em>Grow.</em></h1>
+            <p class="lede">Choose a password to open your First Tech Hub Solutions courses.</p></div>
+          <span></span>
+        </div>
+        <div class="auth-form-wrap"><div class="auth-form">
+          <img class="m-logo" src="IMG/fth-logo.png" alt="First Tech Hub Solutions">
+          ${inner}
+        </div></div>
+      </section>`;
+  }
+  const leaveAction = (hash = '#/') => history.replaceState(null, '', location.pathname + hash);
+
+  function actionProblem(title, text, email = '') {
+    actionShell(`
+      <div><h2>${esc(title)}</h2><p class="muted" style="margin-top:.4rem">${text}</p></div>
+      <form id="again-form" class="auth-form" novalidate style="gap:1rem">
+        <label class="field"><span>Email address</span><input type="email" name="email" value="${esc(email)}" autocomplete="email" placeholder="you@example.com" required></label>
+        <p id="again-msg" class="form-msg" role="status"></p>
+        <button class="btn btn-primary btn-block" type="submit" style="min-height:50px">Email me a new link</button>
+      </form>
+      <button type="button" class="linkish" id="to-signin">Back to sign in</button>`);
+    $('#to-signin').addEventListener('click', () => { leaveAction(); route(); });
+    const f = $('#again-form'), m = $('#again-msg');
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const em = f.email.value.trim(); if (!em) { m.className = 'form-msg is-error'; m.textContent = 'Enter your email address.'; return; }
+      const b = f.querySelector('button'); b.disabled = true;
+      try { await sendPasswordLink(em); m.className = 'form-msg is-ok'; m.textContent = 'Sent. Open the newest email from First Tech Hub Solutions within 1 hour.'; cooldown(b, 60); }
+      catch (err) { m.className = 'form-msg is-error'; m.textContent = err.code === 'auth/user-not-found' ? 'Sent, if that email is enrolled. Open the newest email within 1 hour.' : (AUTH_ERRORS[err.code] || 'That didn’t work. Try again in a moment.'); b.disabled = false; }
+    });
+  }
+
+  async function renderAction(mode, code) {
+    actionShell('<div class="spinner" style="margin:40px auto"></div>');
+    if (mode === 'verifyEmail' || mode === 'recoverEmail') {
+      try { await applyActionCode(auth, code); actionShell(`<div><h2>All done</h2><p class="muted" style="margin-top:.4rem">Your email address has been confirmed.</p></div><a class="btn btn-primary btn-block" href="${location.pathname}#/">Go to sign in</a>`); }
+      catch { actionShell(`<div><h2>This link doesn’t work any more</h2><p class="muted" style="margin-top:.4rem">It may have been used already. Sign in, or email <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a> for help.</p></div><a class="btn btn-primary btn-block" href="${location.pathname}#/">Go to sign in</a>`); }
+      leaveAction(); return;
+    }
+    if (mode !== 'resetPassword') { leaveAction(); return route(); }
+    let email;
+    try { email = await verifyPasswordResetCode(auth, code); }
+    catch (err) {
+      console.warn('reset code', err.code);
+      if (err.code === 'auth/expired-action-code') return actionProblem('This link has expired', 'Password links work for 1 hour after they’re sent. Get a new one below and open it straight away.');
+      if (err.code === 'auth/invalid-action-code') return actionProblem('This link has already been used or replaced', 'Each link works once, and sending a new link cancels the older ones. Open the <strong>most recent</strong> email from First Tech Hub Solutions, or get a fresh link below.');
+      if (err.code === 'auth/user-disabled') return actionProblem('This account is switched off', `Email <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a> for help.`);
+      return actionProblem('We couldn’t open this link', 'Check your connection and try the link again, or get a new one below.');
+    }
+    actionShell(`
+      <div><h2>Choose your password</h2><p class="muted" style="margin-top:.4rem">For <strong>${esc(email)}</strong>. You’ll use it to sign in to the LMS.</p></div>
+      <form id="pw-form" class="auth-form" novalidate style="gap:1rem">
+        <label class="field"><span>New password <span class="hint">At least 8 characters</span></span>
+          <div class="pw-wrap"><input type="password" name="pw" autocomplete="new-password" minlength="8" required><button type="button" class="pw-toggle" aria-pressed="false">Show</button></div></label>
+        <label class="field"><span>Type it again</span><input type="password" name="pw2" autocomplete="new-password" required></label>
+        <p id="pw-msg" class="form-msg" role="alert"></p>
+        <button class="btn btn-primary btn-block" type="submit" style="min-height:50px">Save password and sign in</button>
+      </form>`);
+    const f = $('#pw-form'), m = $('#pw-msg');
+    $('.pw-toggle', f).addEventListener('click', (e) => { const show = f.pw.type === 'password'; f.pw.type = f.pw2.type = show ? 'text' : 'password'; e.currentTarget.textContent = show ? 'Hide' : 'Show'; e.currentTarget.setAttribute('aria-pressed', String(show)); });
+    f.pw.focus();
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault(); m.className = 'form-msg is-error';
+      const pw = f.pw.value;
+      if (pw.length < 8) { m.textContent = 'Use at least 8 characters.'; return; }
+      if (pw !== f.pw2.value) { m.textContent = 'The two passwords don’t match.'; return; }
+      const b = f.querySelector('button'); b.disabled = true; m.className = 'form-msg'; m.textContent = 'Saving…';
+      try {
+        await confirmPasswordReset(auth, code, pw);
+      } catch (err) {
+        b.disabled = false; m.className = 'form-msg is-error';
+        if (err.code === 'auth/weak-password') { m.textContent = 'That password is too weak. Try a longer one.'; return; }
+        if (err.code === 'auth/expired-action-code') return actionProblem('This link has expired', 'Password links work for 1 hour. Get a new one below.', email);
+        if (err.code === 'auth/invalid-action-code') return actionProblem('This link has already been used or replaced', 'Open the most recent email, or get a fresh link below.', email);
+        m.textContent = AUTH_ERRORS[err.code] || 'Your password didn’t save. Try again.'; return;
+      }
+      leaveAction();
+      m.className = 'form-msg is-ok'; m.textContent = 'Password saved. Signing you in…';
+      try { if (S.user && S.user.email !== email) await signOut(auth); await signInWithEmailAndPassword(auth, email, pw); if (S.user?.email === email) route(); }
+      catch { toast('Password saved. Sign in with your new password.'); route(); }
+    });
   }
 
   // ================= STUDENT DASHBOARD =================
