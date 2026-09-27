@@ -1749,7 +1749,7 @@
     const { el } = openModal({
       title: 'Add students',
       body: `
-        <p class="small muted" style="margin-top:-.4rem">Each student gets a welcome email from First Tech Hub with a link to set up their password. The link doesn’t expire. Students who already have an account get an email about their new course.</p>
+        <p class="small muted" style="margin-top:-.4rem">Each student gets a welcome email from First Tech Hub Solutions with a link to set up their password. The link doesn’t expire. Students who already have an account get an email about their new course.</p>
         <label class="field"><span>Students <span class="hint">One per line: full name, email address</span></span>
           <textarea id="as-lines" rows="6" placeholder="Ada Okafor, ada@example.com&#10;Tunde Bello, tunde@example.com"></textarea></label>
         ${courseChecks(S.studentCourse ? [S.studentCourse] : [])}
@@ -2532,7 +2532,9 @@
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1500);
   }
-  const certFileName = (c) => `First-Tech-Hub-Certificate-${slugify(c.course || 'course')}.pdf`;
+  // e.g. "Ada-Obi-FTHS-Master-Google-Workspace.pdf"
+  const filePart = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50);
+  const certFileName = (c) => `${[filePart(c.name), 'FTHS', filePart(c.course)].filter(Boolean).join('-')}.pdf`;
   async function downloadCertificate(c, btn) {
     if (btn) btn.disabled = true;
     try { downloadBytes(await certificatePdf(c), certFileName(c)); }
