@@ -517,6 +517,18 @@
     .verify-meta dd { margin: 0; font-weight: 700; font-family: var(--head); }
     .verify-img { width: 100%; border-radius: 12px; box-shadow: 0 16px 36px -18px rgba(28,18,11,.5); background: #f4efe8; aspect-ratio: 1448 / 1086; }
 
+
+    .selbox { width: 18px; height: 18px; accent-color: var(--choc); cursor: pointer; }
+    tr.is-sel td { background: #fbf6f0; }
+    .bulkbar { position: sticky; top: 12px; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; background: var(--night); color: #fff; border-radius: 14px; padding: 10px 12px 10px 18px; margin-bottom: 12px; box-shadow: var(--shadow); }
+    .bulkbar .btn-outline { background: transparent; color: #fff; border-color: rgba(255,255,255,.3); }
+    .bulkbar .btn-quiet { color: #d9cbbd; }
+    .bulkbar .btn-quiet:hover { background: rgba(255,255,255,.08); }
+
+    .cert-pick .pick { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .as-row.cert-pick { grid-template-columns: 74px minmax(0,1fr) auto; }
+    @media (max-width: 640px) { .as-row.cert-pick { grid-template-columns: 74px minmax(0,1fr); } }
+    .as-row.is-sel { border-color: var(--gold); background: #fffaf2; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
   </style>
 </head>
@@ -760,7 +772,7 @@
     courses: new Map(), progress: new Map(), students: null,
     draft: null, draftId: null, draftDirty: false,
     unsubs: [], studentFilter: '', studentCourse: null,
-    assess: new Map(), subs: new Map(), adminSubs: new Map(), certs: new Map(), certTab: null, certFilter: '', adraft: null, adraftId: null, asTab: 'todo', asCourse: 'all', privUnsub: null,
+    assess: new Map(), subs: new Map(), adminSubs: new Map(), certs: new Map(), certTab: null, certFilter: '', certSel: new Set(), removedStudents: [], stView: 'active', stSel: new Set(), adraft: null, adraftId: null, asTab: 'todo', asCourse: 'all', privUnsub: null,
   };
   const nameCache = new Map();
   const myName = () => S.profile?.displayName || S.profile?.fullName || S.user?.displayName || (S.user?.email || '').split('@')[0] || 'Student';
@@ -1453,8 +1465,11 @@
   async function ensureStudents(force = false) {
     if (S.students && !force) return S.students;
     const snap = await getDocs(collection(db, 'users'));
-    const list = snap.docs.map(d => ({ uid: d.id, ...d.data() }))
-      .filter(u => u.email && !ADMIN_EMAILS.includes(String(u.email).toLowerCase()))
+    const everyone = snap.docs.map(d => ({ uid: d.id, ...d.data() }))
+      .filter(u => u.email && !ADMIN_EMAILS.includes(String(u.email).toLowerCase()));
+    S.removedStudents = everyone.filter(u => u.removed).map(u => ({ ...u, courses: [], progress: new Map(), progressAt: new Map() }))
+      .sort((a, b) => (a.displayName || a.fullName || a.email).localeCompare(b.displayName || b.fullName || b.email));
+    const list = everyone.filter(u => !u.removed)
       .map(u => ({ ...u, courses: Array.isArray(u.courses) ? u.courses : [], progress: new Map(), progressAt: new Map() }));
     await Promise.all(list.map(u => Promise.all(u.courses.filter(cid => S.courses.has(cid)).map(async (cid) => {
       try { const p = await getDoc(progressRef(u.uid, cid)); u.progress.set(cid, new Set(p.exists() ? (p.data().completedSessions || []) : [])); if (p.exists() && p.data().updatedAt) u.progressAt.set(cid, tsDate(p.data().updatedAt)); }
@@ -1739,7 +1754,7 @@
   // ================= ADMIN: STUDENTS =================
   async function renderStudents() {
     adminLoading();
-    try { await ensureStudents(); } catch (e) { console.error(e); appEl.innerHTML = `<div class="page"><div class="empty"><h2>Students didn’t load</h2><p>Check that the new Firestore rules are published, then refresh.</p></div></div>`; return; }
+    try { await ensureStudents(); await loadAllCerts().catch(() => {}); } catch (e) { console.error(e); appEl.innerHTML = `<div class="page"><div class="empty"><h2>Students didn’t load</h2><p>Check that the new Firestore rules are published, then refresh.</p></div></div>`; return; }
     const courses = sortedCourses();
     if (!S.studentCourse || !S.courses.has(S.studentCourse)) S.studentCourse = courses[0]?.id || null;
     appEl.innerHTML = `
@@ -1756,29 +1771,53 @@
           <select class="input" id="st-course" aria-label="Show progress for course">
             ${courses.map(c => `<option value="${esc(c.id)}" ${c.id === S.studentCourse ? 'selected' : ''}>Progress in ${esc(c.title)}</option>`).join('')}
           </select>
+          <select class="input" id="st-view" aria-label="Which students" style="flex:0 1 220px">
+            <option value="active" ${S.stView === 'active' ? 'selected' : ''}>Current students</option>
+            <option value="removed" ${S.stView === 'removed' ? 'selected' : ''}>Removed from LMS (${S.removedStudents.length})</option>
+          </select>
+        </div>
+        <div class="bulkbar" id="bulkbar" hidden>
+          <strong id="bulk-count"></strong>
+          <div class="row wrap" style="gap:8px">
+            <button class="btn btn-outline btn-sm" id="bulk-course">Remove from ${esc(S.courses.get(S.studentCourse)?.title || 'course')}</button>
+            <button class="btn btn-danger btn-sm" id="bulk-delete">Remove from LMS</button>
+            <button class="btn btn-quiet btn-sm" id="bulk-clear">Clear selection</button>
+          </div>
         </div>
         <div class="table-wrap"><table>
-          <thead><tr><th>Student</th><th>Registered courses</th><th>Progress</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
+          <thead><tr><th style="width:44px"><input type="checkbox" id="sel-all" aria-label="Select all shown" class="selbox"></th><th>Student</th><th>Registered courses</th><th>Progress</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
           <tbody id="st-body"></tbody>
         </table></div>
       </div>`;
     paintStudentRows();
     $('#st-search').addEventListener('input', (e) => { S.studentFilter = e.target.value; paintStudentRows(); });
-    $('#st-course').addEventListener('change', (e) => { S.studentCourse = e.target.value; paintStudentRows(); });
+    $('#st-course').addEventListener('change', (e) => { S.studentCourse = e.target.value; renderStudents(); });
+    $('#st-view').addEventListener('change', (e) => { S.stView = e.target.value; S.stSel.clear(); renderStudents(); });
+    $('#sel-all').addEventListener('change', (e) => { filteredStudents().forEach(s => e.target.checked ? S.stSel.add(s.uid) : S.stSel.delete(s.uid)); paintStudentRows(); });
+    $('#bulk-clear').addEventListener('click', () => { S.stSel.clear(); paintStudentRows(); });
+    $('#bulk-course').addEventListener('click', () => removeFromCourse([...S.stSel].map(findStudent).filter(Boolean), S.studentCourse));
+    $('#bulk-delete').addEventListener('click', () => removeFromLms([...S.stSel].map(findStudent).filter(Boolean)));
     $('#add-btn').addEventListener('click', openAddStudents);
     $('#export-btn').addEventListener('click', exportCsv);
   }
 
+  const findStudent = (uid) => S.students.find(s => s.uid === uid) || S.removedStudents.find(s => s.uid === uid);
   function filteredStudents() {
     const q = S.studentFilter.toLowerCase().trim();
-    return S.students.filter(s => !q || s.email.toLowerCase().includes(q) || studentName(s).toLowerCase().includes(q));
+    const pool = S.stView === 'removed' ? S.removedStudents : S.students;
+    return pool.filter(s => !q || s.email.toLowerCase().includes(q) || studentName(s).toLowerCase().includes(q));
   }
 
   function paintStudentRows() {
     const body = $('#st-body'); if (!body) return;
     const rows = filteredStudents();
     const course = S.courses.get(S.studentCourse);
-    if (!rows.length) { body.innerHTML = `<tr><td colspan="4" class="muted" style="text-align:center;padding:36px">${S.students.length ? 'No students match that search.' : 'No students yet. Use “Add students” to invite your first learners.'}</td></tr>`; return; }
+    const removedView = S.stView === 'removed';
+    [...S.stSel].forEach(uid => { if (!rows.some(r => r.uid === uid)) S.stSel.delete(uid); });
+    const bar = $('#bulkbar'), all = $('#sel-all');
+    if (bar) { bar.hidden = removedView || !S.stSel.size; $('#bulk-count').textContent = `${plural(S.stSel.size, 'student')} selected`; }
+    if (all) { all.hidden = removedView; all.checked = rows.length > 0 && rows.every(r => S.stSel.has(r.uid)); all.indeterminate = !all.checked && rows.some(r => S.stSel.has(r.uid)); }
+    if (!rows.length) { body.innerHTML = `<tr><td colspan="5" class="muted" style="text-align:center;padding:36px">${removedView ? 'Nobody has been removed from the LMS.' : S.students.length ? 'No students match that search.' : 'No students yet. Use “Add students” to invite your first learners.'}</td></tr>`; return; }
     body.innerHTML = rows.map(s => {
       const chips = s.courses.filter(id => S.courses.has(id)).map(id => `<span class="chip">${esc(S.courses.get(id).title)}</span>`).join('') || '<span class="small muted">None yet</span>';
       let prog = '<span class="small muted">Not registered</span>';
@@ -1786,7 +1825,14 @@
         const st = courseStats(course, s.progress.get(course.id));
         prog = `<div class="prog-cell"><div class="pbar"><span style="width:${st.pct}%"></span></div><button data-detail="${esc(s.uid)}" aria-expanded="false">${st.done}/${st.total}</button></div>`;
       }
-      return `<tr data-uid="${esc(s.uid)}">
+      if (removedView) return `<tr data-uid="${esc(s.uid)}">
+        <td></td>
+        <td><div class="who-cell"><span class="avatar sm plain">${esc(initials(studentName(s)))}</span><div style="min-width:0"><strong>${esc(studentName(s))}</strong><span>${esc(s.email)}</span></div></div></td>
+        <td colspan="2"><span class="small muted">Removed ${esc(fmtTs(s.removedAt))}. No course access.</span></td>
+        <td style="text-align:right"><button class="btn btn-outline btn-sm" data-restore="${esc(s.uid)}">Restore</button></td>
+      </tr>`;
+      return `<tr data-uid="${esc(s.uid)}" ${S.stSel.has(s.uid) ? 'class="is-sel"' : ''}>
+        <td><input type="checkbox" class="selbox" data-sel="${esc(s.uid)}" ${S.stSel.has(s.uid) ? 'checked' : ''} aria-label="Select ${esc(studentName(s))}"></td>
         <td><div class="who-cell"><span class="avatar sm plain">${esc(initials(studentName(s)))}</span><div style="min-width:0"><strong>${esc(studentName(s))}</strong><span>${esc(s.email)}</span></div></div></td>
         <td><div class="chips">${chips}</div></td>
         <td>${prog}</td>
@@ -1794,6 +1840,8 @@
       </tr>`;
     }).join('');
     $$('[data-manage]', body).forEach(b => b.addEventListener('click', () => openManageStudent(S.students.find(s => s.uid === b.dataset.manage))));
+    $$('[data-sel]', body).forEach(b => b.addEventListener('change', () => { b.checked ? S.stSel.add(b.dataset.sel) : S.stSel.delete(b.dataset.sel); paintStudentRows(); }));
+    $$('[data-restore]', body).forEach(b => b.addEventListener('click', () => restoreStudent(findStudent(b.dataset.restore))));
     $$('[data-detail]', body).forEach(b => b.addEventListener('click', () => {
       const tr = b.closest('tr'), nx = tr.nextElementSibling;
       if (nx?.classList.contains('detail-row')) { nx.remove(); b.setAttribute('aria-expanded', 'false'); return; }
@@ -1801,7 +1849,7 @@
       const s = S.students.find(x => x.uid === b.dataset.detail), done = s.progress.get(course.id) || new Set();
       const titles = sessionsOf(course).filter(x => done.has(x.s.id)).map(x => `<li>Session ${x.n}: ${esc(x.s.title)}</li>`);
       const row = document.createElement('tr'); row.className = 'detail-row';
-      row.innerHTML = `<td colspan="4"><strong>Completed in ${esc(course.title)}</strong>${titles.length ? `<ul>${titles.join('')}</ul>` : '<p class="small muted" style="margin-top:.3rem">Nothing completed yet.</p>'}</td>`;
+      row.innerHTML = `<td colspan="5"><strong>Completed in ${esc(course.title)}</strong>${titles.length ? `<ul>${titles.join('')}</ul>` : '<p class="small muted" style="margin-top:.3rem">Nothing completed yet.</p>'}</td>`;
       tr.after(row); b.setAttribute('aria-expanded', 'true');
     }));
   }
@@ -1816,14 +1864,16 @@
       title: studentName(s),
       body: `<p class="small muted" style="margin-top:-.4rem">${esc(s.email)}</p>
         ${courseChecks(s.courses)}
+        <p class="small muted" style="margin-top:-.4rem">Untick a course and save to remove ${esc(studentName(s).split(' ')[0])} from it. Their progress is kept in case you add them back.</p>
         <div class="panel" style="padding:14px;gap:8px;background:#fbfaf8;border-radius:14px">
           <strong>Can’t sign in?</strong>
           <p class="small muted">The welcome email links to the password setup page, and never expires. A password link works for 1 hour only.</p>
           <div class="row wrap" style="gap:8px"><button class="btn btn-outline btn-sm" id="ms-welcome">Resend welcome email</button><button class="btn btn-quiet btn-sm" id="ms-reset">Send password link</button></div>
         </div>
         <p class="form-msg" id="ms-msg"></p>`,
-      foot: `<button class="btn btn-quiet" data-close>Cancel</button><button class="btn btn-primary" id="ms-save">Save courses</button>`
+      foot: `<button class="btn btn-danger" id="ms-delete" style="margin-right:auto">Remove from LMS</button><button class="btn btn-quiet" data-close>Cancel</button><button class="btn btn-primary" id="ms-save">Save courses</button>`
     });
+    $('#ms-delete', el).addEventListener('click', () => { close(); removeFromLms([s]); });
     $('#ms-reset', el).addEventListener('click', async (e) => {
       const btn = e.currentTarget; btn.disabled = true;
       try { await sendPasswordLink(s.email); $('#ms-msg').className = 'form-msg is-ok'; $('#ms-msg').textContent = `Password link sent to ${s.email}. It works for 1 hour.`; }
@@ -1842,6 +1892,8 @@
       const keep = s.courses.filter(id => !S.courses.has(id));
       const next = [...new Set([...keep, ...chosen])];
       btn.disabled = true;
+      const dropped = s.courses.filter(id => S.courses.has(id) && !next.includes(id));
+      if (dropped.length && !confirm(`Remove ${studentName(s)} from ${dropped.map(id => S.courses.get(id).title).join(' and ')}? They’ll lose access straight away.`)) return;
       try {
         await updateDoc(doc(db, 'users', s.uid), { courses: next });
         s.courses = next;
@@ -1888,6 +1940,99 @@
     });
   }
 
+
+  // ---------- Removing and restoring students ----------
+  async function removeFromCourse(list, courseId) {
+    const course = S.courses.get(courseId);
+    list = list.filter(s => s.courses.includes(courseId));
+    if (!course || !list.length) { toast('None of the selected students are in that course.', 'error'); return; }
+    const { el, close } = openModal({
+      title: `Remove from ${course.title}?`,
+      body: `<p>${list.length === 1 ? `<strong>${esc(studentName(list[0]))}</strong>` : `<strong>${list.length} students</strong>`} will lose access to ${esc(course.title)} straight away. They stay in the LMS for any other courses.</p>
+        <p class="small muted">Their progress, assessment work and any certificate are kept, so adding them back later picks up where they left off.</p>
+        <p class="form-msg" id="rc-msg"></p>`,
+      foot: `<button class="btn btn-quiet" data-close>Cancel</button><button class="btn btn-danger" id="rc-go">Remove from course</button>`
+    });
+    $('#rc-go', el).addEventListener('click', async (e) => {
+      e.currentTarget.disabled = true;
+      let done = 0;
+      for (const s of list) {
+        try { await updateDoc(doc(db, 'users', s.uid), { courses: arrayRemove(courseId) }); s.courses = s.courses.filter(c => c !== courseId); done++; }
+        catch (err) { console.error(err); }
+      }
+      close(); S.stSel.clear();
+      toast(done === list.length ? `${plural(done, 'student')} removed from ${course.title}` : `${done} of ${list.length} removed. Try the rest again.`, done === list.length ? 'ok' : 'error');
+      renderStudents();
+    });
+  }
+
+  async function removeFromLms(list) {
+    if (!list.length) return;
+    const one = list.length === 1;
+    const { el, close } = openModal({
+      title: one ? `Remove ${studentName(list[0])} from the LMS?` : `Remove ${list.length} students from the LMS?`,
+      body: `<p>${one ? 'They' : 'These students'} will lose access to every course and disappear from your student list, assessments and certificate lists.</p>
+        <ul class="small" style="margin:0;padding-left:1.2rem;display:grid;gap:4px">
+          <li>Certificates already issued stay valid on the verification site. Revoke them separately if needed.</li>
+          <li>Their progress and assessment work are kept, so you can <strong>Restore</strong> them later from “Removed from LMS”.</li>
+          <li>Their login still exists, but it opens an empty dashboard. Adding the same email again brings them back.</li>
+        </ul>
+        <label class="field"><span>Type REMOVE to confirm</span><input id="rl-confirm" autocomplete="off"></label>
+        <p class="form-msg" id="rl-msg"></p>`,
+      foot: `<button class="btn btn-quiet" data-close>Cancel</button><button class="btn btn-danger" id="rl-go" disabled>Remove from LMS</button>`
+    });
+    const inp = $('#rl-confirm', el), go = $('#rl-go', el);
+    inp.addEventListener('input', () => go.disabled = inp.value.trim().toUpperCase() !== 'REMOVE');
+    go.addEventListener('click', async () => {
+      go.disabled = true;
+      let done = 0;
+      for (const s of list) {
+        try {
+          await updateDoc(doc(db, 'users', s.uid), { removed: true, removedAt: serverTimestamp(), previousCourses: s.courses, courses: [] });
+          S.students = S.students.filter(x => x.uid !== s.uid);
+          S.removedStudents.push({ ...s, removed: true, removedAt: new Date(), previousCourses: s.courses, courses: [] });
+          done++;
+        } catch (err) { console.error(err); }
+      }
+      close(); S.stSel.clear(); paintSide();
+      toast(done === list.length ? `${plural(done, 'student')} removed from the LMS` : `${done} of ${list.length} removed. Try the rest again.`, done === list.length ? 'ok' : 'error');
+      renderStudents();
+    });
+  }
+
+  function restoreStudent(s) {
+    const prev = (s.previousCourses || []).filter(id => S.courses.has(id));
+    const { el, close } = openModal({
+      title: `Restore ${studentName(s)}`,
+      body: `<p class="small muted" style="margin-top:-.4rem">${esc(s.email)}. Choose the courses to give back. Their earlier progress is still there.</p>
+        ${courseChecks(prev)}
+        <label class="check"><input type="checkbox" id="rs-mail" checked><span>Email them a welcome with a password setup link</span></label>
+        <p class="form-msg" id="rs-msg"></p>`,
+      foot: `<button class="btn btn-quiet" data-close>Cancel</button><button class="btn btn-primary" id="rs-go">Restore</button>`
+    });
+    $('#rs-go', el).addEventListener('click', async (e) => {
+      const courses = $$('input[name=course]:checked', el).map(i => i.value);
+      if (!courses.length) { $('#rs-msg').className = 'form-msg is-error'; $('#rs-msg').textContent = 'Choose at least one course.'; return; }
+      e.currentTarget.disabled = true;
+      try {
+        await reactivate(s, courses);
+        if ($('#rs-mail').checked) { const r = await sendWelcome(s, courses); if (!r.ok) toast(`Restored, but the email didn’t send: ${r.error}`, 'error'); }
+        close(); toast(`${studentName(s)} restored`); S.stView = 'active'; renderStudents();
+      } catch (err) { console.error(err); e.currentTarget.disabled = false; $('#rs-msg').className = 'form-msg is-error'; $('#rs-msg').textContent = 'That didn’t save. Try again.'; }
+    });
+  }
+
+  async function reactivate(s, courses) {
+    await updateDoc(doc(db, 'users', s.uid), { removed: false, courses, restoredAt: serverTimestamp() });
+    S.removedStudents = S.removedStudents.filter(x => x.uid !== s.uid);
+    const back = { ...s, removed: false, courses, progress: new Map(), progressAt: new Map() };
+    await Promise.all(courses.map(async cid => {
+      try { const p = await getDoc(progressRef(s.uid, cid)); back.progress.set(cid, new Set(p.exists() ? (p.data().completedSessions || []) : [])); } catch { back.progress.set(cid, new Set()); }
+    }));
+    S.students.push(back); S.students.sort((a, b) => studentName(a).localeCompare(studentName(b)));
+    return back;
+  }
+
   // Branded welcome email. Its link opens the LMS "Set up your password" page, so it never expires.
   function sendWelcome(s, courseIds, existing = false) {
     const titles = courseIds.map(id => S.courses.get(id)?.title).filter(Boolean);
@@ -1896,6 +2041,12 @@
   }
 
   async function addStudent(name, email, courses) {
+    const gone = S.removedStudents.find(s => s.email.toLowerCase() === email);
+    if (gone) {
+      const back = await reactivate(gone, courses);
+      const r = await sendWelcome(back, courses);
+      return r.ok ? 'was removed earlier; restored with this course and emailed.' : `was removed earlier; restored, but the email didn’t send (${r.error})`;
+    }
     const existing = S.students.find(s => s.email.toLowerCase() === email);
     if (existing) {
       const added = courses.filter(c => !existing.courses.includes(c));
@@ -2672,7 +2823,8 @@
     const rows = [];
     (S.students || []).forEach(s => s.courses.filter(cid => S.courses.has(cid)).forEach(cid => {
       const c = S.courses.get(cid);
-      rows.push({ s, c, st: completionOf(s, c), cert: certFor(s.uid, cid) });
+      const manual = (s.certsReceived || []).includes(cid) ? { manual: true, isMark: true, uid: s.uid, courseId: cid, name: studentName(s), course: c.title, markedAt: s.certsMarkedAt?.[cid] } : null;
+      rows.push({ s, c, st: completionOf(s, c), cert: certFor(s.uid, cid) || manual });
     }));
     return rows;
   }
@@ -2693,7 +2845,8 @@
     const groups = {
       ready: rows.filter(r => r.st.ready && !r.cert).sort((a, b) => (b.st.lastAt?.getTime() || 0) - (a.st.lastAt?.getTime() || 0)),
       progress: rows.filter(r => !r.st.ready && !r.cert).sort((a, b) => (b.st.sessDone / (b.st.sessTotal || 1)) - (a.st.sessDone / (a.st.sessTotal || 1))),
-      issued: [...S.certs.values()].sort((a, b) => (tsDate(b.issuedAt)?.getTime() || 0) - (tsDate(a.issuedAt)?.getTime() || 0)),
+      issued: [...[...S.certs.values()].sort((a, b) => (tsDate(b.issuedAt || b.importedAt)?.getTime() || 0) - (tsDate(a.issuedAt || a.importedAt)?.getTime() || 0)),
+               ...rows.filter(r => r.cert?.isMark).map(r => r.cert)],
     };
     const labels = { ready: 'Ready for certificate', progress: 'Still in progress', issued: 'Issued' };
     if (!groups[S.certTab]) S.certTab = groups.ready.length ? 'ready' : 'issued';
@@ -2702,8 +2855,18 @@
     const tab = S.certTab;
     let list = '';
     if (tab === 'issued') {
-      const items = groups.issued.filter(c => match(c.name, S.students?.find(s => s.uid === c.uid)?.email || '', `${c.course} ${c.id}`));
-      list = items.map(c => `
+      const items = groups.issued.filter(c => match(c.name, S.students?.find(s => s.uid === c.uid)?.email || '', `${c.course} ${c.id || ''}`));
+      list = items.map(c => c.isMark ? `
+        <div class="as-row" style="--c:${esc(S.courses.get(c.courseId)?.accent || ACCENTS[0])}">
+          <span class="as-ic">${I.award}</span>
+          <div style="min-width:0">
+            <div class="row wrap" style="gap:8px"><strong>${esc(c.name)}</strong><span class="chip">Marked as received</span></div>
+            <span class="sub">${esc(c.course)}. Received their certificate outside the LMS; no certificate ID recorded.</span></div>
+          <div class="right"><div class="acts">
+            <button class="btn btn-quiet btn-sm" data-unmark="${esc(certKey(c.uid, c.courseId))}">Undo</button>
+            <button class="btn btn-outline btn-sm" data-link="${esc(certKey(c.uid, c.courseId))}">Add certificate ID</button>
+          </div></div>
+        </div>` : `
         <div class="as-row" style="--c:${esc(S.courses.get(c.courseId)?.accent || ACCENTS[0])}">
           <span class="as-ic">${I.award}</span>
           <div style="min-width:0">
@@ -2717,12 +2880,15 @@
         </div>`).join('');
     } else {
       const items = groups[tab].filter(r => match(studentName(r.s), r.s.email, r.c.title));
+      const keysShown = items.map(r => certKey(r.s.uid, r.c.id));
+      [...S.certSel].forEach(k => { if (!keysShown.includes(k)) S.certSel.delete(k); });
       list = items.map(r => `
-        <div class="as-row" style="--c:${esc(r.c.accent || ACCENTS[0])}">
-          <span class="avatar plain">${esc(initials(studentName(r.s)))}</span>
+        <div class="as-row cert-pick ${S.certSel.has(certKey(r.s.uid, r.c.id)) ? 'is-sel' : ''}" style="--c:${esc(r.c.accent || ACCENTS[0])}">
+          <label class="pick"><input type="checkbox" class="selbox" data-csel="${esc(certKey(r.s.uid, r.c.id))}" ${S.certSel.has(certKey(r.s.uid, r.c.id)) ? 'checked' : ''} aria-label="Select ${esc(studentName(r.s))}"><span class="avatar plain">${esc(initials(studentName(r.s)))}</span></label>
           <div style="min-width:0"><strong>${esc(studentName(r.s))}</strong>
             <span class="sub">${esc(r.c.title)}. ${r.st.sessDone}/${r.st.sessTotal} sessions, ${r.st.asDone}/${r.st.asTotal} assessments turned in${r.st.ready && r.st.lastAt ? `. Finished ${esc(monthYearOf(r.st.lastAt))}` : ''}</span></div>
           <div class="right"><div class="acts">
+            <button class="btn btn-quiet btn-sm" data-received="${esc(certKey(r.s.uid, r.c.id))}">Already received</button>
             <button class="btn ${r.st.ready ? 'btn-primary' : 'btn-outline'} btn-sm" data-prep="${esc(certKey(r.s.uid, r.c.id))}">${r.st.ready ? 'Prepare certificate' : 'Issue anyway'}</button>
           </div></div>
         </div>`).join('');
@@ -2734,7 +2900,10 @@
           <div class="row wrap"><a class="btn btn-outline" href="${esc(VERIFY_SITE)}" target="_blank" rel="noopener">${I.ext} Verification site</a><button class="btn btn-outline" id="cert-import">${I.upload} Import past certificates</button></div>
         </div>
         <div class="tabs" role="tablist">${Object.keys(labels).map(k => `<button role="tab" data-tab="${k}" aria-selected="${k === tab}">${labels[k]}<span class="count">${groups[k].length}</span></button>`).join('')}</div>
-        <div class="toolbar"><input class="input" type="search" id="cert-search" placeholder="Search by name, email or course" value="${esc(S.certFilter || '')}" aria-label="Search"></div>
+        <div class="toolbar"><input class="input" type="search" id="cert-search" placeholder="Search by name, email or course" value="${esc(S.certFilter || '')}" aria-label="Search">
+          ${tab !== 'issued' && list ? `<label class="check" style="align-items:center;flex:none"><input type="checkbox" class="selbox" id="csel-all"><span>Select all shown</span></label>` : ''}</div>
+        ${tab !== 'issued' ? `<div class="bulkbar" id="cert-bulk" ${S.certSel.size ? '' : 'hidden'}><strong>${plural(S.certSel.size, 'student')} selected</strong>
+          <div class="row wrap" style="gap:8px"><button class="btn btn-outline btn-sm" id="cbulk-mark">Mark as already received</button><button class="btn btn-quiet btn-sm" id="cbulk-clear">Clear selection</button></div></div>` : ''}
         ${list ? `<div class="as-rows">${list}</div>` : `<div class="empty"><img src="IMG/fth-mark.png" alt=""><h2>${tab === 'ready' ? 'No one is waiting for a certificate' : tab === 'issued' ? 'No certificates issued yet' : 'Nobody in progress'}</h2><p>${tab === 'ready' ? 'When a student finishes every session and turns in every assessment in a course, they’ll show up here.' : tab === 'issued' ? 'Certificates you send appear here, with their verification links.' : 'Students who are still working through a course appear here.'}</p></div>`}
       </div>`;
     $$('[data-tab]').forEach(b => b.addEventListener('click', () => { S.certTab = b.dataset.tab; renderCertificates(); }));
@@ -2746,6 +2915,21 @@
       openCertEditor({ uid: r.s.uid, courseId: r.c.id, name: r.s.fullName || studentName(r.s), course: r.c.title, date: r.st.lastAt || new Date(), email: r.s.email });
     }));
     $('#cert-import').addEventListener('click', openCertImport);
+    const rowByKey = (k) => rows.find(x => certKey(x.s.uid, x.c.id) === k);
+    $$('[data-csel]').forEach(b => b.addEventListener('change', () => { b.checked ? S.certSel.add(b.dataset.csel) : S.certSel.delete(b.dataset.csel); renderCertificatesKeepScroll(); }));
+    $('#csel-all')?.addEventListener('change', (e) => { $$('[data-csel]').forEach(b => e.target.checked ? S.certSel.add(b.dataset.csel) : S.certSel.delete(b.dataset.csel)); renderCertificatesKeepScroll(); });
+    const allBox = $('#csel-all'); if (allBox) { const boxes = $$('[data-csel]'); allBox.checked = boxes.length && boxes.every(b => b.checked); allBox.indeterminate = !allBox.checked && boxes.some(b => b.checked); }
+    $('#cbulk-clear')?.addEventListener('click', () => { S.certSel.clear(); renderCertificatesKeepScroll(); });
+    $('#cbulk-mark')?.addEventListener('click', () => markReceived([...S.certSel].map(rowByKey).filter(Boolean)));
+    $$('[data-received]').forEach(b => b.addEventListener('click', () => markReceived([rowByKey(b.dataset.received)])));
+    $$('[data-link]').forEach(b => b.addEventListener('click', () => markReceived([rowByKey(b.dataset.link)])));
+    $$('[data-unmark]').forEach(b => b.addEventListener('click', async () => {
+      const r = rowByKey(b.dataset.unmark); if (!r) return;
+      if (!confirm(`Undo “already received” for ${studentName(r.s)} in ${r.c.title}? They’ll go back to the Ready or In progress list.`)) return;
+      b.disabled = true;
+      try { await updateDoc(doc(db, 'users', r.s.uid), { certsReceived: arrayRemove(r.c.id) }); r.s.certsReceived = (r.s.certsReceived || []).filter(x => x !== r.c.id); toast('Undone'); renderCertificatesKeepScroll(); }
+      catch (e) { console.error(e); b.disabled = false; toast('That didn’t save.', 'error'); }
+    }));
     $$('[data-revoke]').forEach(b => b.addEventListener('click', async () => {
       const c = S.certs.get(b.dataset.revoke), revoke = c.status !== 'revoked';
       if (!confirm(revoke ? `Revoke certificate ${c.id} for ${c.name}? The verification site will show it as revoked.` : `Restore certificate ${c.id} for ${c.name}? It will show as valid again.`)) return;
@@ -2759,6 +2943,73 @@
       const mi = MONTHS.indexOf(mName);
       openCertEditor({ existing: c, uid: c.uid, courseId: c.courseId, name: c.name, course: c.course, date: mi >= 0 ? new Date(Number(yr), mi, 1) : new Date(), email: s?.email || '' });
     }));
+  }
+
+
+  async function renderCertificatesKeepScroll() { const y = window.scrollY; await renderCertificates(); window.scrollTo(0, y); }
+
+  // Finds an imported (past) certificate for this student: same course, no account linked yet, same name
+  const normName = (n) => String(n || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z ]/g, ' ').split(/\s+/).filter(Boolean).sort().join(' ');
+  function legacyMatches(r) {
+    const want = normName(r.s.fullName || studentName(r.s)), alt = normName(studentName(r.s));
+    return [...S.certs.values()].filter(c => !c.uid && (!c.courseId || c.courseId === r.c.id) && [want, alt].includes(normName(c.name)));
+  }
+
+  // Record that students already have their certificate, so they leave the Ready / In progress lists.
+  function markReceived(list) {
+    if (!list.length) return;
+    const one = list.length === 1 ? list[0] : null;
+    const plan = list.map(r => ({ r, matches: legacyMatches(r) }));
+    const auto = plan.filter(x => x.matches.length === 1).length;
+    const { el, close } = openModal({
+      title: one ? `${studentName(one.s)} already has a certificate` : `Mark ${list.length} students as already received`,
+      body: one ? `
+        <p class="small muted" style="margin-top:-.4rem">${esc(one.c.title)}. They’ll move to the Issued tab and won’t be offered another certificate.</p>
+        <label class="field"><span>Certificate ID <span class="hint">Optional. The ID printed on the certificate they received</span></span>
+          <input id="mr-id" value="${esc(plan[0].matches[0]?.id || '')}" placeholder="e.g. fthgw250012" autocomplete="off"></label>
+        <p class="small ${plan[0].matches.length ? '' : 'muted'}" id="mr-hint">${plan[0].matches.length ? `Found an imported certificate with the same name: <strong>${esc(plan[0].matches[0].id)}</strong>. It will be linked to ${esc(studentName(one.s).split(' ')[0])}’s account so it shows on their dashboard.` : 'Leave blank if you don’t have the ID. If you enter one that isn’t in the LMS yet, it’s added so the verification site recognises it.'}</p>
+        <div class="field" id="mr-date-wrap"><span>Completed in <span class="hint">Only used for a new ID</span></span>
+          <div class="row" style="gap:8px"><select class="input" id="mr-month" aria-label="Month">${MONTHS.map((m, i) => `<option value="${i}" ${i === new Date().getMonth() ? 'selected' : ''}>${m}</option>`).join('')}</select>
+          <input class="input" id="mr-year" type="number" min="2020" max="2100" value="${new Date().getFullYear()}" style="max-width:110px" aria-label="Year"></div></div>
+        <p class="form-msg" id="mr-msg"></p>` : `
+        <p>These students will move to the Issued tab and won’t be offered another certificate.</p>
+        <ul class="small" style="margin:0;padding-left:1.2rem;display:grid;gap:4px">
+          <li><strong>${auto}</strong> matched an imported certificate by name and will be linked to it (it will show on their dashboard).</li>
+          <li><strong>${list.length - auto}</strong> will be marked as received without a certificate ID. You can add the ID later from the Issued tab.</li>
+        </ul>
+        <p class="form-msg" id="mr-msg"></p>`,
+      foot: `<button class="btn btn-quiet" data-close>Cancel</button><button class="btn btn-primary" id="mr-go">Mark as received</button>`
+    });
+    $('#mr-go', el).addEventListener('click', async (e) => {
+      const btn = e.currentTarget; btn.disabled = true;
+      const msg = $('#mr-msg', el); msg.className = 'form-msg'; msg.textContent = 'Saving…';
+      let done = 0;
+      for (const { r, matches } of plan) {
+        try {
+          const typed = one ? $('#mr-id', el).value.trim() : '';
+          const target = one ? (typed ? S.certs.get(certDocKey(typed)) || null : null) : (matches.length === 1 ? matches[0] : null);
+          if (one && typed && target && target.uid && target.uid !== r.s.uid) { msg.className = 'form-msg is-error'; msg.textContent = `${target.id} already belongs to ${target.name}.`; btn.disabled = false; return; }
+          if (target) {
+            await setDoc(doc(db, 'certificates', target.key), { uid: r.s.uid, courseId: r.c.id, updatedAt: serverTimestamp() }, { merge: true });
+            Object.assign(target, { uid: r.s.uid, courseId: r.c.id });
+          } else if (one && typed) {
+            const key = certDocKey(typed);
+            if (!key) { msg.className = 'form-msg is-error'; msg.textContent = 'That ID has no letters or numbers.'; btn.disabled = false; return; }
+            const data = { id: typed, name: r.s.fullName || studentName(r.s), course: r.c.title, courseId: r.c.id, uid: r.s.uid,
+              monthYear: `${MONTHS[+$('#mr-month', el).value]} ${$('#mr-year', el).value}`, status: 'valid', source: 'legacy', addedByHand: true, importedAt: serverTimestamp() };
+            await setDoc(doc(db, 'certificates', key), data, { merge: true });
+            S.certs.set(key, { ...data, key, importedAt: new Date() });
+          } else {
+            await updateDoc(doc(db, 'users', r.s.uid), { certsReceived: arrayUnion(r.c.id) });
+            r.s.certsReceived = [...new Set([...(r.s.certsReceived || []), r.c.id])];
+          }
+          done++;
+        } catch (err) { console.error(err); }
+      }
+      S.certSel.clear(); close(); paintSide();
+      toast(done === plan.length ? `${plural(done, 'student')} marked as received` : `${done} of ${plan.length} saved. Try the rest again.`, done === plan.length ? 'ok' : 'error');
+      renderCertificatesKeepScroll();
+    });
   }
 
   function openCertEditor({ existing = null, uid, courseId, name, course, date, email }) {
@@ -2833,7 +3084,7 @@
   }
   function certSectionHTML() {
     const mine = [...S.certs.values()].filter(c => c.uid === S.user.uid);
-    const waiting = sortedCourses().filter(c => myCourseFinished(c) && !mine.some(x => x.courseId === c.id));
+    const waiting = sortedCourses().filter(c => myCourseFinished(c) && !mine.some(x => x.courseId === c.id) && !(S.profile?.certsReceived || []).includes(c.id));
     if (!mine.length && !waiting.length) return '';
     return `
       <div class="section-head"><h2>Certificates</h2></div>
